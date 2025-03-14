@@ -68,9 +68,10 @@
         <!-- Products List -->
         <div class="scrollable-container">
           <div class="products-container">
-            <div
+            <router-link
                 v-for="(product, index) in filteredProducts"
                 :key="product._id"
+                :to="{ name: 'details', params: { id: product._id } }"
                 :class="[
                 'product-card',
                 index % 2 === 0 ? 'white-card' : 'grey-card',
@@ -79,10 +80,10 @@
             >
               <img
                   :src="
-                  product.images && product.images.length
-                    ? product.images[0]
-                    : require('../assets/jordan image.jpeg')
-                "
+          product.images && product.images.length
+            ? product.images[0]
+            : require('../assets/jordan image.jpeg')
+        "
                   alt="Product Image"
                   class="product-image"
               />
@@ -91,7 +92,7 @@
                 <p>{{ product.description }}</p>
                 <div class="indicators">
                   <span v-if="product.isSeen" class="seen-indicator">👁️ Seen</span>
-                  <span v-if="product.isFavourite" class="favourite-indicator">❤️ Favourite</span>
+                  <span v-if="product.isFavourite" class="favourite-indicator">️❤ Favourite</span>
                 </div>
                 <div v-if="product.price" class="price">
                   {{ formatPrice(product.price) }}
@@ -105,7 +106,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </router-link>
           </div>
           <div ref="loadMoreTrigger" class="loading-indicator">
             <p v-if="loading">Loading more products...</p>
@@ -289,7 +290,7 @@ export default {
   },
   methods: {
     async getTrips() {
-      if (this.loading || this.page > this.totalPages) return;
+      if (this.loading || this.page > this.totalPages) return; // Stop if loading or no more pages
       try {
         this.loading = true;
         const userId = localStorage.getItem("userId") || "null";
@@ -309,13 +310,14 @@ export default {
         });
         this.products.push(...updatedProducts);
         this.totalPages = response.data.totalPages;
-        this.page++;
+        this.page++; // Increment page for the next load
       } catch (error) {
         console.error("Error fetching trips:", error.message);
       } finally {
-        this.loading = false;
+        this.loading = false; // Reset loading state
       }
     },
+
     async filterProducts() {
       try {
         this.loading = true;
@@ -370,9 +372,12 @@ export default {
     setupInfiniteScroll() {
       this.observer = new IntersectionObserver(
           (entries) => {
-            if (entries[0].isIntersecting) this.getTrips();
+            console.log("Intersection observed:", entries[0].isIntersecting); // Debug log
+            if (entries[0].isIntersecting && !this.loading) {
+              this.getTrips();
+            }
           },
-          { threshold: 1 }
+          { threshold: 0.5 } // Adjust threshold for desktop
       );
       if (this.$refs.loadMoreTrigger) {
         this.observer.observe(this.$refs.loadMoreTrigger);
@@ -632,7 +637,7 @@ export default {
   width: 100%;
   max-width: 200px; /* Match product card width */
   overflow-y: auto;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px); /* Ensure it has a height */
   padding: 0 10px;
 }
 
