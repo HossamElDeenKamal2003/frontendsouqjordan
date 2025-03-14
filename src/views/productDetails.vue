@@ -157,10 +157,7 @@ export default {
       const productId = this.$route.params.id;
       try {
         if (this.product.isFavourite) {
-          await axios.post("https://backend.jordan-souq.com/product/deleteFavourite", {
-            userId,
-            productId,
-          });
+          await axios.delete(`https://backend.jordan-souq.com/product/favourite/${userId}/${productId}`);
           this.product.isFavourite = false;
         } else {
           await axios.post("https://backend.jordan-souq.com/product/favourite", {
