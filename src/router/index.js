@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import productDetails from "../views/productDetails.vue";
-import profileComponent from "../views/profileComponent.vue";
+import UserProfile from "../views/userProfile.vue";
+import ChatView from "../views/chatView.vue";
+import FavouriteView from "../views/favouriteView.vue";
 const routes = [
   {
     path: "/",
@@ -14,9 +16,19 @@ const routes = [
     component: productDetails
   },
   {
-    path: '/profile',
-    name: "profileComponent",
-    component: profileComponent
+    path: "/profile/:userId",
+    name: "userProfile",
+    component: UserProfile
+  },
+  {
+    path: "/chat",
+    name: "chat",
+    component: ChatView,
+  },
+  {
+    path: "/favourites",
+    name: "favourites",
+    component: FavouriteView,
   }
 ];
 

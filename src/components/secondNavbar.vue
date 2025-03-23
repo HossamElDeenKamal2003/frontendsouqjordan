@@ -5,7 +5,8 @@
       <button @click="openDialog" class="auth-button">Login / Register</button>
     </div>
     <div v-else class="user-section">
-      <span class="username">
+      <!-- Make username clickable -->
+      <span class="username" @click="navigateToProfile">
         <i class="fas fa-user"></i> {{ loggedInUsername }}
       </span>
       <button @click="handleSignOut" class="signout-button" title="Sign Out">
@@ -79,6 +80,7 @@
     </div>
   </nav>
 </template>
+
 <script>
 import axios from "axios";
 
@@ -152,6 +154,16 @@ export default {
     },
     toggleTheme() {
       this.$emit("toggle-theme");
+    },
+
+    // Navigate to user profile
+    navigateToProfile() {
+      const userId = localStorage.getItem("userId");
+      if (userId) {
+        this.$router.push(`/profile/${userId}`);
+      } else {
+        console.error("User ID not found in localStorage");
+      }
     },
 
     async handleLogin() {

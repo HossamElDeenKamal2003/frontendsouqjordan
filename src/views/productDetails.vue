@@ -123,7 +123,7 @@ export default {
   },
   watch: {
     '$route.params.id': {
-      immediate: true, // Run immediately on mount if needed
+      immediate: true,
       handler(newId, oldId) {
         if (newId !== oldId) {
           this.fetchProductDetails();
@@ -148,6 +148,7 @@ export default {
         this.user = response.data.user;
         this.similar = response.data.similar;
         this.isFollow = response.data.post.isFollow || false;
+        console.log(".................",response.data.post.isFollow);
       } catch (error) {
         console.error("Error fetching product details:", error);
       }
@@ -173,12 +174,28 @@ export default {
     async toggleFollow() {
       const userId = localStorage.getItem("userId");
       const postId = this.$route.params.id;
+      console.log("Before toggle - isFollow:", this.isFollow); // Debug current state
+      console.log("Before toggle - product.isFollow:", this.product.isFollow); // Debug product state
+
       try {
-        await axios.post("https://backend.jordan-souq.com/users/addFollow", {
-          userId,
-          postId,
-        });
-        this.isFollow = !this.isFollow;
+        if (this.product.isFollow === false) {
+          console.log("Executing POST (add follow)");
+          await axios.post("https://backend.jordan-souq.com/product/follow", {
+            userId,
+            postId,
+          });
+          this.isFollow = true; // Update local state
+          this.product.isFollow = true; // Update product state
+        } else if (this.product.isFollow === true) {
+          console.log("Executing DELETE (remove follow)");
+          await axios.delete("https://backend.jordan-souq.com/product/follow", {
+            data: { userId, postId }, // Send data in the request body for DELETE
+          });
+          this.isFollow = false; // Update local state
+          this.product.isFollow = false; // Update product state
+          console.log("3333333333333");
+        }
+        console.log("After toggle - isFollow:", this.isFollow); // Debug new state
       } catch (error) {
         console.error("Error toggling follow:", error);
       }
