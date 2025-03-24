@@ -1,5 +1,6 @@
 <template>
   <div :class="['profile-container', { 'dark-mode': isDark }]">
+    <fixedBottom />
     <!-- Cover Image Section -->
     <div class="cover-image-section">
       <img :src="user.coverImage || defaultCoverImage" alt="Cover Image" class="cover-image" />
@@ -153,7 +154,7 @@
 import axios from "axios";
 import defaultCoverImage from "@/assets/jordan image.jpeg";
 import defaultProfileImage from "@/assets/jordan image.jpeg";
-
+import fixedBottom from "../components/fixedBottom.vue"
 export default {
   name: "UserProfile",
   props: {
@@ -177,6 +178,9 @@ export default {
       defaultCoverImage,
       defaultProfileImage,
     };
+  },
+  components: {
+    fixedBottom
   },
   async created() {
     await this.fetchUserProfile();

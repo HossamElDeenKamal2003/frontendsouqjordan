@@ -1,5 +1,6 @@
 <template>
   <div class="parent">
+    <fixedBottom />
     <!-- Navbar -->
     <div class="second-nav">
       <div>
@@ -121,7 +122,7 @@
 
 <script>
 import axios from 'axios';
-
+import fixedBottom from "../components/fixedBottom.vue"
 export default {
   data() {
     return {
@@ -138,6 +139,9 @@ export default {
       updatingField: '',
     };
   },
+  components: {
+    fixedBottom
+  }
   methods: {
     updateEmail() {
       this.loading = true;

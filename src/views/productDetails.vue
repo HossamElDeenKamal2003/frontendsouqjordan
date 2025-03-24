@@ -1,5 +1,6 @@
 <template>
   <div :class="['product-details', { 'dark-theme': isDark }]">
+    <fixedBottom />
     <div class="card">
       <div class="product-info">
         <div class="right">
@@ -89,7 +90,7 @@
 
 <script>
 import axios from "axios";
-
+import fixedBottom from"../components/fixedBottom.vue"
 export default {
   name: "ProductDetails",
   props: {
@@ -116,6 +117,9 @@ export default {
       newComment: "",
       isFollow: false,
     };
+  },
+  components: {
+    fixedBottom
   },
   created() {
     this.fetchProductDetails();

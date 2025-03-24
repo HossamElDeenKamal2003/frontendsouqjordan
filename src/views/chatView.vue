@@ -1,5 +1,6 @@
 <template>
   <div :class="['chat-container', { 'dark-mode': isDark }]">
+    <fixedBottom />
     <!-- Conversations List -->
     <div class="conversations-list">
       <h3>Conversations</h3>
@@ -56,7 +57,7 @@
 <script>
 import axios from "axios";
 import io from "socket.io-client";
-
+import fixedBottom from "../components/fixedBottom.vue";
 export default {
   name: "Chat",
   props: {
@@ -71,6 +72,9 @@ export default {
       newMessage: "", // New message input
       userId: localStorage.getItem("userId"), // Current user ID
     };
+  },
+  components: {
+    fixedBottom
   },
   async created() {
     // Initialize Socket.IO connection
