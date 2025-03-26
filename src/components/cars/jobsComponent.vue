@@ -45,6 +45,7 @@ export default {
   padding: 20px;
   overflow-x: auto; /* Enable horizontal scrolling if the list overflows */
   width: 100%;
+  max-width: 2000px;
 }
 
 .horizontal-list {
