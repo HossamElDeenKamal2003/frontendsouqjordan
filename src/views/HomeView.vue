@@ -45,9 +45,30 @@
         @other-selected="handleOtherSelected"
         class="imported-component"
     />
-
+    <!-- Location Filters (Moved above search bar) -->
+    <div class="location-filters" :class="{ 'location-filters-mobile': isMobile }">
+      <select
+          v-model="selectedLocation"
+          :class="isDark ? 'darkFilter' : 'lightFilter'"
+          @change="filterProducts"
+          class="filter-dropdown"
+      >
+        <option value="">All Locations</option>
+        <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
+      </select>
+      <select
+          v-model="selectedMetaLocation"
+          :class="isDark ? 'darkFilter' : 'lightFilter'"
+          @change="filterProducts"
+          class="filter-dropdown"
+      >
+        <option value="">All Cities</option>
+        <option v-for="metaLoc in metaLocations" :key="metaLoc" :value="metaLoc">
+          {{ metaLoc }}
+        </option>
+      </select>
+    </div>
     <fixedBottom />
-
 
     <!-- Main Layout with Left and Right Sections -->
     <div class="main-container">
@@ -118,28 +139,15 @@
       </div>
 
       <!-- Right Section: Filters (Desktop) / Drawer (Mobile) -->
-      <div class="right-section" :class="{ 'drawer-open': drawerOpen && isMobile, 'dark-theme': isDark }">        <!-- Filters Content -->
+      <div class="right-section" :class="{ 'drawer-open': drawerOpen && isMobile, 'dark-theme': isDark }">
+        <!-- Filters Content -->
         <div class="filters-container" :class="{ 'drawer-content': isMobile && drawerOpen }">
           <!-- Close Button in Drawer (Mobile Only) -->
           <button v-if="isMobile && drawerOpen" class="drawer-close" @click="toggleDrawer">
-            X
+            ✕
           </button>
 
-          <!-- Location Dropdown -->
-          <select v-model="selectedLocation" :class="isDark ? 'darkFilter' : 'lightFilter'" @change="filterProducts" class="filter-dropdown">
-            <option value="">All Locations</option>
-            <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
-          </select>
-
-          <!-- MetaLocation Dropdown -->
-          <select v-model="selectedMetaLocation" :class="isDark ? 'darkFilter' : 'lightFilter'" @change="filterProducts" class="filter-dropdown">
-            <option value="">All Cities</option>
-            <option v-for="metaLoc in metaLocations" :key="metaLoc" :value="metaLoc">
-              {{ metaLoc }}
-            </option>
-          </select>
-        </div>
-          <!-- Car Type Images -->
+          <!-- Car Type Images (Moved to right section) -->
           <div class="car-types-container">
             <div
                 v-for="(carType, index) in carTypes.slice(0, 10)"
@@ -153,6 +161,7 @@
           </div>
         </div>
       </div>
+    </div>
   </div>
 </template>
 
@@ -228,7 +237,7 @@ export default {
   computed: {
     filteredProducts() {
       let result = [...this.products];
-      console.log("Filtering with:", this.filteredItems); // Debug log for all filters
+      console.log("Filtering with:", this.filteredItems);
       if (this.searchQuery) {
         result = result.filter(
             (product) =>
@@ -279,14 +288,14 @@ export default {
   created() {
     this.categories = this.getCategories();
     this.loadCarTypes();
-    console.log("Component created, initial state:", this.filteredItems); // Debug on create
+    console.log("Component created, initial state:", this.filteredItems);
   },
   mounted() {
     this.getTrips();
     this.$nextTick(this.setupInfiniteScroll);
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
-    console.log("Component mounted, initial selectedLocation:", this.selectedLocation, "metaLocation:", this.selectedMetaLocation); // Debug on mount
+    console.log("Component mounted, initial selectedLocation:", this.selectedLocation, "metaLocation:", this.selectedMetaLocation);
   },
   beforeUnmount() {
     if (this.observer) this.observer.disconnect();
@@ -294,7 +303,7 @@ export default {
   },
   methods: {
     async getTrips() {
-      if (this.loading || this.page > this.totalPages) return; // Stop if loading or no more pages
+      if (this.loading || this.page > this.totalPages) return;
       try {
         this.loading = true;
         const userId = localStorage.getItem("userId") || "null";
@@ -314,18 +323,18 @@ export default {
         });
         this.products.push(...updatedProducts);
         this.totalPages = response.data.totalPages;
-        this.page++; // Increment page for the next load
+        this.page++;
       } catch (error) {
         console.error("Error fetching trips:", error.message);
       } finally {
-        this.loading = false; // Reset loading state
+        this.loading = false;
       }
     },
 
     async filterProducts() {
       try {
         this.loading = true;
-        console.log("Filtering products with:", this.filteredItems); // Debug log before API call
+        console.log("Filtering products with:", this.filteredItems);
         const userId = localStorage.getItem("userId") || "null";
         let response;
         if (!this.filteredItems.category || this.filteredItems.category === "all") {
@@ -376,12 +385,12 @@ export default {
     setupInfiniteScroll() {
       this.observer = new IntersectionObserver(
           (entries) => {
-            console.log("Intersection observed:", entries[0].isIntersecting); // Debug log
+            console.log("Intersection observed:", entries[0].isIntersecting);
             if (entries[0].isIntersecting && !this.loading) {
               this.getTrips();
             }
           },
-          { threshold: 0.5 } // Adjust threshold for desktop
+          { threshold: 0.5 }
       );
       if (this.$refs.loadMoreTrigger) {
         this.observer.observe(this.$refs.loadMoreTrigger);
@@ -442,8 +451,8 @@ export default {
     },
     handleCarTypeSelected(carType) {
       this.selectedCarType = carType;
-      this.filteredItems.metaCategory = carType.toLowerCase(); // Set metaCategory for CarsComponent logic
-      this.filteredItems.carType = null; // Clear carType to rely on metaCategory for now
+      this.filteredItems.metaCategory = carType.toLowerCase();
+      this.filteredItems.carType = null;
       this.filterProducts();
     },
     handleCarModelSelected(model) {
@@ -528,10 +537,10 @@ export default {
       ];
     },
     selectCarType(carType) {
-      this.selectedCarType = carType.name; // Store the selected car type
-      this.filteredItems.metaCategory = carType.name.toLowerCase(); // Clear metaCategory to avoid conflicts
-      this.filterProducts(); // Trigger filtering
-      console.log("Selected car type:", carType.name); // Debug log for car type click
+      this.selectedCarType = carType.name;
+      this.filteredItems.metaCategory = carType.name.toLowerCase();
+      this.filterProducts();
+      console.log("Selected car type:", carType.name);
     },
     toggleDrawer() {
       this.drawerOpen = !this.drawerOpen;
@@ -544,27 +553,29 @@ export default {
   watch: {
     selectedLocation(newVal) {
       this.filteredItems.location = newVal ? newVal.toLowerCase() : "";
-      console.log("Selected Location:", newVal); // Debug log for location
+      console.log("Selected Location:", newVal);
       this.selectedMetaLocation = "";
       this.filterProducts();
     },
     selectedMetaLocation(newVal) {
       this.filteredItems.metaLocation = newVal ? newVal.toLowerCase() : "";
-      console.log("Selected Meta Location:", newVal); // Debug log for metaLocation
+      console.log("Selected Meta Location:", newVal);
       this.filterProducts();
     },
   },
 };
 </script>
+
 <style scoped>
 .darkFilter {
-  background-color: #333; /* Dark background for dropdown options */
-  color: white; /* White text for dropdown options */
+  background-color: #333;
+  color: white;
 }
 
-.filters-container{
+.filters-container {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  gap: 15px;
   width: 100%;
 }
 
@@ -574,14 +585,14 @@ export default {
   align-items: center;
   min-height: 100vh;
   padding-top: 20px;
-  max-width: 1400px;
+  max-width: 2000px;
   margin: 0 auto;
 }
 
 .main-container {
   display: flex;
   width: 100%;
-  gap: 15px; /* Reduced gap between left and right sections to 15px */
+  gap: 15px;
 }
 
 .left-section {
@@ -595,17 +606,39 @@ export default {
   height: fit-content;
 }
 
+.location-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 2000px;
+  padding: 0 10px;
+}
+
+.filter-dropdown {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  width: 100%;
+}
+
 .search-add-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 200px; /* Match product card width */
+  max-width: 1400px;
   margin-bottom: 20px;
   padding: 0 10px;
-  position: sticky;
+  /*position: sticky;*/
   top: 0;
   z-index: 10;
+  flex-wrap: wrap;
+}
+
+.drawer-toggle{
+  font-size: xx-large;
 }
 
 .search-input {
@@ -642,9 +675,9 @@ export default {
 
 .scrollable-container {
   width: 100%;
-  max-width: 200px; /* Match product card width */
+  max-width: 1400px;
   overflow-y: auto;
-  max-height: calc(100vh - 120px); /* Ensure it has a height */
+  max-height: calc(100vh - 120px);
   padding: 0 10px;
 }
 
@@ -658,7 +691,7 @@ export default {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 200px; /* Updated max-width to 200px */
+  max-width: 100%;
   padding: 10px;
   height: 150px;
   border-radius: 8px;
@@ -674,7 +707,7 @@ export default {
 }
 
 .product-image {
-  width: 100px; /* Adjusted to fit within 200px max-width */
+  width: 100px;
   height: 100px;
   object-fit: cover;
   border-radius: 5px;
@@ -691,7 +724,7 @@ export default {
 
 .product-info h3 {
   margin: 0;
-  font-size: 14px; /* Reduced font size to fit smaller card */
+  font-size: 16px;
   color: #009688;
   white-space: nowrap;
   overflow: hidden;
@@ -704,7 +737,7 @@ export default {
 
 .product-info p {
   margin: 5px 0 0;
-  font-size: 12px; /* Reduced font size to fit smaller card */
+  font-size: 14px;
   color: #666;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -715,13 +748,13 @@ export default {
 
 .indicators {
   display: flex;
-  gap: 5px; /* Reduced gap to fit smaller card */
+  gap: 5px;
   margin-top: 5px;
 }
 
 .seen-indicator,
 .favourite-indicator {
-  font-size: 12px; /* Reduced font size */
+  font-size: 12px;
   color: #666;
 }
 
@@ -734,7 +767,7 @@ export default {
   position: absolute;
   bottom: 5px;
   left: 5px;
-  font-size: 12px; /* Reduced font size */
+  font-size: 14px;
   font-weight: bold;
   color: #009688;
   background-color: rgba(255, 255, 255, 0.8);
@@ -752,7 +785,7 @@ export default {
 }
 
 .time-difference {
-  font-size: 12px; /* Reduced font size */
+  font-size: 12px;
   color: #666;
   background-color: rgba(255, 255, 255, 0.8);
   padding: 2px 5px;
@@ -763,7 +796,7 @@ export default {
 }
 
 .location {
-  font-size: 12px; /* Reduced font size */
+  font-size: 12px;
   color: #666;
   background-color: rgba(255, 255, 255, 0.8);
   padding: 2px 5px;
@@ -800,34 +833,21 @@ export default {
 
 .category-filter {
   width: 100%;
-  max-width: 2000px; /* Match product card width */
+  max-width: 2000px;
   margin: 0 auto 20px auto;
 }
 
 .imported-component {
   width: 100%;
-  max-width: 2000px; /* Match product card width */
+  max-width: 1400px;
   margin: 0 auto 20px auto;
-}
-
-.filters-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.filter-dropdown {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  width: 100%;
 }
 
 .car-types-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 10px;
 }
 
 .car-type-item {
@@ -864,18 +884,19 @@ export default {
 .drawer-close {
   position: absolute;
   top: 10px;
-  left: 10px;
+  right: 10px;
   background: none;
   border: none;
   font-size: 20px;
   color: #333;
   cursor: pointer;
+  z-index: 1001;
 }
 
 @media (max-width: 768px) {
   .main-container {
     flex-direction: column;
-    gap: 10px; /* Adjusted for mobile */
+    gap: 10px;
   }
 
   .right-section {
@@ -885,6 +906,7 @@ export default {
 
   .drawer-toggle {
     display: block;
+    font-size: xx-large;
   }
 
   .filters-container {
@@ -896,68 +918,26 @@ export default {
     position: fixed;
     top: 0;
     right: 0;
-    width: 2000px; /* Match product card width */
+    width: 80%;
     height: 100%;
     background-color: white;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-    padding: 20px;
+    padding: 40px 20px 20px;
     z-index: 1000;
     overflow-y: auto;
   }
 
+  .location-filters {
+    flex-direction: column;
+    padding: 0 15px;
+  }
+
   .search-add-container {
-    justify-content: space-between;
-    align-items: center;
+    padding: 0 15px;
   }
 
   .scrollable-container {
-    max-width: 100%; /* Allow full width on mobile */
-  }
-
-  .product-card {
-    max-width: 100%; /* Allow full width on mobile */
+    padding: 0 15px;
   }
 }
-.parent {
-  max-width: 2000px; /* Changed from 1400px */
-}
-
-.search-add-container {
-  max-width: 2000px; /* Match product card width */
-}
-
-.scrollable-container {
-  max-width: 2000px; /* Match product card width */
-}
-
-.product-card {
-  max-width: 2000px; /* Updated from larger size */
-}
-
-.product-image {
-  width: 100px; /* Adjusted to fit within 200px */
-}
-
-.product-info h3 {
-  font-size: 14px; /* Reduced for smaller card */
-}
-
-.product-info p {
-  font-size: 12px; /* Reduced for smaller card */
-}
-
-.category-filter {
-  max-width: 2000px; /* Match product card width */
-}
-
-.imported-component {
-  max-width: 2000px; /* Match product card width */
-}
-
-@media (max-width: 768px) {
-  .drawer-open .filters-container {
-    width: 200px; /* Match product card width */
-  }
-}
-
 </style>

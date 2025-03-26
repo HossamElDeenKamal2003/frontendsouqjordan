@@ -59,5 +59,7 @@ span{
   background-color: #222;
   color: #fff;
 }
-
+.parent2{
+  max-width: 2000px;
+}
 </style>
