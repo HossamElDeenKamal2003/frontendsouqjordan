@@ -2,16 +2,16 @@
   <div :class="['shared-parent', { 'dark-mode': isDark }]">
     <div class="menu-container">
       <div class="menu-header">
-        <h3 style="color: green; font-size: larger;">Choose Region</h3>
+        <h3 style="color: green; font-size: larger;">Cities in {{ selectedRegion }}</h3>
       </div>
       <ul class="menu-list">
         <li
             class="menu-item"
-            v-for="region in regions"
-            :key="region"
-            @click="selectRegion(region)"
+            v-for="city in cities"
+            :key="city"
+            @click="selectCity(city)"
         >
-          <span class="text">{{ region }}</span>
+          <span class="text">{{ city }}</span>
           <span class="arrow">→</span>
         </li>
       </ul>
@@ -21,8 +21,9 @@
 
 <script>
 import { ConstVariables } from "../../../const.js";
+
 export default {
-  name: "RegionSelector",
+  name: "CitySelector",
   props: {
     isDark: {
       type: Boolean,
@@ -31,21 +32,39 @@ export default {
   },
   data() {
     return {
-      regions: Object.keys(ConstVariables.locationsMap)
-    }
+      selectedRegion: '',
+      cities: []
+    };
+  },
+  created() {
+    this.loadSelectedRegion();
   },
   methods: {
-    selectRegion(region) {
-      const regionLowercase = region.toLowerCase();
-      localStorage.setItem('selectedRegion', regionLowercase);
-      this.$router.push('/city');
+    loadSelectedRegion() {
+      const region = localStorage.getItem('selectedRegion');
+      if (region) {
+        // Convert to title case for display
+        this.selectedRegion = region.split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+
+        // Get cities for this region
+        this.cities = ConstVariables.locationsMap[this.selectedRegion] || [];
+      } else {
+        // Fallback if no region selected
+        this.$router.push('/region');
+      }
+    },
+    selectCity(city) {
+      localStorage.setItem('selectedCity', city.toLowerCase());
+      this.$router.push('/'); // Or wherever you want to go after city selection
     }
   }
 };
 </script>
 
 <style scoped>
-/* Your existing styles remain exactly the same */
+/* Using the exact same styles as the region selector */
 .shared-parent {
   font-family: Arial, sans-serif;
   direction: ltr;

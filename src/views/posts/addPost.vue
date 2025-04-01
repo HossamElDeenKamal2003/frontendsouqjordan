@@ -6,39 +6,53 @@
       </div>
       <ul class="menu-list">
         <li class="menu-item">
-          <span class="icon">🚗</span>
-          <span class="text">Cars</span>
-          <span class="arrow">→</span>
+          <a href="/region" class="menu-link">
+            <span class="icon">🚗</span>
+            <span class="text">Cars</span>
+            <span class="arrow">→</span>
+          </a>
         </li>
         <li class="menu-item">
-          <span class="icon">🚚</span>
-          <span class="text">Building</span>
-          <span class="arrow">→</span>
+          <a href="/region" class="menu-link">
+            <span class="icon">🚚</span>
+            <span class="text">Building</span>
+            <span class="arrow">→</span>
+          </a>
         </li>
         <li class="menu-item">
-          <span class="icon">🚴</span>
-          <span class="text">Devices</span>
-          <span class="arrow">→</span>
+          <a href="/region" class="menu-link">
+            <span class="icon">🚴</span>
+            <span class="text">Devices</span>
+            <span class="arrow">→</span>
+          </a>
         </li>
         <li class="menu-item">
-          <span class="icon">🏢</span>
-          <span class="text">Jobs</span>
-          <span class="arrow">→</span>
+          <a href="/region" class="menu-link">
+            <span class="icon">🏢</span>
+            <span class="text">Jobs</span>
+            <span class="arrow">→</span>
+          </a>
         </li>
         <li class="menu-item">
-          <span class="icon">📱</span>
-          <span class="text">Furniture</span>
-          <span class="arrow">→</span>
+          <a href="/region" class="menu-link">
+            <span class="icon">📱</span>
+            <span class="text">Furniture</span>
+            <span class="arrow">→</span>
+          </a>
         </li>
         <li class="menu-item">
-          <span class="icon">🐑</span>
-          <span class="text">Personal Accessories</span>
-          <span class="arrow">→</span>
+          <a href="/region" class="menu-link">
+            <span class="icon">🐑</span>
+            <span class="text">Personal Accessories</span>
+            <span class="arrow">→</span>
+          </a>
         </li>
         <li class="menu-item">
-          <span class="icon">🛒</span>
-          <span class="text">other</span>
-          <span class="arrow">→</span>
+          <a href="/region" class="menu-link">
+            <span class="icon">🛒</span>
+            <span class="text">other</span>
+            <span class="arrow">→</span>
+          </a>
         </li>
       </ul>
     </div>
@@ -117,8 +131,15 @@ export default {
   display: flex;
   align-items: center;
   padding: 10px 0;
-  cursor: pointer;
   color: #333;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
 }
 
 .dark-mode .menu-item {

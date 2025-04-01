@@ -82,7 +82,7 @@
               v-model="searchQuery"
               :class="['search-input', isDark ? 'dark-search' : '']"
           />
-          <button class="add-offer-button">+Add Offer</button>
+          <button class="add-offer-button" @click="addOffer">+Add Offer</button>
           <!-- Drawer Toggle Button (Mobile Only) -->
           <button class="drawer-toggle" @click="toggleDrawer" v-if="isMobile">
             {{ drawerOpen ? '✕' : '≡' }}
@@ -177,6 +177,7 @@ import PersonalAccessoriesList from "../components/cars/personalneedsComponent.v
 import JobsComponent from "../components/cars/jobsComponent.vue";
 import OthersComponent from "../components/cars/otherComponent.vue";
 import fixedBottom from "../components/fixedBottom.vue";
+import router from "@/router";
 
 export default {
   name: "HomeView",
@@ -549,6 +550,9 @@ export default {
       this.isMobile = window.innerWidth <= 768;
       if (!this.isMobile) this.drawerOpen = false;
     },
+    addOffer(){
+      this.$router.push('/add-offer');
+    }
   },
   watch: {
     selectedLocation(newVal) {
