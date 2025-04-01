@@ -1,0 +1,16 @@
+{
+  "addNewOffer": {
+    "title": "Add New Offer",
+    "selectOfferType": "Select Offer Type",
+    "types": {
+      "overnight-sale": "Overnight sale or exchange",
+      "parts-service": "Car parts, services or accessories sale",
+      "equipment": "Truck or heavy equipment sale/rental",
+      "motorcycle": "Motorcycle sale",
+      "car-sale": "Car sale",
+      "car-rental": "Car rental",
+      "boat-sale": "Boat sale"
+    },
+    "signature": "Trust in God"
+  }
+}

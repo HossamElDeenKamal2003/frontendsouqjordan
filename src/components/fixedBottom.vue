@@ -8,7 +8,7 @@
       <i class="fas fa-heart"></i>
       <span>Favorites</span>
     </div>
-    <div class="taskbar-item" @click="navigateTo('add-offer')">
+    <div class="taskbar-item" @click="navigateTo('addOffer')">
       <i class="fas fa-plus"></i>
       <span>Add Offer</span>
     </div>

@@ -4,6 +4,8 @@ import productDetails from "../views/productDetails.vue";
 import UserProfile from "../views/userProfile.vue";
 import ChatView from "../views/chatView.vue";
 import FavouriteView from "../views/favouriteView.vue";
+import mainComponent from "../views/posts/addPost.vue";
+import JordanRegionSelector from "../components/addpost/citiesComponent.vue";
 const routes = [
   {
     path: "/",
@@ -29,6 +31,16 @@ const routes = [
     path: "/favourites",
     name: "favourites",
     component: FavouriteView,
+  },
+  {
+    path:'/add-offer',
+    name: "addOffer",
+    component: mainComponent
+  },
+  {
+    path:"/region",
+    name: "region",
+    component: JordanRegionSelector
   }
 ];
 

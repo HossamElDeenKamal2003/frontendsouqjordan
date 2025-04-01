@@ -677,7 +677,7 @@ export default {
   width: 100%;
   max-width: 1400px;
   overflow-y: auto;
-  max-height: calc(100vh - 120px);
+  max-height: calc(80vh - 120px);
   padding: 0 10px;
 }
 
@@ -820,7 +820,12 @@ export default {
   font-weight: bold;
   color: #666;
 }
-
+.favourite-indicator{
+  color: red;
+}
+.seen-indicator{
+  color: green;
+}
 .dark-card {
   background-color: #222 !important;
   color: #fff !important;
