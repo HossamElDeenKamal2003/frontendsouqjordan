@@ -5,52 +5,10 @@
         <h3 style="color: green;">Add New Offer</h3>
       </div>
       <ul class="menu-list">
-        <li class="menu-item">
+        <li class="menu-item" v-for="(item, index) in menuItems" :key="index">
           <a href="/region" class="menu-link">
-            <span class="icon">🚗</span>
-            <span class="text">Cars</span>
-            <span class="arrow">→</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="/region" class="menu-link">
-            <span class="icon">🚚</span>
-            <span class="text">Building</span>
-            <span class="arrow">→</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="/region" class="menu-link">
-            <span class="icon">🚴</span>
-            <span class="text">Devices</span>
-            <span class="arrow">→</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="/region" class="menu-link">
-            <span class="icon">🏢</span>
-            <span class="text">Jobs</span>
-            <span class="arrow">→</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="/region" class="menu-link">
-            <span class="icon">📱</span>
-            <span class="text">Furniture</span>
-            <span class="arrow">→</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="/region" class="menu-link">
-            <span class="icon">🐑</span>
-            <span class="text">Personal Accessories</span>
-            <span class="arrow">→</span>
-          </a>
-        </li>
-        <li class="menu-item">
-          <a href="/region" class="menu-link">
-            <span class="icon">🛒</span>
-            <span class="text">other</span>
+            <span class="icon">{{ item.icon }}</span>
+            <span class="text">{{ item.text }}</span>
             <span class="arrow">→</span>
           </a>
         </li>
@@ -67,6 +25,19 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+  data() {
+    return {
+      menuItems: [
+        { icon: "🚗", text: "Cars" },
+        { icon: "🚚", text: "Building" },
+        { icon: "🚴", text: "Devices" },
+        { icon: "🏢", text: "Jobs" },
+        { icon: "📱", text: "Furniture" },
+        { icon: "🐑", text: "Personal Accessories" },
+        { icon: "🛒", text: "other" },
+      ]
+    };
   },
 };
 </script>
@@ -97,6 +68,9 @@ export default {
   border-radius: 25px;
   padding: 40px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  height: calc(100vh - 40px); /* Account for padding */
+  display: flex;
+  flex-direction: column;
 }
 
 .dark-mode .menu-container {
@@ -109,12 +83,15 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-shrink: 0;
+  height: calc((100vh - 40px) / 14); /* Half of item height */
 }
 
 .menu-header h3 {
   font-size: 18px;
   font-weight: bold;
   color: green;
+  margin: 0;
 }
 
 .dark-mode .menu-header h3 {
@@ -125,21 +102,27 @@ export default {
   list-style: none;
   padding: 0;
   margin: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 10px 0;
   color: #333;
+  height: calc((100vh - 40px) / 8); /* Exactly 1/7th of viewport */
+  flex-shrink: 0;
 }
 
 .menu-link {
   display: flex;
   align-items: center;
   width: 100%;
+  height: 100%;
   text-decoration: none;
   color: inherit;
+  padding: 0 10px;
 }
 
 .dark-mode .menu-item {
@@ -158,6 +141,9 @@ export default {
 .icon {
   margin-left: 10px;
   font-size: 100px;
+  width: 100px;
+  text-align: center;
+  line-height: 1;
 }
 
 .dark-mode .icon {
@@ -168,11 +154,16 @@ export default {
   flex-grow: 1;
   font-size: 1.2em;
   padding: 0 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .arrow {
   font-size: 100px;
   color: #007bff;
+  margin-right: 10px;
+  line-height: 1;
 }
 
 .dark-mode .arrow {
@@ -184,23 +175,27 @@ export default {
   .menu-container {
     width: 90vw;
     padding: 30px;
+    height: calc(100vh - 60px);
+  }
+
+  .menu-header {
+    height: calc((100vh - 60px) / 14);
+  }
+
+  .menu-item {
+    height: calc((100vh - 60px) / 8);
+  }
+
+  .icon, .arrow {
+    font-size: 80px;
+    width: 80px;
   }
 }
 
 @media (max-width: 992px) {
   .icon, .arrow {
-    font-size: 80px;
-  }
-}
-
-@media (max-width: 768px) {
-  .menu-container {
-    width: 95vw;
-    padding: 25px;
-  }
-
-  .icon, .arrow {
     font-size: 60px;
+    width: 60px;
   }
 
   .text {
@@ -208,37 +203,68 @@ export default {
   }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .menu-container {
-    padding: 20px;
-    border-radius: 15px;
+    padding: 25px;
+    height: calc(100vh - 50px);
+  }
+
+  .menu-header {
+    height: calc((100vh - 50px) / 14);
+  }
+
+  .menu-item {
+    height: calc((100vh - 50px) / 8);
   }
 
   .icon, .arrow {
-    font-size: 40px;
+    font-size: 50px;
+    width: 50px;
   }
 
   .text {
     font-size: 1em;
+  }
+}
+
+@media (max-width: 576px) {
+  .menu-container {
+    padding: 20px;
+    border-radius: 15px;
+    height: calc(100vh - 40px);
+  }
+
+  .menu-header {
+    height: calc((100vh - 40px) / 14);
+  }
+
+  .menu-item {
+    height: calc((100vh - 40px) / 8);
+  }
+
+  .icon, .arrow {
+    font-size: 40px;
+    width: 40px;
+  }
+
+  .text {
+    font-size: 0.9em;
     padding: 0 10px;
   }
 
   .menu-header h3 {
     font-size: 16px;
   }
-
-  .menu-item {
-    padding: 8px 0;
-  }
 }
 
 @media (max-width: 400px) {
   .icon, .arrow {
     font-size: 30px;
+    width: 30px;
   }
 
   .text {
-    font-size: 0.9em;
+    font-size: 0.8em;
   }
 }
 </style>

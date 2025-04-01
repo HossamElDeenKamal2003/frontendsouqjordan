@@ -5,8 +5,8 @@ import UserProfile from "../views/userProfile.vue";
 import ChatView from "../views/chatView.vue";
 import FavouriteView from "../views/favouriteView.vue";
 import mainComponent from "../views/posts/addPost.vue";
-import JordanRegionSelector from "../components/addpost/citiesComponent.vue";
-import metaRegionSelector from "../components/addpost/metacityComponents.vue";
+import RegionSelector from "../components/addpost/citiesComponent.vue";
+import CitySelector from "../components/addpost/metacityComponents.vue";
 import citiesComponent from "@/components/addpost/citiesComponent.vue";
 const routes = [
   {
@@ -42,12 +42,12 @@ const routes = [
   {
     path:"/region",
     name: "region",
-    component: JordanRegionSelector
+    component: RegionSelector
   },
   {
     path: "/city",
     name: "citiy",
-    component: metaRegionSelector
+    component: CitySelector
   }
 ];
 

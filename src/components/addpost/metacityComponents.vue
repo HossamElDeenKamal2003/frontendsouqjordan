@@ -43,28 +43,23 @@ export default {
     loadSelectedRegion() {
       const region = localStorage.getItem('selectedRegion');
       if (region) {
-        // Convert to title case for display
         this.selectedRegion = region.split(' ')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
-
-        // Get cities for this region
         this.cities = ConstVariables.locationsMap[this.selectedRegion] || [];
       } else {
-        // Fallback if no region selected
         this.$router.push('/region');
       }
     },
     selectCity(city) {
       localStorage.setItem('selectedCity', city.toLowerCase());
-      this.$router.push('/'); // Or wherever you want to go after city selection
+      this.$router.push('/');
     }
   }
 };
 </script>
 
 <style scoped>
-/* Using the exact same styles as the region selector */
 .shared-parent {
   font-family: Arial, sans-serif;
   direction: ltr;
@@ -88,6 +83,9 @@ export default {
   border-radius: 25px;
   padding: 40px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
 }
 
 .dark-mode .menu-container {
@@ -100,6 +98,8 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-shrink: 0;
+  height: calc((100vh - 40px) / 14);
 }
 
 .menu-header h3 {
@@ -117,17 +117,23 @@ export default {
   list-style: none;
   padding: 0;
   margin: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 20px;
+  padding: 0 20px;
   cursor: pointer;
   color: #333;
   border-radius: 8px;
   transition: all 0.2s ease;
+  height: calc((100vh - 40px) / 8);
+  flex-shrink: 0;
 }
 
 .dark-mode .menu-item {
@@ -163,15 +169,19 @@ export default {
   .menu-container {
     width: 90vw;
     padding: 30px;
+    height: calc(100vh - 60px);
+  }
+
+  .menu-header {
+    height: calc((100vh - 60px) / 14);
+  }
+
+  .menu-item {
+    height: calc((100vh - 60px) / 8);
   }
 }
 
 @media (max-width: 768px) {
-  .menu-container {
-    width: 95vw;
-    padding: 25px;
-  }
-
   .text {
     font-size: 1.1em;
   }
@@ -185,14 +195,20 @@ export default {
   .menu-container {
     padding: 20px;
     border-radius: 15px;
+    height: calc(100vh - 40px);
+  }
+
+  .menu-header {
+    height: calc((100vh - 40px) / 14);
+  }
+
+  .menu-item {
+    height: calc((100vh - 40px) / 8);
+    padding: 0 15px;
   }
 
   .menu-header h3 {
     font-size: 20px;
-  }
-
-  .menu-item {
-    padding: 12px 15px;
   }
 
   .text {
