@@ -7,7 +7,7 @@ import FavouriteView from "../views/favouriteView.vue";
 import mainComponent from "../views/posts/addPost.vue";
 import RegionSelector from "../components/addpost/citiesComponent.vue";
 import CitySelector from "../components/addpost/metacityComponents.vue";
-import citiesComponent from "@/components/addpost/citiesComponent.vue";
+import postData from "../views/posts/postData.vue";
 const routes = [
   {
     path: "/",
@@ -48,6 +48,11 @@ const routes = [
     path: "/city",
     name: "citiy",
     component: CitySelector
+  },
+  {
+    path: '/add-data',
+    name: "addData",
+    component: postData
   }
 ];
 

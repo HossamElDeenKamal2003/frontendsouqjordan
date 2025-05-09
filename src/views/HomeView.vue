@@ -8,43 +8,43 @@
     />
 
     <!-- Conditional Rendering of Components Based on Selected Category -->
-    <CarsComponent
-        v-if="showCarsComponent"
-        @car-type-selected="handleCarTypeSelected"
-        @model-selected="handleCarModelSelected"
-        class="imported-component"
-    />
-    <BuildingComponent
-        v-if="showBuildingComponent"
-        @building-type-selected="handleBuildingTypeSelected"
-        class="imported-component"
-    />
-    <DevicesComponent
-        v-if="showDevices"
-        @device-type-selected="handleDeviceTypeSelected"
-        @model-selected="handleDeviceModelSelected"
-        class="imported-component"
-    />
-    <FurnitureComponent
-        v-if="showFurnitureComponent"
-        @furniture-selected="handleFurnitureSelected"
-        class="imported-component"
-    />
-    <PersonalAccessoriesList
-        v-if="showPersonalneeds"
-        @need-selected="handleNeedSelected"
-        class="imported-component"
-    />
-    <JobsComponent
-        v-if="jobsComponent"
-        @job-selected="handleJobSelected"
-        class="imported-component"
-    />
-    <OthersComponent
-        v-if="othersComponent"
-        @other-selected="handleOtherSelected"
-        class="imported-component"
-    />
+      <CarsComponent
+          v-if="showCarsComponent"
+          @car-type-selected="handleCarTypeSelected"
+          @model-selected="handleCarModelSelected"
+          class="imported-component"
+      />
+      <BuildingComponent
+          v-if="showBuildingComponent"
+          @building-type-selected="handleBuildingTypeSelected"
+          class="imported-component"
+      />
+      <DevicesComponent
+          v-if="showDevices"
+          @device-type-selected="handleDeviceTypeSelected"
+          @model-selected="handleDeviceModelSelected"
+          class="imported-component"
+      />
+      <FurnitureComponent
+          v-if="showFurnitureComponent"
+          @furniture-selected="handleFurnitureSelected"
+          class="imported-component"
+      />
+      <PersonalAccessoriesList
+          v-if="showPersonalneeds"
+          @need-selected="handleNeedSelected"
+          class="imported-component"
+      />
+      <JobsComponent
+          v-if="jobsComponent"
+          @job-selected="handleJobSelected"
+          class="imported-component"
+      />
+      <OthersComponent
+          v-if="othersComponent"
+          @other-selected="handleOtherSelected"
+          class="imported-component"
+      />
     <!-- Location Filters (Moved above search bar) -->
     <div class="location-filters" :class="{ 'location-filters-mobile': isMobile }">
       <select
@@ -177,8 +177,6 @@ import PersonalAccessoriesList from "../components/cars/personalneedsComponent.v
 import JobsComponent from "../components/cars/jobsComponent.vue";
 import OthersComponent from "../components/cars/otherComponent.vue";
 import fixedBottom from "../components/fixedBottom.vue";
-import router from "@/router";
-
 export default {
   name: "HomeView",
   components: {
@@ -948,5 +946,102 @@ export default {
   .scrollable-container {
     padding: 0 15px;
   }
+}
+
+.imported-component {
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.imported-component::-webkit-scrollbar {
+  height: 5px;
+}
+
+.imported-component::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+.parent > .imported-component {
+  margin-left: 0 !important;
+  padding: 10px;
+}
+.imported-component ul.horizontal-list {
+  padding: 20px;
+}
+/* Update these styles in your HomeView component */
+
+/* General imported component styling */
+.imported-component {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 0 20px 0 !important; /* Remove auto margins */
+  padding: 10px;
+  text-align: left;
+  overflow-x: auto;
+}
+
+/* Style all horizontal lists in imported components */
+.imported-component > div > ul.horizontal-list,
+.imported-component > ul.horizontal-list {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  margin: 0;
+  list-style: none;
+  justify-content: flex-start;
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Style all list items in imported components */
+.imported-component .list-item {
+  white-space: nowrap;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.imported-component .list-item:hover {
+  background-color: #f0f0f0;
+}
+
+.imported-component .list-item.selected {
+  background-color: green;
+  color: white;
+}
+
+/* Ensure all content in imported components aligns left */
+.imported-component > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Remove any potential centering from parent elements */
+.parent > .imported-component {
+  align-self: flex-start;
+  margin-left: 0 !important;
+  padding-left: 10px;
+}
+
+/* Scrollbar styling for all imported components */
+.imported-component {
+  -webkit-overflow-scrolling: touch;
+}
+
+.imported-component::-webkit-scrollbar {
+  height: 5px;
+}
+
+.imported-component::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+a{
+  text-decoration: none;
+
 }
 </style>

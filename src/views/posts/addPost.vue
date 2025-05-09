@@ -1,23 +1,57 @@
 <template>
   <div :class="['shared-parent', { 'dark-mode': isDark }]">
-    <div class="menu-container">
+    <!-- Main Menu -->
+    <div class="menu-container" v-if="!showDialog">
       <div class="menu-header">
         <h3 style="color: green;">Add New Offer</h3>
       </div>
       <ul class="menu-list">
-        <li class="menu-item" v-for="(item, index) in menuItems" :key="index">
-          <a href="/region" class="menu-link">
+        <li
+            class="menu-item"
+            v-for="(item, index) in menuItems"
+            :key="index"
+            @click="selectCategory(item)"
+        >
+          <div class="menu-link">
             <span class="icon">{{ item.icon }}</span>
             <span class="text">{{ item.text }}</span>
             <span class="arrow">→</span>
-          </a>
+          </div>
         </li>
       </ul>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div class="dialog-overlay" v-if="showDialog">
+      <div class="dialog-container">
+        <h3>» إتفاقية الرسوم
+          <br>
+          بسم الله الرحمن الرحيم
+          قال الله تعالى:" وَأَوْفُواْ بِعَهْدِ اللهِ إِذَا عَاهَدتُّمْ وَلاَ تَنقُضُواْ الأَيْمَانَ بَعْدَ تَوْكِيدِهَا وَقَدْ جَعَلْتُمُ اللهَ عَلَيْكُمْ كَفِيلاً "صدق الله العظيم
+
+        </h3>
+        <p>You selected: <strong>{{ selectedCategory.text }}</strong></p>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="confirmCheckbox" v-model="isConfirmed">
+          <label for="confirmCheckbox">          * اتعهد بالألتزام في انظمة الهيئه العامة للعقار
+          </label>
+        </div>
+
+        <p class="error-message" v-if="showError">Please confirm the category to continue</p>
+
+        <div class="dialog-buttons">
+          <button class="cancel-btn" @click="cancelSelection">Cancel</button>
+          <button class="continue-btn" @click="handleContinue">Continue</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { saveProductForm, getProductForm } from '@/productFormStorage';
+
 export default {
   name: "sharedComponent",
   props: {
@@ -29,19 +63,52 @@ export default {
   data() {
     return {
       menuItems: [
-        { icon: "🚗", text: "Cars" },
-        { icon: "🚚", text: "Building" },
-        { icon: "🚴", text: "Devices" },
-        { icon: "🏢", text: "Jobs" },
-        { icon: "📱", text: "Furniture" },
-        { icon: "🐑", text: "Personal Accessories" },
-        { icon: "🛒", text: "other" },
-      ]
+        { icon: "🚗", text: "Cars", value: "سيارات" },
+        { icon: "🚚", text: "Building", value: "building" },
+        { icon: "🚴", text: "Devices", value: "devices" },
+        { icon: "🏢", text: "Jobs", value: "jobs" },
+        { icon: "📱", text: "Furniture", value: "furniture" },
+        { icon: "🐑", text: "Personal Accessories", value: "personal_accessories" },
+        { icon: "🛒", text: "Other", value: "other" },
+      ],
+      showDialog: false,
+      selectedCategory: null,
+      isConfirmed: false,
+      showError: false
     };
   },
+  methods: {
+    selectCategory(item) {
+      this.selectedCategory = item;
+      this.showDialog = true;
+      this.isConfirmed = false;
+      this.showError = false;
+    },
+    handleContinue() {
+      if (!this.isConfirmed) {
+        this.showError = true;
+        return;
+      }
+
+      const currentForm = getProductForm() || {};
+      saveProductForm({
+        ...currentForm,
+
+        category: this.selectedCategory.value, // Using the value property
+        categoryDisplay: this.selectedCategory.text // Keeping original text for display
+      });
+      console.log(this.selectedCategory.value)
+      localStorage.setItem('selectedCategory', this.selectedCategory.value);
+      this.showDialog = false;
+      this.$router.push('/region');
+    },
+    cancelSelection() {
+      this.showDialog = false;
+      this.selectedCategory = null;
+    }
+  }
 };
 </script>
-
 <style scoped>
 .shared-parent {
   font-family: Arial, sans-serif;
@@ -266,5 +333,85 @@ export default {
   .text {
     font-size: 0.8em;
   }
+}
+/* Dialog Styles */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-container {
+  background-color: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 800px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .dialog-container {
+  background-color: #333;
+  color: white;
+}
+
+.checkbox-group {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-group input {
+  margin-right: 10px;
+}
+
+.error-message {
+  color: red;
+  margin: 10px 0;
+}
+
+.dark-mode .error-message {
+  color: #ff6b6b;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-btn, .continue-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.cancel-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.dark-mode .cancel-btn {
+  background-color: #444;
+  color: white;
+}
+
+.continue-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.continue-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 </style>

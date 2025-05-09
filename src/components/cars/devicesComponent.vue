@@ -93,6 +93,7 @@ export default {
 };
 </script>
 
+
 <style scoped>
 .parent2 {
   padding: 20px;
@@ -103,7 +104,6 @@ export default {
 
 .horizontal-list {
   list-style-type: none; /* Remove default list styling */
-  padding: 0;
   margin: 0;
   display: flex; /* Make the list horizontal */
   gap: 10px; /* Add spacing between list items */
@@ -127,4 +127,43 @@ export default {
   background-color: green; /* Green background for selected items */
   color: white; /* White text for better contrast */
 }
+
+/* Add these styles to your existing HomeView styles */
+.imported-component {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 0 20px 0; /* Changed from margin: 0 auto to remove centering */
+  text-align: left;
+  overflow-x: auto;
+}
+
+.imported-component ul.horizontal-list {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  margin: 0;
+  list-style: none;
+  justify-content: flex-start; /* Ensure left alignment */
+  overflow-x: auto;
+  width: 100%;
+}
+
+.imported-component .list-item {
+  white-space: nowrap;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.imported-component .list-item:hover {
+  background-color: #f0f0f0;
+}
+
+.imported-component .list-item.selected {
+  background-color: green;
+  color: white;
+}
+
 </style>

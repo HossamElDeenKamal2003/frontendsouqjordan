@@ -15,6 +15,7 @@
     <div class="taskbar-item" @click="toggleNotifications">
       <i class="fas fa-bell"></i>
       <span>Notifications</span>
+      <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
     </div>
     <div class="taskbar-item" @click="navigateTo('home')">
       <i class="fas fa-home"></i>
@@ -28,84 +29,191 @@
         <button @click="closeNotifications" class="close-btn">×</button>
       </div>
       <div class="notification-list">
-        <div
-            v-for="notification in notifications"
-            :key="notification._id"
-            @click="goToProduct(notification)"
-            class="notification-item"
-        >
-          <img
-              :src="notification.userId.profileImage"
-              alt="User"
-              class="user-avatar"
+        <div v-if="loadingNotifications" class="loading-notifications">
+          <i class="fas fa-spinner fa-spin"></i> Loading notifications...
+        </div>
+        <template v-else>
+          <div
+              v-for="notification in notifications"
+              :key="notification._id"
+              @click="goToProduct(notification)"
+              :class="['notification-item', { unread: !notification.read }]"
           >
-          <div class="notification-content">
-            <h4 style="color: green;">{{ notification.title }}</h4>
-            <p>{{ notification.body }}</p>
-            <span class="timestamp">{{ formatDate(notification.createdAt) }}</span>
+            <img
+                :src="notification.userId.profileImage || defaultAvatar"
+                alt="User"
+                class="user-avatar"
+            >
+            <div class="notification-content">
+              <h4 :style="{ color: notification.read ? '#2c3e50' : 'green' }">
+                {{ notification.title }}
+              </h4>
+              <p>{{ notification.body }}</p>
+              <span class="timestamp">{{ formatDate(notification.createdAt) }}</span>
+            </div>
           </div>
-        </div>
-        <div v-if="!notifications.length" class="no-notifications">
-          No notifications yet
-        </div>
+          <div v-if="!notifications.length" class="no-notifications">
+            No notifications yet
+          </div>
+        </template>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+
 export default {
-  name: "fixedBottom",
+  name: "FixedBottomBar",
   data() {
     return {
       showNotifications: false,
       notifications: [],
-      isDark: false, // Assuming you have this for dark mode
-      userId: null
-    }
+      isDark: false,
+      userId: null,
+      loadingNotifications: false,
+      unreadCount: 0,
+      defaultAvatar: 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+    };
   },
-  created(){
+  created() {
     this.userId = localStorage.getItem("userId");
+    this.checkUnreadNotifications();
   },
   methods: {
-    navigateTo(routeName) {
-      this.$router.push({ name: routeName });
+    async navigateTo(routeName) {
+      const protectedRoutes = ['chat', 'favourites', 'addOffer'];
+
+      if (protectedRoutes.includes(routeName)) {
+        if (!this.userId) {
+          this.showLoginToast();
+          return;
+        }
+      }
+
+      try {
+        await this.$router.push({ name: routeName });
+      } catch (error) {
+        if (error.name !== 'NavigationDuplicated') {
+          toast.error('Failed to navigate: ' + error.message);
+        }
+      }
     },
+
+    showLoginToast() {
+      toast.error('Please login to access this feature', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: this.isDark ? 'dark' : 'light'
+      });
+    },
+
     async toggleNotifications() {
+      if (!this.userId) {
+        this.showLoginToast();
+        return;
+      }
+
       this.showNotifications = !this.showNotifications;
       if (this.showNotifications) {
         await this.fetchNotifications();
       }
     },
-    closeNotifications() {
-      this.showNotifications = false;
-    },
+
     async fetchNotifications() {
+      this.loadingNotifications = true;
       try {
-        console.log(this.userId)
-        const response = await fetch(`https://backend.jordan-souq.com/comments/get-notification/${this.userId}`);
+        const response = await fetch(
+            `https://backend.jordan-souq.com/comments/get-notification/${this.userId}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch notifications');
+        }
+
         const data = await response.json();
-        this.notifications = data.notifications;
+        this.notifications = data.notifications || [];
+        this.updateUnreadCount();
       } catch (error) {
         console.error('Error fetching notifications:', error);
+        toast.error('Failed to load notifications');
+        this.notifications = [];
+      } finally {
+        this.loadingNotifications = false;
       }
     },
-    goToProduct(notification) {
-      if (notification.postId) {
-        // Assuming you have a product route that takes postId as parameter
-        this.$router.push({
+
+    async checkUnreadNotifications() {
+      if (!this.userId) return;
+
+      try {
+        const response = await fetch(
+            `https://backend.jordan-souq.com/comments/unread-count/${this.userId}`
+        );
+        const data = await response.json();
+        this.unreadCount = data.count || 0;
+      } catch (error) {
+        console.error('Error checking unread notifications:', error);
+      }
+    },
+
+    updateUnreadCount() {
+      this.unreadCount = this.notifications.filter(n => !n.read).length;
+    },
+
+    async goToProduct(notification) {
+      if (!notification.postId) return;
+
+      try {
+        // Mark as read if unread
+        if (!notification.read) {
+          await this.markAsRead(notification._id);
+        }
+
+        await this.$router.push({
           name: 'details',
           params: { id: notification.postId }
         });
         this.showNotifications = false;
+      } catch (error) {
+        toast.error('Failed to navigate to product');
       }
     },
+
+    async markAsRead(notificationId) {
+      try {
+        await fetch(
+            `https://backend.jordan-souq.com/comments/mark-as-read/${notificationId}`,
+            { method: 'POST' }
+        );
+        this.checkUnreadNotifications();
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    },
+
+    closeNotifications() {
+      this.showNotifications = false;
+    },
+
     formatDate(dateString) {
       const date = new Date(dateString);
-      return date.toLocaleString(); // Adjust format as needed
+      return new Intl.DateTimeFormat('default', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -349,4 +457,43 @@ export default {
     opacity: 1;
   }
 }
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4444;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-notifications {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.dark-mode .loading-notifications {
+  color: #aaa;
+}
+
+.notification-item.unread {
+  background: rgba(100, 255, 100, 0.1) !important;
+  border-left: 3px solid #4CAF50;
+}
+
+.dark-mode .notification-item.unread {
+  background: rgba(76, 175, 80, 0.2) !important;
+}
+
+/* Ensure toast appears above everything */
+.Vue-Toastify__toast-container {
+  z-index: 9999 !important;
+}
+
 </style>

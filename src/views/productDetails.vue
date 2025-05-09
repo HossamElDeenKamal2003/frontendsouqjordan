@@ -5,7 +5,9 @@
       <div class="product-info">
         <div class="right">
           <h2>{{ product.title }}</h2>
-          <p class="price">{{ formatPrice(product.price) }}</p>
+          <p class="price">
+            {{ product.price ? formatPrice(product.price) : 'User Not Send the price' }}
+          </p>
           <p class="description">{{ product.description }}</p>
           <div class="location">📍 {{ product.ArLocation }}</div>
           <div class="time-difference">⏰ {{ formatTimeDifference(product.createdAt) }}</div>
@@ -630,5 +632,9 @@ export default {
   .comments-list {
     max-height: 200px;
   }
+}
+
+.product-details{
+  margin-bottom: 60px;
 }
 </style>

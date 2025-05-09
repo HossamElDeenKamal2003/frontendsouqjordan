@@ -6,9 +6,9 @@
       </div>
       <ul class="menu-list">
         <li
-            class="menu-item"
             v-for="region in regions"
             :key="region"
+            class="menu-item"
             @click="selectRegion(region)"
         >
           <span class="text">{{ region }}</span>
@@ -21,6 +21,23 @@
 
 <script>
 import { ConstVariables } from "../../../const.js";
+import { saveProductForm, getProductForm } from '@/productFormStorage';
+
+const arabicRegions = {
+  'Amman': 'عمان',
+  'Zarqa': 'الزرقاء',
+  'Irbid': 'إربد',
+  'Ajloun': 'عجلون',
+  'Jerash': 'جرش',
+  'Mafraq': 'المفرق',
+  'Balqa': 'البلقاء',
+  'Karak': 'الكرك',
+  'Tafilah': 'الطفيلة',
+  'Ma\'an': 'معان',
+  'Aqaba': 'العقبة',
+  'Madaba': 'مادبا'
+};
+
 export default {
   name: "RegionSelector",
   props: {
@@ -36,8 +53,15 @@ export default {
   },
   methods: {
     selectRegion(region) {
-      const regionLowercase = region.toLowerCase();
-      localStorage.setItem('selectedRegion', regionLowercase);
+      const currentForm = getProductForm() || {};
+
+      saveProductForm({
+        ...currentForm,
+        location: region.toLowerCase(),
+        Arlocation: arabicRegions[region] || region
+      });
+
+      localStorage.setItem('selectedRegion', region.toLowerCase());
       this.$router.push('/city');
     }
   }

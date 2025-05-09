@@ -21,6 +21,7 @@
 
 <script>
 import { ConstVariables } from "../../../const.js";
+import { saveProductForm, getProductForm } from '@/productFormStorage';
 
 export default {
   name: "CitySelector",
@@ -52,13 +53,21 @@ export default {
       }
     },
     selectCity(city) {
+      const currentForm = getProductForm() || {};
+      const data = city.toLowerCase();
+      saveProductForm({
+        ...currentForm,
+        city: city,
+        metaLocation: data,
+      });
+      console.log(data)
+
       localStorage.setItem('selectedCity', city.toLowerCase());
-      this.$router.push('/');
+      this.$router.push('/add-data');
     }
   }
 };
 </script>
-
 <style scoped>
 .shared-parent {
   font-family: Arial, sans-serif;
