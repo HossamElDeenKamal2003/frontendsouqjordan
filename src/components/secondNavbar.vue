@@ -1,15 +1,14 @@
 <template>
-  <nav class="bottom-navbar">
+  <nav class="bottom-navbar" :class="{ 'rtl': $i18n.locale === 'ar' }">
     <!-- Show Login/Register button if not logged in, otherwise show user info -->
     <div v-if="!isLoggedIn" class="auth-section">
-      <button @click="openDialog" class="auth-button">Login / Register</button>
+      <button @click="openDialog" class="auth-button">{{ $t('auth.login_register') }}</button>
     </div>
     <div v-else class="user-section">
-      <!-- Make username clickable -->
       <span class="username" @click="navigateToProfile">
         <i class="fas fa-user"></i> {{ loggedInUsername }}
       </span>
-      <button @click="handleSignOut" class="signout-button" title="Sign Out">
+      <button @click="handleSignOut" class="signout-button" :title="$t('auth.sign_out')">
         <i class="fas fa-sign-out-alt"></i>
       </button>
     </div>
@@ -19,11 +18,9 @@
     </div>
 
     <div class="icons">
-      <!-- Language Toggle Button -->
-      <button @click="toggleLanguage" class="language-toggle" :title="isEnglish ? 'Switch to Arabic' : 'Switch to English'">
-        <span v-if="isEnglish" style="color: white">EN</span>
-        <span v-else style="color: white">AR</span>
-        <i :class="isEnglish ? 'fas fa-flag-usa' : 'fas fa-globe'"></i>
+      <button @click="toggleLanguage" class="language-toggle" :title="$t(`language.switch_to_${$i18n.locale === 'en' ? 'arabic' : 'english'}`)">
+        <span :style="{ color: 'white' }">{{ $i18n.locale.toUpperCase() }}</span>
+        <i :class="$i18n.locale === 'en' ? 'fas fa-flag-usa' : 'fas fa-globe'"></i>
       </button>
 
       <button @click="toggleTheme">
@@ -39,42 +36,42 @@
         </button>
 
         <div class="form-toggle">
-          <button @click="activeForm = 'login'" :class="{ active: activeForm === 'login' }">Login</button>
-          <button @click="activeForm = 'register'" :class="{ active: activeForm === 'register' }">Register</button>
+          <button @click="activeForm = 'login'" :class="{ active: activeForm === 'login' }">{{ $t('auth.login') }}</button>
+          <button @click="activeForm = 'register'" :class="{ active: activeForm === 'register' }">{{ $t('auth.register') }}</button>
         </div>
 
         <!-- Login Form -->
         <form v-if="activeForm === 'login'" @submit.prevent="handleLogin">
           <div class="input-group">
-            <input type="text" v-model="loginEmailOrPhone" placeholder="Email or Phone Number" required />
-            <p class="error-message" v-if="loginErrors.emailOrPhone">{{ loginErrors.emailOrPhone }}</p>
+            <input type="text" v-model="loginEmailOrPhone" :placeholder="$t('auth.email_or_phone')" required />
+            <p class="error-message" v-if="loginErrors.emailOrPhone">{{ $t(`auth.errors.${loginErrors.emailOrPhone}`) }}</p>
           </div>
           <div class="input-group">
-            <input type="password" v-model="loginPassword" placeholder="Password" required />
-            <p class="error-message" v-if="loginErrors.password">{{ loginErrors.password }}</p>
+            <input type="password" v-model="loginPassword" :placeholder="$t('auth.password')" required />
+            <p class="error-message" v-if="loginErrors.password">{{ $t(`auth.errors.${loginErrors.password}`) }}</p>
           </div>
-          <button type="submit">Login</button>
+          <button type="submit">{{ $t('auth.login') }}</button>
         </form>
 
         <!-- Register Form -->
         <form v-if="activeForm === 'register'" @submit.prevent="handleSignup">
           <div class="input-group">
-            <input type="text" v-model="registerUsername" placeholder="Username" required />
-            <p class="error-message" v-if="registerErrors.username">{{ registerErrors.username }}</p>
+            <input type="text" v-model="registerUsername" :placeholder="$t('auth.username')" required />
+            <p class="error-message" v-if="registerErrors.username">{{ $t(`auth.errors.${registerErrors.username}`) }}</p>
           </div>
           <div class="input-group">
-            <input type="email" v-model="registerEmail" placeholder="Email" required />
-            <p class="error-message" v-if="registerErrors.email">{{ registerErrors.email }}</p>
+            <input type="email" v-model="registerEmail" :placeholder="$t('auth.email')" required />
+            <p class="error-message" v-if="registerErrors.email">{{ $t(`auth.errors.${registerErrors.email}`) }}</p>
           </div>
           <div class="input-group">
-            <input type="text" v-model="registerPhoneNumber" placeholder="Phone Number" required />
-            <p class="error-message" v-if="registerErrors.phoneNumber">{{ registerErrors.phoneNumber }}</p>
+            <input type="text" v-model="registerPhoneNumber" :placeholder="$t('auth.phone_number')" required />
+            <p class="error-message" v-if="registerErrors.phoneNumber">{{ $t(`auth.errors.${registerErrors.phoneNumber}`) }}</p>
           </div>
           <div class="input-group">
-            <input type="password" v-model="registerPassword" placeholder="Password" required />
-            <p class="error-message" v-if="registerErrors.password">{{ registerErrors.password }}</p>
+            <input type="password" v-model="registerPassword" :placeholder="$t('auth.password')" required />
+            <p class="error-message" v-if="registerErrors.password">{{ $t(`auth.errors.${registerErrors.password}`) }}</p>
           </div>
-          <button type="submit">Register</button>
+          <button type="submit">{{ $t('auth.register') }}</button>
         </form>
       </div>
     </div>
@@ -82,62 +79,75 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios';
+import { toast } from 'vue3-toastify';
 
 export default {
-  name: "BottomNavbar",
+  name: 'BottomNavbar',
   props: {
     isDark: Boolean,
   },
   data() {
     return {
       isDialogOpen: false,
-      activeForm: "login",
-      isEnglish: localStorage.getItem("language") === "ar" ? false : true, // Load language from localStorage
-      // Login form data
-      loginEmailOrPhone: "",
-      loginPassword: "",
-      loginErrors: {
-        emailOrPhone: "",
-        password: "",
-      },
-
-      // Register form data
-      registerUsername: "",
-      registerEmail: "",
-      registerPhoneNumber: "",
-      registerPassword: "",
-      registerErrors: {
-        username: "",
-        email: "",
-        phoneNumber: "",
-        password: "",
-      },
-
-      // Logged-in state
+      activeForm: 'login',
+      loginEmailOrPhone: '',
+      loginPassword: '',
+      loginErrors: { emailOrPhone: '', password: '' },
+      registerUsername: '',
+      registerEmail: '',
+      registerPhoneNumber: '',
+      registerPassword: '',
+      registerErrors: { username: '', email: '', phoneNumber: '', password: '' },
       isLoggedIn: false,
-      loggedInUsername: "",
+      loggedInUsername: '',
     };
   },
   created() {
     this.checkLoginStatus();
-    const storedLanguage = localStorage.getItem("language");
-    if (storedLanguage) {
-      this.isEnglish = storedLanguage === "en";
+    if (this.$i18n) {
+      const storedLanguage = localStorage.getItem('language');
+      if (storedLanguage) {
+        this.$i18n.locale = storedLanguage;
+        document.documentElement.setAttribute('dir', storedLanguage === 'ar' ? 'rtl' : 'ltr');
+      }
     }
   },
   methods: {
+    toastError() {
+      toast.error('Please login to access this feature', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: this.isDark ? 'dark' : 'light',
+        rtl: this.$i18n.locale === 'ar', // Set RTL based on locale
+      });
+    },
+    toastSuccess() {
+      toast.success('Your Offer Created Successfully', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: this.isDark ? 'dark' : 'light',
+        rtl: this.$i18n.locale === 'ar', // Set RTL based on locale
+      });
+    },
     checkLoginStatus() {
-      const username = localStorage.getItem("username");
+      const username = localStorage.getItem('username');
       if (username) {
         this.isLoggedIn = true;
         this.loggedInUsername = username;
       } else {
         this.isLoggedIn = false;
-        this.loggedInUsername = "";
+        this.loggedInUsername = '';
       }
     },
-
     openDialog() {
       this.isDialogOpen = true;
       this.resetForms();
@@ -147,143 +157,117 @@ export default {
       this.resetForms();
     },
     toggleLanguage() {
-      this.isEnglish = !this.isEnglish;
-      const selectedLanguage = this.isEnglish ? "en" : "ar";
-      localStorage.setItem("language", selectedLanguage); // Store language in localStorage
-      console.log(this.isEnglish);
+      if (this.$i18n) {
+        const newLocale = this.$i18n.locale === 'en' ? 'ar' : 'en';
+        this.$i18n.locale = newLocale;
+        localStorage.setItem('language', newLocale);
+        document.documentElement.setAttribute('dir', newLocale === 'ar' ? 'rtl' : 'ltr');
+      }
     },
     toggleTheme() {
-      this.$emit("toggle-theme");
+      this.$emit('toggle-theme');
     },
-
-    // Navigate to user profile
     navigateToProfile() {
-      const userId = localStorage.getItem("userId");
+      const userId = localStorage.getItem('userId');
       if (userId) {
         this.$router.push(`/profile/${userId}`);
       } else {
-        console.error("User ID not found in localStorage");
+        this.toastError(); // Use toastError for unauthenticated access
       }
     },
-
     async handleLogin() {
-      this.loginErrors = { emailOrPhone: "", password: "" };
-
+      this.loginErrors = { emailOrPhone: '', password: '' };
       if (!this.loginEmailOrPhone) {
-        this.loginErrors.emailOrPhone = "Email or phone number is required.";
+        this.loginErrors.emailOrPhone = 'email_or_phone_required';
         return;
       }
       if (!this.loginPassword) {
-        this.loginErrors.password = "Password is required.";
+        this.loginErrors.password = 'password_required';
         return;
       }
-
       const isEmail = /\S+@\S+\.\S+/.test(this.loginEmailOrPhone);
-      const payload = {
-        password: this.loginPassword,
-      };
-      if (isEmail) {
-        payload.email = this.loginEmailOrPhone;
-      } else {
-        payload.phoneNumber = this.loginEmailOrPhone;
-      }
-
+      const payload = { password: this.loginPassword };
+      if (isEmail) payload.email = this.loginEmailOrPhone;
+      else payload.phoneNumber = this.loginEmailOrPhone;
       try {
-        const response = await axios.post("https://backend.jordan-souq.com/users/login", payload);
-
-        localStorage.setItem("userId", response.data.user.id);
-        localStorage.setItem("email", response.data.user.email);
-        localStorage.setItem("phoneNumber", response.data.user.phoneNumber);
-        localStorage.setItem("username", response.data.user.username || "");
-
-        this.checkLoginStatus(); // Update login state
+        const response = await axios.post('https://backend.jordan-souq.com/users/login', payload);
+        localStorage.setItem('userId', response.data.user.id);
+        localStorage.setItem('email', response.data.user.email);
+        localStorage.setItem('phoneNumber', response.data.user.phoneNumber);
+        localStorage.setItem('username', response.data.user.username || '');
+        this.checkLoginStatus();
         this.closeDialog();
-        window.location.href = "/";
+        window.location.href = '/';
       } catch (error) {
-        console.error("Login error:", error);
+        console.error('Login error:', error);
         if (error.response) {
           switch (error.response.status) {
             case 400:
-              this.loginErrors.emailOrPhone = "Email or phone number and password are required.";
+              this.loginErrors.emailOrPhone = 'email_or_phone_password_required';
               break;
             case 401:
-              if (error.response.data.message === "User not found") {
-                this.loginErrors.emailOrPhone = "User not found.";
-              } else if (error.response.data.message === "Incorrect password") {
-                this.loginErrors.password = "Incorrect password.";
-              }
+              this.loginErrors[error.response.data.message === 'User not found' ? 'emailOrPhone' : 'password'] =
+                  error.response.data.message.toLowerCase().replace(' ', '_');
               break;
             case 500:
-              this.loginErrors.password = "Internal server error.";
+              this.loginErrors.password = 'internal_server_error';
               break;
             default:
-              this.loginErrors.password = "An error occurred during login.";
+              this.loginErrors.password = 'login_error';
           }
         } else {
-          this.loginErrors.password = "Network error. Please try again.";
+          this.loginErrors.password = 'network_error';
         }
       }
     },
-
     async handleSignup() {
-      this.registerErrors = { username: "", email: "", phoneNumber: "", password: "" };
-
-      if (!this.registerUsername) this.registerErrors.username = "Username is required.";
-      if (!this.registerEmail) this.registerErrors.email = "Email is required.";
-      if (!this.registerPhoneNumber) this.registerErrors.phoneNumber = "Phone number is required.";
-      if (!this.registerPassword) this.registerErrors.password = "Password is required.";
+      this.registerErrors = { username: '', email: '', phoneNumber: '', password: '' };
+      if (!this.registerUsername) this.registerErrors.username = 'username_required';
+      if (!this.registerEmail) this.registerErrors.email = 'email_required';
+      if (!this.registerPhoneNumber) this.registerErrors.phoneNumber = 'phone_number_required';
+      if (!this.registerPassword) this.registerErrors.password = 'password_required';
       if (Object.values(this.registerErrors).some((error) => error)) return;
-
       try {
-        const response = await axios.post("https://heraj-backend.onrender.com/users/register", {
+        const response = await axios.post('https://heraj-backend.onrender.com/users/register', {
           username: this.registerUsername,
           email: this.registerEmail,
           phoneNumber: this.registerPhoneNumber,
           password: this.registerPassword,
         });
-
-        localStorage.setItem("email", response.data.user.email);
-        localStorage.setItem("phoneNumber", response.data.user.phoneNumber);
-        localStorage.setItem("username", response.data.user.username);
-
-        this.checkLoginStatus(); // Update login state
+        localStorage.setItem('email', response.data.user.email);
+        localStorage.setItem('phoneNumber', response.data.user.phoneNumber);
+        localStorage.setItem('username', response.data.user.username);
+        this.checkLoginStatus();
         this.closeDialog();
-        window.location.href = "/";
+        window.location.href = '/';
       } catch (error) {
-        console.error("Signup error:", error);
-        if (error.response) {
-          if (error.response.status === 400) {
-            if (error.response.data.message === "Email or Phone number already exists") {
-              this.registerErrors.email = "Email or phone number already exists.";
-              this.registerErrors.phoneNumber = "Email or phone number already exists.";
-            } else {
-              this.registerErrors.password = error.response.data.message;
-            }
+        console.error('Signup error:', error);
+        if (error.response && error.response.status === 400) {
+          if (error.response.data.message === 'Email or Phone number already exists') {
+            this.registerErrors.email = 'email_phone_exists';
+            this.registerErrors.phoneNumber = 'email_phone_exists';
           } else {
-            this.registerErrors.password = "An error occurred during registration.";
+            this.registerErrors.password = 'registration_error';
           }
         } else {
-          this.registerErrors.password = "Network error. Please try again.";
+          this.registerErrors.password = 'network_error';
         }
       }
     },
-
     handleSignOut() {
-      localStorage.clear(); // Clear all user data
-      this.checkLoginStatus(); // Update login state
-      window.location.href = "/"; // Redirect to home
+      localStorage.clear();
+      this.checkLoginStatus();
+      window.location.href = '/';
     },
-
     resetForms() {
-      this.loginEmailOrPhone = "";
-      this.loginPassword = "";
-      this.loginErrors = { emailOrPhone: "", password: "" };
-
-      this.registerUsername = "";
-      this.registerEmail = "";
-      this.registerPhoneNumber = "";
-      this.registerPassword = "";
-      this.registerErrors = { username: "", email: "", phoneNumber: "", password: "" };
+      this.loginEmailOrPhone = '';
+      this.loginPassword = '';
+      this.loginErrors = { emailOrPhone: '', password: '' };
+      this.registerUsername = '';
+      this.registerEmail = '';
+      this.registerPhoneNumber = '';
+      this.registerPassword = '';
+      this.registerErrors = { username: '', email: '', phoneNumber: '', password: '' };
     },
   },
 };
@@ -299,6 +283,10 @@ export default {
   width: 100%;
   z-index: 1000;
   overflow: auto;
+}
+
+.rtl {
+  direction: rtl;
 }
 
 /* Dark Mode */
@@ -517,35 +505,36 @@ export default {
 .dark-mode .close-button:hover {
   color: #ccc;
 }
+
 .language-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 8px; /* Rounded corners */
+  border-radius: 8px;
   background-color: #fff;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .language-toggle:hover {
-  background-color: #f0f0f0; /* Light gray on hover */
+  background-color: #f0f0f0;
 }
 
 .language-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px; /* Space between icon and text */
+  gap: 4px;
 }
 
 .language-toggle i {
-  font-size: 20px; /* Icon size */
+  font-size: 20px;
 }
 
 .language-toggle span {
-  font-size: 12px; /* Text size */
-  font-weight: 500; /* Bold text */
+  font-size: 12px;
+  font-weight: 500;
 }
 </style>

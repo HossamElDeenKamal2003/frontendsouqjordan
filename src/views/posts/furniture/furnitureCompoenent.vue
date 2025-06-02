@@ -1,7 +1,7 @@
 <template>
   <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add Device Offer</h2>
+      <h2 class="main-title">Add furniture Offer</h2>
       <button @click="toggleDarkMode">Toggle Dark Mode</button>
       <div class="form">
         <!-- Image Upload Component -->
@@ -9,22 +9,14 @@
 
         <div class="form-group">
           <label>Title</label>
-          <input type="text" v-model="data.title" class="form-input" placeholder="Enter device title"/>
+          <input type="text" v-model="data.title" class="form-input" placeholder="Enter furniture title"/>
         </div>
 
         <div class="form-group">
           <label>Category</label>
-          <select v-model="data.metaCategory" @change="updateModels" class="form-select">
+          <select v-model="data.carType" @change="updateModels" class="form-select">
             <option value="">Select a category</option>
             <option v-for="category in categoryList" :value="category">{{ category }}</option>
-          </select>
-        </div>
-
-        <div class="form-group" v-if="filteredModels.length > 0">
-          <label>Model</label>
-          <select v-model="data.model" class="form-select">
-            <option value="">Select a model</option>
-            <option v-for="model in filteredModels" :value="model">{{ model }}</option>
           </select>
         </div>
 
@@ -35,7 +27,7 @@
 
         <div class="form-group">
           <label>Description</label>
-          <textarea v-model="data.content" placeholder="Enter device description" class="form-textarea"></textarea>
+          <textarea v-model="data.content" placeholder="Enter furniture description" class="form-textarea"></textarea>
         </div>
 
         <div class="button-container">
@@ -54,7 +46,7 @@ import { toast } from 'vue3-toastify';
 import ImageUpload from '@/components/addpost/ImageUpload.vue';
 
 export default {
-  name: 'AddDeviceComponent',
+  name: 'addfurniturescomponent',
   components: {
     ImageUpload,
   },
@@ -70,8 +62,9 @@ export default {
         content: '',
         userId: '',
         images: [],
+        carType: ''
       },
-      categoryList: ConstVariables.devicesTypeList || [],
+      categoryList: ConstVariables.furnitureList || [],
       filteredModels: [],
     };
   },
@@ -136,11 +129,11 @@ export default {
         // Append other data fields
         formData.append('title', this.data.title);
         formData.append('price', this.data.price);
-        formData.append('metaCategory', this.data.metaCategory);
-        formData.append('carType', this.data.model);
+        formData.append('metaCategory', 'furnitures');
+        formData.append('carType', this.data.carType);
         formData.append('content', description);
         formData.append('description', description);
-        formData.append('category', 'devices');
+        formData.append('category', 'others');
         formData.set('Arlocation', dataForm.data?.Arlocation || '');
         formData.set('location', dataForm.data?.location || '');
         formData.set('metaLocation', dataForm.data?.metaLocation || '');
@@ -192,7 +185,7 @@ export default {
     // Initialize category
     const storedCategory = localStorage.getItem('selectedCategory');
     if (storedCategory) {
-      this.categoryList = ConstVariables.devicesTypeList;
+      this.categoryList = ConstVariables.furnitureList;
     }
   },
 };

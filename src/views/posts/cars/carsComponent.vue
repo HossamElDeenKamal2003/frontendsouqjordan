@@ -204,7 +204,7 @@ export default {
         content: '',
         userId: '',
         description: '',
-        images: [], // Added images array
+        images: [],
       },
       carTypes: ConstVariables.carsTypeList || [],
       filteredCarModels: [],

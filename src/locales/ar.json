@@ -1,16 +1,90 @@
 {
-  "addNewOffer": {
-    "title": "اضافة عرض جديد",
-    "selectOfferType": "اختر نوع العرض",
-    "types": {
-      "overnight-sale": "عرض سهارة البيع أو التقارن",
-      "parts-service": "عرض قطع غيار أو خدمات سيارات أو إكسسوارات سيارات البيع",
-      "equipment": "عرض شاحنة أو معدات ثقيلة البيع أو التأجير",
-      "motorcycle": "عرض دراجة نارية البيع",
-      "car-sale": "عرض سيارة البيع",
-      "car-rental": "عرض سيارة التأجير",
-      "boat-sale": "عرض قارب البيع"
+  "categories": [
+    {
+      "name": "الكل",
+      "value": "all",
+      "image": "https://cdn-icons-png.flaticon.com/512/9696/9696976.png",
+      "category": "الكل"
     },
-    "signature": "سند الله الله"
+    {
+      "name": "سيارات",
+      "value": "سيارات",
+      "image": "https://ymimg1.b8cdn.com/uploads/car_model/10543/pictures/12904367/2023_Jetour_Dashing_Plus_Exterior_01.png",
+      "category": "سيارات"
+    },
+    {
+      "name": "عقارات",
+      "value": "عقار",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn0dhO9J7R4JT424Qs-RcZqQRkw9tTCbJoxw&s",
+      "category": "عقارات"
+    },
+    {
+      "name": "أجهزة",
+      "value": "أجهزة",
+      "image": "https://st.depositphotos.com/1682899/2107/i/450/depositphotos_21075061-stock-photo-electronic-devices.jpg",
+      "category": "أجهزة"
+    },
+    {
+      "name": "أثاث",
+      "value": "أثاث",
+      "image": "https://m.media-amazon.com/images/I/71u3F2NZ9gL.jpg",
+      "category": "أثاث"
+    },
+    {
+      "name": "احتياجات شخصية",
+      "value": "احتياجات شخصية",
+      "image": "https://t4.ftcdn.net/jpg/01/86/85/71/360_F_186857190_s4dfc0wfT6jcEcr7e3vzrFuUdysg6Gpp.jpg",
+      "category": "احتياجات شخصية"
+    },
+    {
+      "name": "وظائف",
+      "value": "وظائف",
+      "image": "https://cdn-icons-png.flaticon.com/512/3850/3850285.png",
+      "category": "وظائف"
+    },
+    {
+      "name": "أخرى",
+      "value": "أخرى",
+      "image": "https://cdn-icons-png.flaticon.com/512/91/91356.png",
+      "category": "أخرى"
+    }
+  ],
+  "carTypes": [
+    { "name": "تويوتا", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdau_-dB7gSut8RS3NiOduk95RplPz2edUFg&s" },
+    { "name": "هيونداي", "image": "https://di-uploads-pod5.dealerinspire.com/triplejsaipan/uploads/2018/05/HyundaiLogoStacked_4cblk-1024x659.gif" },
+    { "name": "فورد", "image": "https://brandlogos.net/wp-content/uploads/2015/01/ford-logo.png" },
+    { "name": "كيا", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMhP4EuI6IsGTyuuV9CevzTyZW2dNypUW4vQ&s" },
+    { "name": "ليكزس", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0Tzcj-HX0yIKXo_HbQvhP0udDlQb1qQ7J3Q&s" },
+    { "name": "هوندا", "image": "https://graphicdesignergeeks.com/wp-content/uploads/2024/03/HONDA-1-1080x628.jpg" },
+    { "name": "مازدا", "image": "https://pngimg.com/d/mazda_PNG86.png" },
+    { "name": "شيفروليه", "image": "https://di-Uploads-pod2.dealerinspire.com/biggerschevy/uploads/2018/02/2013-Chevrolet-BowTie.jpg" },
+    { "name": "نيسان", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTApK8B3rNWTU_h5M2Ju5G-0XW6kfKEtfsA-A&s" },
+    { "name": "جيتور", "image": "https://images.seeklogo.com/logo-png/52/1/jetour-logo-png_seeklogo-524224.png" }
+  ],
+  "filters": {
+    "all_locations": "جميع المواقع",
+    "all_cities": "جميع المدن"
+  },
+  "search": {
+    "placeholder": "ابحث..."
+  },
+  "buttons": {
+    "add_offer": "إضافة إعلان"
+  },
+  "products": {
+    "image_alt": "صورة المنتج",
+    "loading": "جاري التحميل...",
+    "seen": "مشاهدة",
+    "favourite": "مفضل",
+    "price_format": "{price} د.أ"
+  },
+  "time": {
+    "seconds_ago": "{count} ثواني مضت",
+    "minutes_ago": "{count} دقائق مضت",
+    "hours_ago": "{count} ساعات مضت",
+    "days_ago": "{count} أيام مضت"
+  },
+  "errors": {
+    "filter_error": "خطأ في تصفية المنتجات"
   }
 }

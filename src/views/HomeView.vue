@@ -8,43 +8,44 @@
     />
 
     <!-- Conditional Rendering of Components Based on Selected Category -->
-      <CarsComponent
-          v-if="showCarsComponent"
-          @car-type-selected="handleCarTypeSelected"
-          @model-selected="handleCarModelSelected"
-          class="imported-component"
-      />
-      <BuildingComponent
-          v-if="showBuildingComponent"
-          @building-type-selected="handleBuildingTypeSelected"
-          class="imported-component"
-      />
-      <DevicesComponent
-          v-if="showDevices"
-          @device-type-selected="handleDeviceTypeSelected"
-          @model-selected="handleDeviceModelSelected"
-          class="imported-component"
-      />
-      <FurnitureComponent
-          v-if="showFurnitureComponent"
-          @furniture-selected="handleFurnitureSelected"
-          class="imported-component"
-      />
-      <PersonalAccessoriesList
-          v-if="showPersonalneeds"
-          @need-selected="handleNeedSelected"
-          class="imported-component"
-      />
-      <JobsComponent
-          v-if="jobsComponent"
-          @job-selected="handleJobSelected"
-          class="imported-component"
-      />
-      <OthersComponent
-          v-if="othersComponent"
-          @other-selected="handleOtherSelected"
-          class="imported-component"
-      />
+    <CarsComponent
+        v-if="showCarsComponent"
+        @car-type-selected="handleCarTypeSelected"
+        @model-selected="handleCarModelSelected"
+        class="imported-component"
+    />
+    <BuildingComponent
+        v-if="showBuildingComponent"
+        @building-type-selected="handleBuildingTypeSelected"
+        class="imported-component"
+    />
+    <DevicesComponent
+        v-if="showDevices"
+        @device-type-selected="handleDeviceTypeSelected"
+        @model-selected="handleDeviceModelSelected"
+        class="imported-component"
+    />
+    <FurnitureComponent
+        v-if="showFurnitureComponent"
+        @furniture-selected="handleFurnitureSelected"
+        class="imported-component"
+    />
+    <PersonalAccessoriesList
+        v-if="showPersonalneeds"
+        @need-selected="handleNeedSelected"
+        class="imported-component"
+    />
+    <JobsComponent
+        v-if="jobsComponent"
+        @job-selected="handleJobSelected"
+        class="imported-component"
+    />
+    <OthersComponent
+        v-if="othersComponent"
+        @other-selected="handleOtherSelected"
+        class="imported-component"
+    />
+
     <!-- Location Filters (Moved above search bar) -->
     <div class="location-filters" :class="{ 'location-filters-mobile': isMobile }">
       <select
@@ -53,7 +54,7 @@
           @change="filterProducts"
           class="filter-dropdown"
       >
-        <option value="">All Locations</option>
+        <option value="">{{ $t('filters.all_locations') }}</option>
         <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
       </select>
       <select
@@ -62,7 +63,7 @@
           @change="filterProducts"
           class="filter-dropdown"
       >
-        <option value="">All Cities</option>
+        <option value="">{{ $t('filters.all_cities') }}</option>
         <option v-for="metaLoc in metaLocations" :key="metaLoc" :value="metaLoc">
           {{ metaLoc }}
         </option>
@@ -78,11 +79,13 @@
         <div class="search-add-container">
           <input
               type="text"
-              placeholder="Search products..."
+              :placeholder="$t('search.placeholder')"
               v-model="searchQuery"
               :class="['search-input', isDark ? 'dark-search' : '']"
           />
-          <button class="add-offer-button" @click="addOffer">+Add Offer</button>
+          <button class="add-offer-button" @click="addOffer">
+            {{ $t('buttons.add_offer') }}
+          </button>
           <!-- Drawer Toggle Button (Mobile Only) -->
           <button class="drawer-toggle" @click="toggleDrawer" v-if="isMobile">
             {{ drawerOpen ? '✕' : '≡' }}
@@ -104,19 +107,23 @@
             >
               <img
                   :src="
-          product.images && product.images.length
-            ? product.images[0]
-            : require('../assets/jordan image.jpeg')
-        "
-                  alt="Product Image"
+                  product.images && product.images.length
+                    ? product.images[0]
+                    : require('../assets/jordan image.jpeg')
+                "
+                  :alt="$t('products.image_alt')"
                   class="product-image"
               />
               <div :class="['product-info', isDark ? 'dark-text' : '']">
                 <h3 :class="{ 'seen-title': product.isSeen }">{{ product.title }}</h3>
                 <p>{{ product.description }}</p>
                 <div class="indicators">
-                  <span v-if="product.isSeen" class="seen-indicator">👁️ Seen</span>
-                  <span v-if="product.isFavourite" class="favourite-indicator">️❤ Favourite</span>
+                  <span v-if="product.isSeen" class="seen-indicator">
+                    👁️ {{ $t('products.seen') }}
+                  </span>
+                  <span v-if="product.isFavourite" class="favourite-indicator">
+                    ❤️ {{ $t('products.favourite') }}
+                  </span>
                 </div>
                 <div v-if="product.price" class="price">
                   {{ formatPrice(product.price) }}
@@ -133,7 +140,7 @@
             </router-link>
           </div>
           <div ref="loadMoreTrigger" class="loading-indicator">
-            <p v-if="loading">Loading more products...</p>
+            <p v-if="loading">{{ $t('products.loading') }}</p>
           </div>
         </div>
       </div>
@@ -177,6 +184,8 @@ import PersonalAccessoriesList from "../components/cars/personalneedsComponent.v
 import JobsComponent from "../components/cars/jobsComponent.vue";
 import OthersComponent from "../components/cars/otherComponent.vue";
 import fixedBottom from "../components/fixedBottom.vue";
+import enTranslations from '@/locales/en.json'
+import arTranslations from '@/locales/ar.json'
 export default {
   name: "HomeView",
   components: {
@@ -188,7 +197,7 @@ export default {
     PersonalAccessoriesList,
     JobsComponent,
     OthersComponent,
-    fixedBottom
+    fixedBottom,
   },
   props: {
     isDark: Boolean,
@@ -231,12 +240,12 @@ export default {
       carTypes: [],
       drawerOpen: false,
       isMobile: false,
+      translations: this.$i18n.locale === 'ar' ? arTranslations : enTranslations
     };
   },
   computed: {
     filteredProducts() {
       let result = [...this.products];
-      console.log("Filtering with:", this.filteredItems);
       if (this.searchQuery) {
         result = result.filter(
             (product) =>
@@ -249,7 +258,9 @@ export default {
       }
       if (this.filteredItems.metaCategory) {
         result = result.filter(
-            (product) => product.metaCategory && product.metaCategory.toLowerCase() === this.filteredItems.metaCategory.toLowerCase()
+            (product) =>
+                product.metaCategory &&
+                product.metaCategory.toLowerCase() === this.filteredItems.metaCategory.toLowerCase()
         );
       }
       if (this.filteredItems.carType) {
@@ -279,22 +290,18 @@ export default {
       return Object.keys(ConstVariables.locationsMap);
     },
     metaLocations() {
-      return this.selectedLocation
-          ? ConstVariables.locationsMap[this.selectedLocation] || []
-          : [];
+      return this.selectedLocation ? ConstVariables.locationsMap[this.selectedLocation] || [] : [];
     },
   },
   created() {
-    this.categories = this.getCategories();
+    this.loadCategories();
     this.loadCarTypes();
-    console.log("Component created, initial state:", this.filteredItems);
   },
   mounted() {
     this.getTrips();
     this.$nextTick(this.setupInfiniteScroll);
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
-    console.log("Component mounted, initial selectedLocation:", this.selectedLocation, "metaLocation:", this.selectedMetaLocation);
   },
   beforeUnmount() {
     if (this.observer) this.observer.disconnect();
@@ -329,11 +336,9 @@ export default {
         this.loading = false;
       }
     },
-
     async filterProducts() {
       try {
         this.loading = true;
-        console.log("Filtering products with:", this.filteredItems);
         const userId = localStorage.getItem("userId") || "null";
         let response;
         if (!this.filteredItems.category || this.filteredItems.category === "all") {
@@ -348,12 +353,8 @@ export default {
                 metaCategory: this.filteredItems.metaCategory
                     ? this.filteredItems.metaCategory.toLowerCase()
                     : null,
-                carType: this.filteredItems.carType
-                    ? this.filteredItems.carType.toLowerCase()
-                    : null,
-                location: this.filteredItems.location
-                    ? this.filteredItems.location.toLowerCase()
-                    : null,
+                carType: this.filteredItems.carType ? this.filteredItems.carType.toLowerCase() : null,
+                location: this.filteredItems.location ? this.filteredItems.location.toLowerCase() : null,
                 metaLocation: this.filteredItems.metaLocation
                     ? this.filteredItems.metaLocation.toLowerCase()
                     : null,
@@ -376,7 +377,7 @@ export default {
         this.page = 2;
       } catch (error) {
         console.error("Error filtering products:", error);
-        alert("Error filtering products");
+        this.$toast.error(this.$t('errors.filter_error')); // Use toast for error feedback
       } finally {
         this.loading = false;
       }
@@ -384,7 +385,6 @@ export default {
     setupInfiniteScroll() {
       this.observer = new IntersectionObserver(
           (entries) => {
-            console.log("Intersection observed:", entries[0].isIntersecting);
             if (entries[0].isIntersecting && !this.loading) {
               this.getTrips();
             }
@@ -399,41 +399,41 @@ export default {
       this.resetComponents();
       this.filteredItems.metaCategory = null;
       this.filteredItems.carType = null;
-      if (categoryName === "Cars") {
+      if (categoryName === this.$t('categories.all.name')) {
+        this.selectedCategory = null;
+        this.filteredItems.category = "all";
+      } else if (categoryName === this.$t('categories.cars.name')) {
         this.showCarsComponent = true;
         this.selectedCategory = "Cars";
         this.filteredItems.category = categoryValue;
         this.selectedCarType = ConstVariables.carsTypeList;
-      } else if (categoryName === "Building") {
+      } else if (categoryName === this.$t('categories.building.name')) {
         this.showBuildingComponent = true;
         this.selectedCategory = "Building";
         this.filteredItems.category = categoryValue;
-      } else if (categoryName === "Devices") {
+      } else if (categoryName === this.$t('categories.devices.name')) {
         this.showDevices = true;
         this.selectedCategory = "Devices";
         this.filteredItems.category = categoryValue;
-      } else if (categoryName === "Furniture") {
+      } else if (categoryName === this.$t('categories.furniture.name')) {
         this.showFurnitureComponent = true;
         this.selectedCategory = "Furniture";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "furniture";
-      } else if (categoryName === "Personal Needs") {
+      } else if (categoryName === this.$t('categories.personal_needs.name')) {
         this.showPersonalneeds = true;
         this.selectedCategory = "Personal Needs";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "personal accessories";
-      } else if (categoryName === "Jobs") {
+      } else if (categoryName === this.$t('categories.jobs.name')) {
         this.jobsComponent = true;
         this.selectedCategory = "Jobs";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "jobs";
-      } else if (categoryName === "Others") {
+      } else if (categoryName === this.$t('categories.others.name')) {
         this.othersComponent = true;
         this.selectedCategory = "Others";
         this.filteredItems.category = categoryValue;
-      } else if (categoryName === "All") {
-        this.selectedCategory = null;
-        this.filteredItems.category = "all";
       }
       this.page = 1;
       this.products = [];
@@ -498,48 +498,42 @@ export default {
       this.filterProducts();
     },
     formatPrice(price) {
-      return `$${price}`;
+      return this.$t('products.price_format', { price }); // Use i18n for currency formatting
     },
     formatTimeDifference(createdAt) {
       const now = new Date();
       const createdDate = new Date(createdAt);
       const diffInSeconds = Math.floor((now - createdDate) / 1000);
-      if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-      return `${Math.floor(diffInSeconds / 86400)} days ago`;
+      if (diffInSeconds < 60) {
+        return this.$t('time.seconds_ago', { count: diffInSeconds });
+      }
+      if (diffInSeconds < 3600) {
+        return this.$t('time.minutes_ago', { count: Math.floor(diffInSeconds / 60) });
+      }
+      if (diffInSeconds < 86400) {
+        return this.$t('time.hours_ago', { count: Math.floor(diffInSeconds / 3600) });
+      }
+      return this.$t('time.days_ago', { count: Math.floor(diffInSeconds / 86400) });
     },
-    getCategories() {
-      return [
-        { name: "All", image: "https://cdn-icons-png.flaticon.com/512/9696/9696976.png", value: "all" },
-        { name: "Cars", value: "سيارات", image: "https://ymimg1.b8cdn.com/uploads/car_model/10543/pictures/12904367/2023_Jetour_Dashing_Plus_Exterior_01.png", category: "Cars" },
-        { name: "Building", value: "عقار", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn0dhO9J7R4JT424Qs-RcZqQRkw9tTCbJoxw&s", category: "Building" },
-        { name: "Devices", value: "devices", image: "https://st.depositphotos.com/1682899/2107/i/450/depositphotos_21075061-stock-photo-electronic-devices.jpg", category: "Devices" },
-        { name: "Furniture", value: "others", image: "https://m.media-amazon.com/images/I/71u3F2NZ9gL.jpg", category: "Furniture" },
-        { name: "Personal Needs", value: "others", image: "https://t4.ftcdn.net/jpg/01/86/85/71/360_F_186857190_s4dfc0wfT6jcEcr7e3vzrFuUdysg6Gpp.jpg", category: "Personal Needs" },
-        { name: "Jobs", value: "others", image: "https://cdn-icons-png.flaticon.com/512/3850/3850285.png", category: "Jobs" },
-        { name: "Others", value: "others", image: "https://cdn-icons-png.flaticon.com/512/91/91356.png", category: "Others" },
-      ];
+    loadCategories() {
+      console.log(this.$t('categories'))
+      this.categories = this.translations.categories.map((cat) => ({
+        name: cat.name,
+        value: cat.value,
+        image: cat.image,
+        category: cat.category,
+      }));
     },
     loadCarTypes() {
-      this.carTypes = [
-        { name: "Toyota", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdau_-dB7gSut8RS3NiOduk95RplPz2edUFg&s" },
-        { name: "Hyundai", image: "https://di-uploads-pod5.dealerinspire.com/triplejsaipan/uploads/2018/05/HyundaiLogoStacked_4cblk-1024x659.gif" },
-        { name: "Ford", image: "https://brandlogos.net/wp-content/uploads/2015/01/ford-logo.png" },
-        { name: "Kia", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMhP4EuI6IsGTyuuV9CevzTyZW2dNypUW4vQ&s" },
-        { name: "Lexus", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0Tzcj-HX0yIKXo_HbQvhP0udDlQb1qQ7J3Q&s" },
-        { name: "Honda", image: "https://graphicdesignergeeks.com/wp-content/uploads/2024/03/HONDA-1-1080x628.jpg" },
-        { name: "Mazda", image: "https://pngimg.com/d/mazda_PNG86.png" },
-        { name: "Chevrolet", image: "https://di-uploads-pod2.dealerinspire.com/biggerschevy/uploads/2018/02/2013-Chevrolet-BowTie.jpg" },
-        { name: "Nissan", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTApK8B3rNWTU_h5M2Ju5G-0XW6kfKEtfsA-A&s" },
-        { name: "Jetour", image: "https://images.seeklogo.com/logo-png/52/1/jetour-logo-png_seeklogo-524224.png" },
-      ];
+      this.carTypes = this.translations.carTypes.map((carType) => ({
+        name: carType.name,
+        image: carType.image,
+      }));
     },
     selectCarType(carType) {
       this.selectedCarType = carType.name;
       this.filteredItems.metaCategory = carType.name.toLowerCase();
       this.filterProducts();
-      console.log("Selected car type:", carType.name);
     },
     toggleDrawer() {
       this.drawerOpen = !this.drawerOpen;
@@ -548,26 +542,23 @@ export default {
       this.isMobile = window.innerWidth <= 768;
       if (!this.isMobile) this.drawerOpen = false;
     },
-    addOffer(){
+    addOffer() {
       this.$router.push('/add-offer');
-    }
+    },
   },
   watch: {
     selectedLocation(newVal) {
       this.filteredItems.location = newVal ? newVal.toLowerCase() : "";
-      console.log("Selected Location:", newVal);
       this.selectedMetaLocation = "";
       this.filterProducts();
     },
     selectedMetaLocation(newVal) {
       this.filteredItems.metaLocation = newVal ? newVal.toLowerCase() : "";
-      console.log("Selected Meta Location:", newVal);
       this.filterProducts();
     },
   },
 };
 </script>
-
 <style scoped>
 .darkFilter {
   background-color: #333;

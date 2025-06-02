@@ -1,16 +1,90 @@
 {
-  "addNewOffer": {
-    "title": "Add New Offer",
-    "selectOfferType": "Select Offer Type",
-    "types": {
-      "overnight-sale": "Overnight sale or exchange",
-      "parts-service": "Car parts, services or accessories sale",
-      "equipment": "Truck or heavy equipment sale/rental",
-      "motorcycle": "Motorcycle sale",
-      "car-sale": "Car sale",
-      "car-rental": "Car rental",
-      "boat-sale": "Boat sale"
+  "categories": [
+    {
+      "name": "All",
+      "value": "all",
+      "image": "https://cdn-icons-png.flaticon.com/512/9696/9696976.png",
+      "category": "All"
     },
-    "signature": "Trust in God"
+    {
+      "name": "Cars",
+      "value": "cars",
+      "image": "https://ymimg1.b8cdn.com/uploads/car_model/10543/pictures/12904367/2023_Jetour_Dashing_Plus_Exterior_01.png",
+      "category": "Cars"
+    },
+    {
+      "name": "Building",
+      "value": "building",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn0dhO9J7R4JT424Qs-RcZqQRkw9tTCbJoxw&s",
+      "category": "Building"
+    },
+    {
+      "name": "Devices",
+      "value": "devices",
+      "image": "https://st.depositphotos.com/1682899/2107/i/450/depositphotos_21075061-stock-photo-electronic-devices.jpg",
+      "category": "Devices"
+    },
+    {
+      "name": "Furniture",
+      "value": "others",
+      "image": "https://m.media-amazon.com/images/I/71u3F2NZ9gL.jpg",
+      "category": "Furniture"
+    },
+    {
+      "name": "Personal Needs",
+      "value": "others",
+      "image": "https://t4.ftcdn.net/jpg/01/86/85/71/360_F_186857190_s4dfc0wfT6jcEcr7e3vzrFuUdysg6Gpp.jpg",
+      "category": "Personal Needs"
+    },
+    {
+      "name": "Jobs",
+      "value": "others",
+      "image": "https://cdn-icons-png.flaticon.com/512/3850/3850285.png",
+      "category": "Jobs"
+    },
+    {
+      "name": "Others",
+      "value": "others",
+      "image": "https://cdn-icons-png.flaticon.com/512/91/91356.png",
+      "category": "Others"
+    }
+  ],
+  "carTypes": [
+    { "name": "Toyota", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdau_-dB7gSut8RS3NiOduk95RplPz2edUFg&s" },
+    { "name": "Hyundai", "image": "https://di-uploads-pod5.dealerinspire.com/triplejsaipan/uploads/2018/05/HyundaiLogoStacked_4cblk-1024x659.gif" },
+    { "name": "Ford", "image": "https://brandlogos.net/wp-content/uploads/2015/01/ford-logo.png" },
+    { "name": "Kia", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMhP4EuI6IsGTyuuV9CevzTyZW2dNypUW4vQ&s" },
+    { "name": "Lexus", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0Tzcj-HX0yIKXo_HbQvhP0udDlQb1qQ7J3Q&s" },
+    { "name": "Honda", "image": "https://graphicdesignergeeks.com/wp-content/uploads/2024/03/HONDA-1-1080x628.jpg" },
+    { "name": "Mazda", "image": "https://pngimg.com/d/mazda_PNG86.png" },
+    { "name": "Chevrolet", "image": "https://di-Uploads-pod2.dealerinspire.com/biggerschevy/uploads/2018/02/2013-Chevrolet-BowTie.jpg" },
+    { "name": "Nissan", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTApK8B3rNWTU_h5M2Ju5G-0XW6kfKEtfsA-A&s" },
+    { "name": "Jetour", "image": "https://images.seeklogo.com/logo-png/52/1/jetour-logo-png_seeklogo-524224.png" }
+  ],
+  "filters": {
+    "all_locations": "All Locations",
+    "all_cities": "All Cities"
+  },
+  "search": {
+    "placeholder": "Search..."
+  },
+  "buttons": {
+    "add_offer": "Add Offer"
+  },
+  "product": {
+    "image_alt": "Product Image",
+    "loading": "Loading...",
+    "seen": "Seen",
+    "favourite": "Favourite",
+    "price_format": "${price}"
+  },
+  "time": {
+    "seconds_ago": "{count} seconds ago",
+    "minutes_ago": "{count} minutes ago",
+    "hours_ago": "{count} hours ago",
+    "days_ago": "{count} days ago"
+  },
+  "errors": {
+    "filter_error": "Error filtering products"
   }
 }
