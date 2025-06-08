@@ -127,6 +127,7 @@
                 </div>
                 <div v-if="product.price" class="price">
                   {{ formatPrice(product.price) }}
+
                 </div>
                 <div class="time-location">
                   <div class="time-difference">
@@ -396,45 +397,55 @@ export default {
       }
     },
     handleCategorySelected(categoryName, categoryValue) {
+      console.log('Category selected:', { categoryName, categoryValue });
       this.resetComponents();
       this.filteredItems.metaCategory = null;
       this.filteredItems.carType = null;
-      if (categoryName === this.$t('categories.all.name')) {
+
+      // Find the category object by name
+      const category = this.categories.find(cat => cat.name === categoryName);
+      if (!category) {
+        console.warn('Unknown category:', categoryName);
+        return;
+      }
+
+      if (categoryName === this.translations.categories[0].name) { // "All" or "الكل"
         this.selectedCategory = null;
         this.filteredItems.category = "all";
-      } else if (categoryName === this.$t('categories.cars.name')) {
+      } else if (categoryName === this.translations.categories[1].name) { // Cars
         this.showCarsComponent = true;
         this.selectedCategory = "Cars";
-        this.filteredItems.category = categoryValue;
+        this.filteredItems.category = category.value;
         this.selectedCarType = ConstVariables.carsTypeList;
-      } else if (categoryName === this.$t('categories.building.name')) {
+      } else if (categoryName === this.translations.categories[2].name) { // Building
         this.showBuildingComponent = true;
         this.selectedCategory = "Building";
-        this.filteredItems.category = categoryValue;
-      } else if (categoryName === this.$t('categories.devices.name')) {
+        this.filteredItems.category = category.value;
+      } else if (categoryName === this.translations.categories[3].name) { // Devices
         this.showDevices = true;
         this.selectedCategory = "Devices";
-        this.filteredItems.category = categoryValue;
-      } else if (categoryName === this.$t('categories.furniture.name')) {
+        this.filteredItems.category = category.value;
+      } else if (categoryName === this.translations.categories[4].name) { // Furniture
         this.showFurnitureComponent = true;
         this.selectedCategory = "Furniture";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "furniture";
-      } else if (categoryName === this.$t('categories.personal_needs.name')) {
+      } else if (categoryName === this.translations.categories[5].name) { // Personal Needs
         this.showPersonalneeds = true;
         this.selectedCategory = "Personal Needs";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "personal accessories";
-      } else if (categoryName === this.$t('categories.jobs.name')) {
+      } else if (categoryName === this.translations.categories[6].name) { // Jobs
         this.jobsComponent = true;
         this.selectedCategory = "Jobs";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "jobs";
-      } else if (categoryName === this.$t('categories.others.name')) {
+      } else if (categoryName === this.translations.categories[7].name) { // Others
         this.othersComponent = true;
         this.selectedCategory = "Others";
-        this.filteredItems.category = categoryValue;
+        this.filteredItems.category = category.value;
       }
+
       this.page = 1;
       this.products = [];
       this.filterProducts();
@@ -498,7 +509,12 @@ export default {
       this.filterProducts();
     },
     formatPrice(price) {
-      return this.$t('products.price_format', { price }); // Use i18n for currency formatting
+      console.log("product price : ", price);
+      if (!price && price !== 0) {
+        return 'Price not available';
+      }
+      const formattedPrice = Number(price).toFixed(2);
+      return this.$i18n.locale === 'ar' ? `${formattedPrice} دينار` : `${formattedPrice} JOD`;
     },
     formatTimeDifference(createdAt) {
       const now = new Date();

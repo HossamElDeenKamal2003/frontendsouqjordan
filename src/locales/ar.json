@@ -50,16 +50,46 @@
     }
   ],
   "carTypes": [
-    { "name": "تويوتا", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdau_-dB7gSut8RS3NiOduk95RplPz2edUFg&s" },
-    { "name": "هيونداي", "image": "https://di-uploads-pod5.dealerinspire.com/triplejsaipan/uploads/2018/05/HyundaiLogoStacked_4cblk-1024x659.gif" },
-    { "name": "فورد", "image": "https://brandlogos.net/wp-content/uploads/2015/01/ford-logo.png" },
-    { "name": "كيا", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMhP4EuI6IsGTyuuV9CevzTyZW2dNypUW4vQ&s" },
-    { "name": "ليكزس", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0Tzcj-HX0yIKXo_HbQvhP0udDlQb1qQ7J3Q&s" },
-    { "name": "هوندا", "image": "https://graphicdesignergeeks.com/wp-content/uploads/2024/03/HONDA-1-1080x628.jpg" },
-    { "name": "مازدا", "image": "https://pngimg.com/d/mazda_PNG86.png" },
-    { "name": "شيفروليه", "image": "https://di-Uploads-pod2.dealerinspire.com/biggerschevy/uploads/2018/02/2013-Chevrolet-BowTie.jpg" },
-    { "name": "نيسان", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTApK8B3rNWTU_h5M2Ju5G-0XW6kfKEtfsA-A&s" },
-    { "name": "جيتور", "image": "https://images.seeklogo.com/logo-png/52/1/jetour-logo-png_seeklogo-524224.png" }
+    {
+      "name": "تويوتا",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdau_-dB7gSut8RS3NiOduk95RplPz2edUFg&s"
+    },
+    {
+      "name": "هيونداي",
+      "image": "https://di-uploads-pod5.dealerinspire.com/triplejsaipan/uploads/2018/05/HyundaiLogoStacked_4cblk-1024x659.gif"
+    },
+    {
+      "name": "فورد",
+      "image": "https://brandlogos.net/wp-content/uploads/2015/01/ford-logo.png"
+    },
+    {
+      "name": "كيا",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMhP4EuI6IsGTyuuV9CevzTyZW2dNypUW4vQ&s"
+    },
+    {
+      "name": "ليكزس",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0Tzcj-HX0yIKXo_HbQvhP0udDlQb1qQ7J3Q&s"
+    },
+    {
+      "name": "هوندا",
+      "image": "https://graphicdesignergeeks.com/wp-content/uploads/2024/03/HONDA-1-1080x628.jpg"
+    },
+    {
+      "name": "مازدا",
+      "image": "https://pngimg.com/d/mazda_PNG86.png"
+    },
+    {
+      "name": "شيفروليه",
+      "image": "https://di-Uploads-pod2.dealerinspire.com/biggerschevy/uploads/2018/02/2013-Chevrolet-BowTie.jpg"
+    },
+    {
+      "name": "نيسان",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTApK8B3rNWTU_h5M2Ju5G-0XW6kfKEtfsA-A&s"
+    },
+    {
+      "name": "جيتور",
+      "image": "https://images.seeklogo.com/logo-png/52/1/jetour-logo-png_seeklogo-524224.png"
+    }
   ],
   "filters": {
     "all_locations": "جميع المواقع",
@@ -86,5 +116,330 @@
   },
   "errors": {
     "filter_error": "خطأ في تصفية المنتجات"
+  },
+  "building": {
+    "type": "نوع العقار",
+    "options": [
+      {
+        "name": "عقار للبيع",
+        "value": "sale"
+      },
+      {
+        "name": "عقار للإيجار",
+        "value": "rent"
+      }
+    ]
+  },
+  "landOffer": {
+    "title": "إضافة عرض أرض",
+    "landType": "نوع الأرض",
+    "residential": "سكني",
+    "commercial": "تجاري",
+    "space": "مساحة الأرض",
+    "enterSpace": "أدخل المساحة",
+    "m2": "م²",
+    "m3": "م³",
+    "sellerType": "نوع البائع",
+    "owner": "المالك",
+    "mediator": "الوسيط",
+    "isTenant": "هل هناك مستأجر؟",
+    "nearPlaces": "الأماكن القريبة",
+    "places": {
+      "Market": "السوق",
+      "School": "المدرسة",
+      "Park": "الحديقة",
+      "Mosque": "المسجد",
+      "CarsParking": "مواقف السيارات",
+      "Bank": "البنك",
+      "Hospital": "المستشفى",
+      "Gum": "النقطة",
+      "Restaurant": "المطعم"
+    },
+    "direction": "الاتجاه",
+    "north": "شمال",
+    "south": "جنوب",
+    "offerCircleBuildings": "عدد المباني الدائرية في العرض",
+    "enterNumber": "أدخل العدد",
+    "submit": "تقديم العرض",
+    "validation": {
+      "landType": "يرجى اختيار نوع الأرض.",
+      "landSpace": "يرجى إدخال مساحة الأرض.",
+      "sellerType": "يرجى اختيار نوع البائع.",
+      "images": "يرجى رفع صورة واحدة على الأقل."
+    },
+    "success": "تم تقديم العرض بنجاح!",
+    "error": "فشل في تقديم العرض."
+  },
+
+  "propertyDetails": {
+    "title": "إضافة تفاصيل العقار",
+    "rooms": {
+      "title": "عدد الغرف"
+    },
+    "bathrooms": {
+      "title": "عدد الحمامات"
+    },
+    "condition": {
+      "title": "حالة الأثاث",
+      "options": {
+        "Fully furnished": "مفروش بالكامل",
+        "Partially furnished": "مفروش جزئياً",
+        "Unfurnished": "غير مفروش"
+      }
+    },
+    "buildingMeters": "مساحة البناء (م²)",
+    "enterBuildingMeters": "أدخل مساحة البناء",
+    "landMeters": "مساحة الأرض (م²)",
+    "enterLandMeters": "أدخل مساحة الأرض",
+    "floors": {
+      "title": "عدد الطوابق",
+      "options": {
+        "Initial settlement": "التسوية الأولية",
+        "Second settlement": "التسوية الثانية",
+        "Third settlement": "التسوية الثالثة",
+        "Ground floor": "الطابق الأرضي",
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4",
+        "5": "5",
+        "6": "6",
+        "7": "7",
+        "8": "8",
+        "9": "9",
+        "+10": "+10",
+        "Top floor with roof": "الطابق العلوي مع السقف"
+      }
+    },
+    "buildingAge": "عمر البناء",
+    "ageOptions": {
+      "under building": "تحت البناء",
+      "0-1 year": "0-1 سنة",
+      "1-5 year": "1-5 سنوات"
+    },
+    "description": "الوصف",
+    "enterDescription": "أدخل وصف العقار",
+    "submit": "تقديم العرض",
+    "validation": {
+      "description": "يرجى إدخال وصف.",
+      "images": "يرجى رفع صورة واحدة على الأقل.",
+      "meters": "يرجى إدخال مساحة البناء أو الأرض."
+    },
+    "success": "تم تقديم العرض بنجاح!",
+    "error": "فشل في تقديم العرض."
+  },
+  "taskbar": {
+    "chat": "دردشة",
+    "favorites": "المفضلة",
+    "addOffer": "إضافة عرض",
+    "notifications": "الإشعارات",
+    "home": "الرئيسية",
+    "loadingNotifications": "جارٍ تحميل الإشعارات...",
+    "noNotifications": "لا توجد إشعارات بعد",
+    "navigationError": "فشل التنقل: ",
+    "loginRequired": "يرجى تسجيل الدخول للوصول إلى هذه الميزة",
+    "fetchError": "فشل في جلب الإشعارات",
+    "loadNotificationsError": "فشل في تحميل الإشعارات",
+    "unreadError": "خطأ أثناء التحقق من الإشعارات غير المقروءة",
+    "markAsReadError": "خطأ أثناء وضع علامة قراءة على الإشعار",
+    "goToProductError": "فشل في التنقل إلى المنتج"
+  },
+  "shared": {
+    "offerTitle": "إضافة عرض جديد",
+    "menu": {
+      "cars": "سيارات",
+      "building": "عقار",
+      "devices": "أجهزة",
+      "jobs": "وظائف",
+      "furniture": "أثاث",
+      "personal_accessories": "إكسسوارات شخصية",
+      "other": "أخرى"
+    },
+    "agreementTitle": "» إتفاقية الرسوم",
+    "agreementVerse": "بسم الله الرحمن الرحيم قال الله تعالى: 'وَأَوْفُواْ بِعَهْدِ اللهِ إِذَا عَاهَدتُّمْ وَلاَ تَنقُضُواْ الأَيْمَانَ بَعْدَ تَوْكِيدِهَا وَقَدْ جَعَلْتُمُ اللهَ عَلَيْكُمْ كَفِيلاً' صدق الله العظيم",
+    "selectedCategory": "لقد اخترت:",
+    "confirmAgreement": "* أتعهد بالالتزام بنظم الهيئة العامة للعقار",
+    "errorMessage": "يرجى تأكيد الفئة للمتابعة",
+    "cancel": "إلغاء",
+    "continue": "متابعة"
+  },
+
+  "profile": {
+    "editCoverPhoto": "تعديل صورة الغلاف",
+    "posts": "المنشورات",
+    "followers": "المتابعون",
+    "following": "المتابعة",
+    "tabs": {
+      "posts": "المنشورات",
+      "followedPosts": "المنشورات المتبعة"
+    },
+    "seenIndicator": "👁️ تمت المشاهدة",
+    "favouriteIndicator": "❤ مفضلة",
+    "updateCoverImage": "تحديث صورة الغلاف",
+    "updateProfileImage": "تحديث صورة الملف الشخصي",
+    "secondsAgo": "ثوانٍ مضت",
+    "minutesAgo": "دقائق مضت",
+    "hoursAgo": "ساعات مضت",
+    "daysAgo": "أيام مضت",
+    "fetchProfileError": "خطأ أثناء جلب ملف المستخدم",
+    "fetchFollowedError": "خطأ أثناء جلب المنشورات المتبعة",
+    "updateCoverError": "خطأ أثناء تحديث صورة الغلاف",
+    "updateProfileError": "خطأ أثناء تحديث صورة الملف الشخصي"
+  },
+  "locations": {
+    "amman": "عمان",
+    "zarqa": "الزرقاء",
+    "irbid": "إربد",
+    "ajloun": "عجلون",
+    "jerash": "جرش",
+    "mafraq": "المفرق",
+    "balqa": "البلقاء",
+    "karak": "الكرك",
+    "tafilah": "الطفيلة",
+    "maan": "معان",
+    "aqaba": "العقبة",
+    "madaba": "مادبا",
+    "ramtha": "الرمثا",
+    "al_husn": "الحصن",
+    "shoubak": "الشوبك",
+    "wadi_musa": "وادي موسى",
+    "russeifa": "الرصيفة",
+    "ain_al_basha": "عين الباشا",
+    "fuheis": "فحيص",
+    "mahis": "محيس",
+    "dhiban": "ذيبان",
+    "mutah": "المؤتة",
+    "al_salt": "السلط",
+    "al_mafraq": "المفرق",
+    "al_rusaifa": "الرصيفة",
+    "al_jubeiha": "الجبيهة",
+    "marj_al_hamam": "مرج الحمام",
+    "abdoun": "عبدون",
+    "sweifieh": "السويفية",
+    "khalda": "خلدا",
+    "tla_al_ali": "طلاع علي",
+    "dabouq": "دبوق",
+    "deir_ghbar": "دير غبار",
+    "al_muqabalain": "المقابلين",
+    "sahab": "سحاب",
+    "naur": "ناعور"
+  },
+  "meta_locations": {
+    "amman": {
+      "downtown_amman": "وسط عمان",
+      "jabal_amman": "جبل عمان",
+      "abdoun": "عبدون",
+      "sweifieh": "السويفية",
+      "khalda": "خلدا",
+      "shmeisani": "الشميساني",
+      "jabal_al_weibdeh": "جبل الوئبده",
+      "tla_al_ali": "طلاع علي",
+      "dabouq": "دبوق",
+      "marj_al_hamam": "مرج الحمام",
+      "al_rabiah": "الربيعة",
+      "al_jubeiha": "الجبيهة",
+      "al_bayader": "البيادر",
+      "mecca_street": "شارع مكة",
+      "abu_nseir": "أبو نسير",
+      "deir_ghbar": "دير غبار",
+      "al_muqabalain": "المقابلين",
+      "sahab": "سحاب",
+      "naur": "ناعور"
+    },
+    "zarqa": {
+      "zarqa_city": "مدينة الزرقاء",
+      "new_zarqa": "الزرقاء الجديدة",
+      "zarqa_camp": "مخيم الزرقاء",
+      "russeifa": "الرصيفة",
+      "hashemiyeh": "الهاشمية",
+      "azraq": "الأزرق",
+      "birayn": "برين"
+    },
+    "irbid": {
+      "irbid_city": "مدينة إربد",
+      "downtown_irbid": "وسط إربد",
+      "bani_kinanah": "بني كنانة",
+      "beit_ras": "بيت راس",
+      "hakama": "حكمة",
+      "al_mazar_al_shamali": "المزار الشمالي",
+      "taybeh": "طيبة"
+    },
+    "ajloun": {
+      "ajloun_city": "مدينة عجلون",
+      "ain_janna": "عين جنة",
+      "sokhna": "السخنة",
+      "waraq": "وراق"
+    },
+    "jerash": {
+      "jerash_city": "مدينة جرش",
+      "souq_jerash": "سوق جرش",
+      "raqban": "رقبان"
+    },
+    "mafraq": {
+      "mafraq_city": "مدينة المفرق",
+      "umm_al_jimal": "أم الجمل",
+      "al_badia": "البادية"
+    },
+    "balqa": {
+      "al_salt": "السلط",
+      "fuheis": "فحيص",
+      "mahis": "محيس"
+    },
+    "karak": {
+      "karak_city": "مدينة الكرك",
+      "mazar": "المزار",
+      "qasr": "القصر"
+    },
+    "tafilah": {
+      "tafilah_city": "مدينة الطفيلة",
+      "bseira": "بصيرة",
+      "ain_al_hashem": "عين الهاشم"
+    },
+    "maan": {
+      "maan_city": "مدينة معان",
+      "wadi_rum": "وادي رم",
+      "petra": "البتراء"
+    },
+    "aqaba": {
+      "aqaba_city": "مدينة العقبة",
+      "tala_bay": "طابا باي",
+      "industrial_area": "المنطقة الصناعية"
+    },
+    "madaba": {
+      "madaba_city": "مدينة مادبا",
+      "mount_nebo": "جبل نيبو",
+      "mukawir": "المكاور"
+    },
+    "ramtha": {
+      "ramtha_city": "مدينة الرمثا",
+      "hashmite_university": "جامعة الهاشمية"
+    },
+    "al_husn": {
+      "al_husn_city": "مدينة الحصن",
+      "al_manshiyya": "المنشية"
+    },
+    "shoubak": {
+      "shoubak_city": "مدينة الشوبك",
+      "shoubak_castle": "قلعة الشوبك"
+    },
+    "wadi_musa": {
+      "wadi_musa_city": "مدينة وادي موسى",
+      "petra_entrance": "مدخل البتراء"
+    },
+    "ain_al_basha": {
+      "ain_al_basha_city": "مدينة عين الباشا"
+    },
+    "dhiban": {
+      "dhiban_city": "مدينة ذيبان"
+    },
+    "mutah": {
+      "mutah_city": "مدينة المؤتة",
+      "mutah_university": "جامعة المؤتة"
+    }
+  },
+  "filters": {
+    "all_locations": "جميع المناطق",
+    "all_cities": "جميع المدن"
   }
+
 }

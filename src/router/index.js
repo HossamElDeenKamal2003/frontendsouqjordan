@@ -8,6 +8,9 @@ import mainComponent from "../views/posts/addPost.vue";
 import RegionSelector from "../components/addpost/citiesComponent.vue";
 import CitySelector from "../components/addpost/metacityComponents.vue";
 import postData from "../views/posts/postData.vue";
+import SaleOrRent from "../views/posts/Buildings and lands/chooseRentOrSale.vue";
+import typesOfbuildings from "../views/posts/Buildings and lands/typesOfbuildings.vue";
+import AddBuildingsSpecificData from "../views/posts/Buildings and lands/addBuildingsSpecificData.vue";
 const routes = [
   {
     path: "/",
@@ -53,6 +56,24 @@ const routes = [
     path: '/add-data',
     name: "addData",
     component: postData
+  },
+  {
+    path: '/saleorrent',
+    name: "SaleOrRent",
+    component: SaleOrRent
+  },
+  {
+    path: "/typesOfbuildings",
+    name: "typesOfbuildings",
+    component: typesOfbuildings,
+    props: (route) => ({ saleState: route.query.saleState })
+  },
+  {
+    path: '/AddBuildingsSpecificData',
+    name: "AddBuildingsSpecificData",
+    component: AddBuildingsSpecificData,
+    props: (route) => ({ type: route.query.type })
+
   }
 ];
 

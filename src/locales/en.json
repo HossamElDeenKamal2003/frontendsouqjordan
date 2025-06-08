@@ -86,5 +86,324 @@
   },
   "errors": {
     "filter_error": "Error filtering products"
+  },
+  "building": {
+    "type": "Building Type",
+    "options": [
+      { "name": "Building For Sale", "value": "sale" },
+      { "name": "Building For Rent", "value": "rent" }
+    ]
+  },
+  "landOffer": {
+    "title": "Add Land Offer",
+    "landType": "Land Type",
+    "residential": "Residential",
+    "commercial": "Commercial",
+    "space": "Space of Land",
+    "enterSpace": "Enter space",
+    "m2": "m²",
+    "m3": "m³",
+    "sellerType": "Seller Type",
+    "owner": "Owner",
+    "mediator": "Mediator",
+    "isTenant": "Is Tenant?",
+    "nearPlaces": "Near Places",
+    "places": {
+      "Market": "Market",
+      "School": "School",
+      "Park": "Park",
+      "Mosque": "Mosque",
+      "CarsParking": "Cars Parking",
+      "Bank": "Bank",
+      "Hospital": "Hospital",
+      "Gum": "Gum",
+      "Restaurant": "Restaurant"
+    },
+    "direction": "Direction",
+    "north": "North",
+    "south": "South",
+    "offerCircleBuildings": "Number of Offer Circle Buildings",
+    "enterNumber": "Enter number",
+    "submit": "Submit Offer",
+    "validation": {
+      "landType": "Please select a land type.",
+      "landSpace": "Please enter the space of land.",
+      "sellerType": "Please select a seller type.",
+      "images": "Please upload at least one image."
+    },
+    "success": "Offer submitted successfully!",
+    "error": "Failed to submit offer."
+  },
+
+  "propertyDetails": {
+    "title": "Add Property Details",
+    "rooms": {
+      "title": "Number Of Rooms"
+    },
+    "bathrooms": {
+      "title": "Number Of Bathrooms"
+    },
+    "condition": {
+      "title": "Condition of brushes",
+      "options": {
+        "Fully furnished": "Fully furnished",
+        "Partially furnished": "Partially furnished",
+        "Unfurnished": "Unfurnished"
+      }
+    },
+    "buildingMeters": "Building Meters (m²)",
+    "enterBuildingMeters": "Enter building meters",
+    "landMeters": "Land Meters (m²)",
+    "enterLandMeters": "Enter land meters",
+    "floors": {
+      "title": "Number Of Floors",
+      "options": {
+        "Initial settlement": "Initial settlement",
+        "Second settlement": "Second settlement",
+        "Third settlement": "Third settlement",
+        "Ground floor": "Ground floor",
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4",
+        "5": "5",
+        "6": "6",
+        "7": "7",
+        "8": "8",
+        "9": "9",
+        "+10": "+10",
+        "Top floor with roof": "Top floor with roof"
+      }
+    },
+    "buildingAge": "Building Age",
+    "ageOptions": {
+      "under building": "under building",
+      "0-1 year": "0-1 year",
+      "1-5 year": "1-5 year"
+    },
+    "description": "Description",
+    "enterDescription": "Enter property description",
+    "submit": "Submit Offer",
+    "validation": {
+      "description": "Please enter a description.",
+      "images": "Please upload at least one image.",
+      "meters": "Please enter building or land meters."
+    },
+    "success": "Offer submitted successfully!",
+    "error": "Failed to submit offer."
+  },
+  "taskbar": {
+    "chat": "Chat",
+    "favorites": "Favorites",
+    "addOffer": "Add Offer",
+    "notifications": "Notifications",
+    "home": "Home",
+    "loadingNotifications": "Loading notifications...",
+    "noNotifications": "No notifications yet",
+    "navigationError": "Failed to navigate: ",
+    "loginRequired": "Please login to access this feature",
+    "fetchError": "Failed to fetch notifications",
+    "loadNotificationsError": "Failed to load notifications",
+    "unreadError": "Error checking unread notifications",
+    "markAsReadError": "Error marking notification as read",
+    "goToProductError": "Failed to navigate to product"
+  },
+  "shared": {
+    "offerTitle": "Add New Offer",
+    "menu": {
+      "cars": "Cars",
+      "building": "Building",
+      "devices": "Devices",
+      "jobs": "Jobs",
+      "furniture": "Furniture",
+      "personal_accessories": "Personal Accessories",
+      "other": "Other"
+    },
+    "agreementTitle": "» Agreement Fees",
+    "agreementVerse": "In the name of Allah, the Most Gracious, the Most Merciful. Allah says: 'And fulfill the covenant of Allah when you have made it, and do not break oaths after their confirmation while you have made Allah a surety over you.' - Truthful is Allah, the Almighty",
+    "selectedCategory": "You selected:",
+    "confirmAgreement": "* I undertake to comply with the regulations of the General Real Estate Authority",
+    "errorMessage": "Please confirm the category to continue",
+    "cancel": "Cancel",
+    "continue": "Continue"
+  },
+  "profile": {
+    "editCoverPhoto": "Edit Cover Photo",
+    "posts": "Posts",
+    "followers": "Followers",
+    "following": "Following",
+    "tabs": {
+      "posts": "Posts",
+      "followedPosts": "Followed Posts"
+    },
+    "seenIndicator": "👁️ Seen",
+    "favouriteIndicator": "❤ Favourite",
+    "updateCoverImage": "Update Cover Image",
+    "updateProfileImage": "Update Profile Image",
+    "secondsAgo": "seconds ago",
+    "minutesAgo": "minutes ago",
+    "hoursAgo": "hours ago",
+    "daysAgo": "days ago",
+    "fetchProfileError": "Error fetching user profile",
+    "fetchFollowedError": "Error fetching followed posts",
+    "updateCoverError": "Error updating cover image",
+    "updateProfileError": "Error updating profile image"
+  },
+  "locations": {
+    "amman": "Amman",
+    "zarqa": "Zarqa",
+    "irbid": "Irbid",
+    "ajloun": "Ajloun",
+    "jerash": "Jerash",
+    "mafraq": "Mafraq",
+    "balqa": "Balqa",
+    "karak": "Karak",
+    "tafilah": "Tafilah",
+    "maan": "Ma'an",
+    "aqaba": "Aqaba",
+    "madaba": "Madaba",
+    "ramtha": "Ramtha",
+    "al_husn": "Al-Husn",
+    "shoubak": "Shoubak",
+    "wadi_musa": "Wadi Musa",
+    "russeifa": "Russeifa",
+    "ain_al_basha": "Ain Al-Basha",
+    "fuheis": "Fuheis",
+    "mahis": "Mahis",
+    "dhiban": "Dhiban",
+    "mutah": "Mu'tah",
+    "al_salt": "Al-Salt",
+    "al_mafraq": "Al-Mafraq",
+    "al_rusaifa": "Al-Rusaifa",
+    "al_jubeiha": "Al-Jubeiha",
+    "marj_al_hamam": "Marj Al-Hamam",
+    "abdoun": "Abdoun",
+    "sweifieh": "Sweifieh",
+    "khalda": "Khalda",
+    "tla_al_ali": "Tla' Al-Ali",
+    "dabouq": "Dabouq",
+    "deir_ghbar": "Deir Ghbar",
+    "al_muqabalain": "Al-Muqabalain",
+    "sahab": "Sahab",
+    "naur": "Naur"
+  },
+  "meta_locations": {
+    "amman": {
+      "downtown_amman": "Downtown Amman",
+      "jabal_amman": "Jabal Amman",
+      "abdoun": "Abdoun",
+      "sweifieh": "Sweifieh",
+      "khalda": "Khalda",
+      "shmeisani": "Shmeisani",
+      "jabal_al_weibdeh": "Jabal Al-Weibdeh",
+      "tla_al_ali": "Tla' Al-Ali",
+      "dabouq": "Dabouq",
+      "marj_al_hamam": "Marj Al-Hamam",
+      "al_rabiah": "Al-Rabiah",
+      "al_jubeiha": "Al-Jubeiha",
+      "al_bayader": "Al-Bayader",
+      "mecca_street": "Mecca Street",
+      "abu_nseir": "Abu Nseir",
+      "deir_ghbar": "Deir Ghbar",
+      "al_muqabalain": "Al-Muqabalain",
+      "sahab": "Sahab",
+      "naur": "Naur"
+    },
+    "zarqa": {
+      "zarqa_city": "Zarqa City",
+      "new_zarqa": "New Zarqa",
+      "zarqa_camp": "Zarqa Camp",
+      "russeifa": "Russeifa",
+      "hashemiyeh": "Hashemiyeh",
+      "azraq": "Azraq",
+      "birayn": "Birayn"
+    },
+    "irbid": {
+      "irbid_city": "Irbid City",
+      "downtown_irbid": "Downtown Irbid",
+      "bani_kinanah": "Bani Kinanah",
+      "beit_ras": "Beit Ras",
+      "hakama": "Hakama",
+      "al_mazar_al_shamali": "Al-Mazar Al-Shamali",
+      "taybeh": "Taybeh"
+    },
+    "ajloun": {
+      "ajloun_city": "Ajloun City",
+      "ain_janna": "Ain Janna",
+      "sokhna": "Sokhna",
+      "waraq": "Waraq"
+    },
+    "jerash": {
+      "jerash_city": "Jerash City",
+      "souq_jerash": "Souq Jerash",
+      "raqban": "Raqban"
+    },
+    "mafraq": {
+      "mafraq_city": "Mafraq City",
+      "umm_al_jimal": "Umm Al-Jimal",
+      "al_badia": "Al-Badia"
+    },
+    "balqa": {
+      "al_salt": "Al-Salt",
+      "fuheis": "Fuheis",
+      "mahis": "Mahis"
+    },
+    "karak": {
+      "karak_city": "Karak City",
+      "mazar": "Mazar",
+      "qasr": "Qasr"
+    },
+    "tafilah": {
+      "tafilah_city": "Tafilah City",
+      "bseira": "Bseira",
+      "ain_al_hashem": "Ain Al-Hashem"
+    },
+    "maan": {
+      "maan_city": "Ma'an City",
+      "wadi_rum": "Wadi Rum",
+      "petra": "Petra"
+    },
+    "aqaba": {
+      "aqaba_city": "Aqaba City",
+      "tala_bay": "Tala Bay",
+      "industrial_area": "Industrial Area"
+    },
+    "madaba": {
+      "madaba_city": "Madaba City",
+      "mount_nebo": "Mount Nebo",
+      "mukawir": "Mukawir"
+    },
+    "ramtha": {
+      "ramtha_city": "Ramtha City",
+      "hashmite_university": "Hashmite University"
+    },
+    "al_husn": {
+      "al_husn_city": "Al-Husn City",
+      "al_manshiyya": "Al-Manshiyya"
+    },
+    "shoubak": {
+      "shoubak_city": "Shoubak City",
+      "shoubak_castle": "Shoubak Castle"
+    },
+    "wadi_musa": {
+      "wadi_musa_city": "Wadi Musa City",
+      "petra_entrance": "Petra Entrance"
+    },
+    "ain_al_basha": {
+      "ain_al_basha_city": "Ain Al-Basha City"
+    },
+    "dhiban": {
+      "dhiban_city": "Dhiban City"
+    },
+    "mutah": {
+      "mutah_city": "Mu'tah City",
+      "mutah_university": "Mu'tah University"
+    }
+  },
+  "filters": {
+    "all_locations": "All Locations",
+    "all_cities": "All Cities"
   }
+
+
 }

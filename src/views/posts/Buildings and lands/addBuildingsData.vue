@@ -1,7 +1,7 @@
 <template>
   <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add Car Offer</h2>
+      <h2 class="main-title">Add Building Offer</h2>
       <button @click="toggleDarkMode">Toggle Dark Mode</button>
       <div class="form">
         <!-- Image Upload Component -->
@@ -383,6 +383,7 @@ export default {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f5f7fa;
   font-family: Arial, sans-serif;
   transition: all 0.3s ease;
 }
@@ -406,7 +407,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-
+  background-color: #ffffff;
   transition: background-color 0.3s ease;
 }
 

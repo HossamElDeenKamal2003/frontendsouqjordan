@@ -6,6 +6,9 @@
     <div v-if="category === 'devices'">
       <devices-component />
     </div>
+    <div v-if="category === 'عقار'">
+    <BuildingComponent />
+    </div>
     <div v-if="category === 'jobs'">
       <add-jobscomponent />
     </div>
@@ -28,13 +31,14 @@ import addJobscomponent from "./jobs/jobsComponent.vue";
 import personalAccessoriescomponent from "./personal accessories/personalAccessoriesaddPost.vue"
 import furnitureComponent from "./furniture/furnitureCompoenent.vue";
 import othersComponent from "./others/othersComponent.vue"
-
+import BuildingComponent from "./Buildings and lands/chooseRentOrSale.vue";
 export default{
   name: 'postData',
   components: {
     carsComponent,
     devicesComponent,
     addJobscomponent,
+    BuildingComponent,
     personalAccessoriescomponent,
     furnitureComponent,
     othersComponent

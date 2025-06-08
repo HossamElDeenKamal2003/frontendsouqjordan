@@ -3,7 +3,7 @@
     <!-- Main Menu -->
     <div class="menu-container" v-if="!showDialog">
       <div class="menu-header">
-        <h3 style="color: green;">Add New Offer</h3>
+        <h3 style="color: green;">{{ $t('shared.offerTitle') }}</h3>
       </div>
       <ul class="menu-list">
         <li
@@ -24,25 +24,22 @@
     <!-- Confirmation Dialog -->
     <div class="dialog-overlay" v-if="showDialog">
       <div class="dialog-container">
-        <h3>» إتفاقية الرسوم
+        <h3>{{ $t('shared.agreementTitle') }}
           <br>
-          بسم الله الرحمن الرحيم
-          قال الله تعالى:" وَأَوْفُواْ بِعَهْدِ اللهِ إِذَا عَاهَدتُّمْ وَلاَ تَنقُضُواْ الأَيْمَانَ بَعْدَ تَوْكِيدِهَا وَقَدْ جَعَلْتُمُ اللهَ عَلَيْكُمْ كَفِيلاً "صدق الله العظيم
-
+          {{ $t('shared.agreementVerse') }}
         </h3>
-        <p>You selected: <strong>{{ selectedCategory.text }}</strong></p>
+        <p>{{ $t('shared.selectedCategory') }}: <strong>{{ selectedCategory.text }}</strong></p>
 
         <div class="checkbox-group">
           <input type="checkbox" id="confirmCheckbox" v-model="isConfirmed">
-          <label for="confirmCheckbox">          * اتعهد بالألتزام في انظمة الهيئه العامة للعقار
-          </label>
+          <label for="confirmCheckbox">{{ $t('shared.confirmAgreement') }}</label>
         </div>
 
-        <p class="error-message" v-if="showError">Please confirm the category to continue</p>
+        <p class="error-message" v-if="showError">{{ $t('shared.errorMessage') }}</p>
 
         <div class="dialog-buttons">
-          <button class="cancel-btn" @click="cancelSelection">Cancel</button>
-          <button class="continue-btn" @click="handleContinue">Continue</button>
+          <button class="cancel-btn" @click="cancelSelection">{{ $t('shared.cancel') }}</button>
+          <button class="continue-btn" @click="handleContinue">{{ $t('shared.continue') }}</button>
         </div>
       </div>
     </div>
@@ -53,7 +50,7 @@
 import { saveProductForm, getProductForm } from '@/productFormStorage';
 
 export default {
-  name: "sharedComponent",
+  name: "addPost",
   props: {
     isDark: {
       type: Boolean,
@@ -63,19 +60,26 @@ export default {
   data() {
     return {
       menuItems: [
-        { icon: "🚗", text: "Cars", value: "سيارات" },
-        { icon: "🚚", text: "Building", value: "building" },
-        { icon: "🚴", text: "Devices", value: "devices" },
-        { icon: "🏢", text: "Jobs", value: "jobs" },
-        { icon: "📱", text: "Furniture", value: "furniture" },
-        { icon: "🐑", text: "Personal Accessories", value: "personal_accessories" },
-        { icon: "🛒", text: "Other", value: "other" },
+        { icon: "🚗", text: "cars", value: "سيارات" },
+        { icon: "🚚", text: "building", value: "عقار" },
+        { icon: "🚴", text: "devices", value: "devices" },
+        { icon: "🏢", text: "jobs", value: "jobs" },
+        { icon: "📱", text: "furniture", value: "furniture" },
+        { icon: "🐑", text: "personal_accessories", value: "personal_accessories" },
+        { icon: "🛒", text: "other", value: "other" },
       ],
       showDialog: false,
       selectedCategory: null,
       isConfirmed: false,
       showError: false
     };
+  },
+  created() {
+    // Translate menu items when component is created
+    this.menuItems = this.menuItems.map(item => ({
+      ...item,
+      text: this.$t(`shared.menu.${item.text}`)
+    }));
   },
   methods: {
     selectCategory(item) {
@@ -93,11 +97,10 @@ export default {
       const currentForm = getProductForm() || {};
       saveProductForm({
         ...currentForm,
-
-        category: this.selectedCategory.value, // Using the value property
-        categoryDisplay: this.selectedCategory.text // Keeping original text for display
+        category: this.selectedCategory.value,
+        categoryDisplay: this.selectedCategory.text
       });
-      console.log(this.selectedCategory.value)
+      console.log(this.selectedCategory.value);
       localStorage.setItem('selectedCategory', this.selectedCategory.value);
       this.showDialog = false;
       this.$router.push('/region');
@@ -109,7 +112,9 @@ export default {
   }
 };
 </script>
+
 <style scoped>
+/* [Styles remain unchanged, assuming they match sharedComponent.vue] */
 .shared-parent {
   font-family: Arial, sans-serif;
   direction: ltr;
@@ -135,7 +140,7 @@ export default {
   border-radius: 25px;
   padding: 40px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  height: calc(100vh - 40px); /* Account for padding */
+  height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
 }
@@ -151,7 +156,7 @@ export default {
   align-items: center;
   margin-bottom: 20px;
   flex-shrink: 0;
-  height: calc((100vh - 40px) / 14); /* Half of item height */
+  height: calc((100vh - 40px) / 14);
 }
 
 .menu-header h3 {
@@ -178,7 +183,7 @@ export default {
   display: flex;
   align-items: center;
   color: #333;
-  height: calc((100vh - 40px) / 8); /* Exactly 1/7th of viewport */
+  height: calc((100vh - 40px) / 8);
   flex-shrink: 0;
 }
 
@@ -239,101 +244,39 @@ export default {
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
-  .menu-container {
-    width: 90vw;
-    padding: 30px;
-    height: calc(100vh - 60px);
-  }
-
-  .menu-header {
-    height: calc((100vh - 60px) / 14);
-  }
-
-  .menu-item {
-    height: calc((100vh - 60px) / 8);
-  }
-
-  .icon, .arrow {
-    font-size: 80px;
-    width: 80px;
-  }
+  .menu-container { width: 90vw; padding: 30px; height: calc(100vh - 60px); }
+  .menu-header { height: calc((100vh - 60px) / 14); }
+  .menu-item { height: calc((100vh - 60px) / 8); }
+  .icon, .arrow { font-size: 80px; width: 80px; }
 }
 
 @media (max-width: 992px) {
-  .icon, .arrow {
-    font-size: 60px;
-    width: 60px;
-  }
-
-  .text {
-    font-size: 1.1em;
-  }
+  .icon, .arrow { font-size: 60px; width: 60px; }
+  .text { font-size: 1.1em; }
 }
 
 @media (max-width: 768px) {
-  .menu-container {
-    padding: 25px;
-    height: calc(100vh - 50px);
-  }
-
-  .menu-header {
-    height: calc((100vh - 50px) / 14);
-  }
-
-  .menu-item {
-    height: calc((100vh - 50px) / 8);
-  }
-
-  .icon, .arrow {
-    font-size: 50px;
-    width: 50px;
-  }
-
-  .text {
-    font-size: 1em;
-  }
+  .menu-container { padding: 25px; height: calc(100vh - 50px); }
+  .menu-header { height: calc((100vh - 50px) / 14); }
+  .menu-item { height: calc((100vh - 50px) / 8); }
+  .icon, .arrow { font-size: 50px; width: 50px; }
+  .text { font-size: 1em; }
 }
 
 @media (max-width: 576px) {
-  .menu-container {
-    padding: 20px;
-    border-radius: 15px;
-    height: calc(100vh - 40px);
-  }
-
-  .menu-header {
-    height: calc((100vh - 40px) / 14);
-  }
-
-  .menu-item {
-    height: calc((100vh - 40px) / 8);
-  }
-
-  .icon, .arrow {
-    font-size: 40px;
-    width: 40px;
-  }
-
-  .text {
-    font-size: 0.9em;
-    padding: 0 10px;
-  }
-
-  .menu-header h3 {
-    font-size: 16px;
-  }
+  .menu-container { padding: 20px; border-radius: 15px; height: calc(100vh - 40px); }
+  .menu-header { height: calc((100vh - 40px) / 14); }
+  .menu-item { height: calc((100vh - 40px) / 8); }
+  .icon, .arrow { font-size: 40px; width: 40px; }
+  .text { font-size: 0.9em; padding: 0 10px; }
+  .menu-header h3 { font-size: 16px; }
 }
 
 @media (max-width: 400px) {
-  .icon, .arrow {
-    font-size: 30px;
-    width: 30px;
-  }
-
-  .text {
-    font-size: 0.8em;
-  }
+  .icon, .arrow { font-size: 30px; width: 30px; }
+  .text { font-size: 0.8em; }
 }
+
 /* Dialog Styles */
 .dialog-overlay {
   position: fixed;

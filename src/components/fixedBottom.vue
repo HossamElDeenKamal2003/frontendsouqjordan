@@ -2,35 +2,35 @@
   <div :class="['taskbar', { 'dark-mode': isDark }]">
     <div class="taskbar-item" @click="navigateTo('chat')">
       <i class="fas fa-comment"></i>
-      <span>Chat</span>
+      <span>{{ $t('taskbar.chat') }}</span>
     </div>
     <div class="taskbar-item" @click="navigateTo('favourites')">
       <i class="fas fa-heart"></i>
-      <span>Favorites</span>
+      <span>{{ $t('taskbar.favorites') }}</span>
     </div>
     <div class="taskbar-item" @click="navigateTo('addOffer')">
       <i class="fas fa-plus"></i>
-      <span>Add Offer</span>
+      <span>{{ $t('taskbar.addOffer') }}</span>
     </div>
     <div class="taskbar-item" @click="toggleNotifications">
       <i class="fas fa-bell"></i>
-      <span>Notifications</span>
+      <span>{{ $t('taskbar.notifications') }}</span>
       <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
     </div>
     <div class="taskbar-item" @click="navigateTo('home')">
       <i class="fas fa-home"></i>
-      <span>Home</span>
+      <span>{{ $t('taskbar.home') }}</span>
     </div>
 
     <!-- Notification Dialog -->
     <div v-if="showNotifications" class="notification-dialog">
       <div class="notification-header">
-        <h3>Notifications</h3>
+        <h3>{{ $t('taskbar.notifications') }}</h3>
         <button @click="closeNotifications" class="close-btn">×</button>
       </div>
       <div class="notification-list">
         <div v-if="loadingNotifications" class="loading-notifications">
-          <i class="fas fa-spinner fa-spin"></i> Loading notifications...
+          <i class="fas fa-spinner fa-spin"></i> {{ $t('taskbar.loadingNotifications') }}
         </div>
         <template v-else>
           <div
@@ -53,7 +53,7 @@
             </div>
           </div>
           <div v-if="!notifications.length" class="no-notifications">
-            No notifications yet
+            {{ $t('taskbar.noNotifications') }}
           </div>
         </template>
       </div>
@@ -97,13 +97,13 @@ export default {
         await this.$router.push({ name: routeName });
       } catch (error) {
         if (error.name !== 'NavigationDuplicated') {
-          toast.error('Failed to navigate: ' + error.message);
+          toast.error(this.$t('taskbar.navigationError') + error.message);
         }
       }
     },
 
     showLoginToast() {
-      toast.error('Please login to access this feature', {
+      toast.error(this.$t('taskbar.loginRequired'), {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
         hideProgressBar: false,
@@ -134,15 +134,15 @@ export default {
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch notifications');
+          throw new Error(this.$t('taskbar.fetchError'));
         }
 
         const data = await response.json();
         this.notifications = data.notifications || [];
         this.updateUnreadCount();
       } catch (error) {
-        console.error('Error fetching notifications:', error);
-        toast.error('Failed to load notifications');
+        console.error(this.$t('taskbar.fetchError') + ':', error);
+        toast.error(this.$t('taskbar.loadNotificationsError'));
         this.notifications = [];
       } finally {
         this.loadingNotifications = false;
@@ -159,7 +159,7 @@ export default {
         const data = await response.json();
         this.unreadCount = data.count || 0;
       } catch (error) {
-        console.error('Error checking unread notifications:', error);
+        console.error(this.$t('taskbar.unreadError') + ':', error);
       }
     },
 
@@ -182,7 +182,7 @@ export default {
         });
         this.showNotifications = false;
       } catch (error) {
-        toast.error('Failed to navigate to product');
+        toast.error(this.$t('taskbar.goToProductError'));
       }
     },
 
@@ -194,7 +194,7 @@ export default {
         );
         this.checkUnreadNotifications();
       } catch (error) {
-        console.error('Error marking notification as read:', error);
+        console.error(this.$t('taskbar.markAsReadError') + ':', error);
       }
     },
 
@@ -217,6 +217,7 @@ export default {
 </script>
 
 <style scoped>
+/* [Previous styles remain unchanged] */
 .taskbar {
   position: fixed;
   bottom: 0;
@@ -495,5 +496,4 @@ export default {
 .Vue-Toastify__toast-container {
   z-index: 9999 !important;
 }
-
 </style>

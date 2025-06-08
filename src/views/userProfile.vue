@@ -5,7 +5,7 @@
     <div class="cover-image-section">
       <img :src="user.coverImage || defaultCoverImage" alt="Cover Image" class="cover-image" />
       <button @click="openCoverImageUpload" class="edit-cover-button">
-        <i class="fas fa-camera"></i> Edit Cover Photo
+        <i class="fas fa-camera"></i> {{ $t('profile.editCoverPhoto') }}
       </button>
     </div>
 
@@ -20,9 +20,9 @@
       <div class="profile-details">
         <h1 class="username">{{ user.username }}</h1>
         <div class="stats">
-          <span>{{ userPosts.length }} Posts</span>
-          <span>{{ user.followers || 0 }} Followers</span>
-          <span>{{ user.following || 0 }} Following</span>
+          <span>{{ userPosts.length }} {{ $t('profile.posts') }}</span>
+          <span>{{ user.followers || 0 }} {{ $t('profile.followers') }}</span>
+          <span>{{ user.following || 0 }} {{ $t('profile.following') }}</span>
         </div>
       </div>
     </div>
@@ -30,10 +30,10 @@
     <!-- Tabs for Posts and Followed Posts -->
     <div class="tabs">
       <button :class="['tab', { active: activeTab === 'posts' }]" @click="activeTab = 'posts'">
-        Posts
+        {{ $t('profile.tabs.posts') }}
       </button>
       <button :class="['tab', { active: activeTab === 'followed' }]" @click="activeTab = 'followed'">
-        Followed Posts
+        {{ $t('profile.tabs.followedPosts') }}
       </button>
     </div>
 
@@ -63,8 +63,8 @@
             <h3 :class="{ 'seen-title': post.isSeen }">{{ post.title }}</h3>
             <p>{{ post.description }}</p>
             <div class="indicators">
-              <span v-if="post.isSeen" class="seen-indicator">👁️ Seen</span>
-              <span v-if="post.isFavourite" class="favourite-indicator">️❤ Favourite</span>
+              <span v-if="post.isSeen" class="seen-indicator">{{ $t('profile.seenIndicator') }}</span>
+              <span v-if="post.isFavourite" class="favourite-indicator">{{ $t('profile.favouriteIndicator') }}</span>
             </div>
             <div v-if="post.price" class="price">
               {{ formatPrice(post.price) }}
@@ -108,8 +108,8 @@
             <h3 :class="{ 'seen-title': post.isSeen }">{{ post.title }}</h3>
             <p>{{ post.description }}</p>
             <div class="indicators">
-              <span v-if="post.isSeen" class="seen-indicator">👁️ Seen</span>
-              <span v-if="post.isFavourite" class="favourite-indicator">️❤ Favourite</span>
+              <span v-if="post.isSeen" class="seen-indicator">{{ $t('profile.seenIndicator') }}</span>
+              <span v-if="post.isFavourite" class="favourite-indicator">{{ $t('profile.favouriteIndicator') }}</span>
             </div>
             <div v-if="post.price" class="price">
               {{ formatPrice(post.price) }}
@@ -133,7 +133,7 @@
         <button @click="closeCoverImageUpload" class="close-button">
           <i class="fas fa-times"></i>
         </button>
-        <h2>Update Cover Image</h2>
+        <h2>{{ $t('profile.updateCoverImage') }}</h2>
         <input type="file" @change="handleCoverImageUpload" accept="image/*" />
       </div>
     </div>
@@ -143,7 +143,7 @@
         <button @click="closeProfileImageUpload" class="close-button">
           <i class="fas fa-times"></i>
         </button>
-        <h2>Update Profile Image</h2>
+        <h2>{{ $t('profile.updateProfileImage') }}</h2>
         <input type="file" @change="handleProfileImageUpload" accept="image/*" />
       </div>
     </div>
@@ -154,7 +154,8 @@
 import axios from "axios";
 import defaultCoverImage from "@/assets/jordan image.jpeg";
 import defaultProfileImage from "@/assets/jordan image.jpeg";
-import fixedBottom from "../components/fixedBottom.vue"
+import fixedBottom from "../components/fixedBottom.vue";
+
 export default {
   name: "UserProfile",
   props: {
@@ -180,7 +181,7 @@ export default {
     };
   },
   components: {
-    fixedBottom
+    fixedBottom,
   },
   async created() {
     await this.fetchUserProfile();
@@ -194,7 +195,7 @@ export default {
         this.user = response.data.User;
         this.userPosts = response.data.posts;
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        console.error(this.$t('profile.fetchProfileError') + ":", error);
       }
     },
 
@@ -205,7 +206,7 @@ export default {
         this.followedPosts = response.data.postsFollowed;
         console.log("Followed posts:", this.followedPosts);
       } catch (error) {
-        console.error("Error fetching followed posts:", error);
+        console.error(this.$t('profile.fetchFollowedError') + ":", error);
       }
     },
 
@@ -217,10 +218,11 @@ export default {
       const now = new Date();
       const createdDate = new Date(createdAt);
       const diffInSeconds = Math.floor((now - createdDate) / 1000);
-      if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-      return `${Math.floor(diffInSeconds / 86400)} days ago`;
+      const t = this.$t || ((key) => key); // Fallback if $t is undefined
+      if (diffInSeconds < 60) return `${diffInSeconds} ${t('profile.secondsAgo')}`;
+      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} ${t('profile.minutesAgo')}`;
+      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ${t('profile.hoursAgo')}`;
+      return `${Math.floor(diffInSeconds / 86400)} ${t('profile.daysAgo')}`;
     },
 
     openCoverImageUpload() {
@@ -256,7 +258,7 @@ export default {
         this.user.coverImage = response.data.coverImage;
         this.closeCoverImageUpload();
       } catch (error) {
-        console.error("Error updating cover image:", error);
+        console.error(this.$t('profile.updateCoverError') + ":", error);
       }
     },
 
@@ -279,7 +281,7 @@ export default {
         this.user.profileImage = response.data.profileImage;
         this.closeProfileImageUpload();
       } catch (error) {
-        console.error("Error updating profile image:", error);
+        console.error(this.$t('profile.updateProfileError') + ":", error);
       }
     },
   },
@@ -287,6 +289,7 @@ export default {
 </script>
 
 <style scoped>
+/* [Styles remain unchanged] */
 .profile-container {
   background-color: #f0f2f5;
   color: #333;
