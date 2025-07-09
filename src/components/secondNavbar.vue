@@ -42,9 +42,19 @@
 
         <!-- Login Form -->
         <form v-if="activeForm === 'login'" @submit.prevent="handleLogin">
-          <div class="input-group">
-            <input type="text" v-model="loginEmailOrPhone" :placeholder="$t('auth.email_or_phone')" required />
-            <p class="error-message" v-if="loginErrors.emailOrPhone">{{ $t(`auth.errors.${loginErrors.emailOrPhone}`) }}</p>
+<!--          <div class="input-group">-->
+<!--            <input type="text" v-model="loginEmailOrPhone" :placeholder="$t('auth.email_or_phone')" required />-->
+<!--            <p class="error-message" v-if="loginErrors.emailOrPhone">{{ $t(`auth.errors.${loginErrors.emailOrPhone}`) }}</p>-->
+<!--          </div>-->
+          <div class="input-group" v-if="!/\S+@\S+\.\S+/.test(loginEmailOrPhone)">
+            <div style="display: flex; gap: 8px;">
+              <select v-model="loginCountryCode" style="width: 90px;">
+                <option v-for="code in countryCodes" :key="code.value" :value="code.value">
+                  {{ code.label }}
+                </option>
+              </select>
+              <input style="width: 100%" type="text" v-model="loginPhoneNumber" :placeholder="$t('auth.phone_number')" />
+            </div>
           </div>
           <div class="input-group">
             <input type="password" v-model="loginPassword" :placeholder="$t('auth.password')" required />
@@ -64,7 +74,14 @@
             <p class="error-message" v-if="registerErrors.email">{{ $t(`auth.errors.${registerErrors.email}`) }}</p>
           </div>
           <div class="input-group">
-            <input type="text" v-model="registerPhoneNumber" :placeholder="$t('auth.phone_number')" required />
+            <div style="display: flex; gap: 8px;">
+              <select v-model="registerCountryCode" style="width: 90px;">
+                <option v-for="code in countryCodes" :key="code.value" :value="code.value">
+                  {{ code.label }}
+                </option>
+              </select>
+              <input style="width: 100%" type="text" v-model="registerPhoneNumber" :placeholder="$t('auth.phone_number')" required />
+            </div>
             <p class="error-message" v-if="registerErrors.phoneNumber">{{ $t(`auth.errors.${registerErrors.phoneNumber}`) }}</p>
           </div>
           <div class="input-group">
@@ -76,6 +93,27 @@
       </div>
     </div>
   </nav>
+  <!-- Add this inside your <template> -->
+  <div v-if="isOtpDialogOpen" class="dialog-backdrop">
+    <div class="dialog" @click.stop>
+      <button @click="closeOtpDialog" class="close-button">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3>{{ $t('auth.verify_phone') }}</h3>
+      <form @submit.prevent="handleVerifyOtp">
+        <div class="input-group">
+          <input
+              v-model="otp"
+              type="text"
+              :placeholder="$t('auth.otp_placeholder')"
+              required
+          />
+          <p class="error-message" v-if="otpError">{{ $t(otpError) }}</p>
+        </div>
+        <button type="submit">{{ $t('auth.verify') }}</button>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -97,10 +135,39 @@ export default {
       registerUsername: '',
       registerEmail: '',
       registerPhoneNumber: '',
+      otpUserId: '', // <-- add this
       registerPassword: '',
       registerErrors: { username: '', email: '', phoneNumber: '', password: '' },
       isLoggedIn: false,
       loggedInUsername: '',
+      loginCountryCode: '+962',
+      loginPhoneNumber: '',
+      registerCountryCode: '+962',
+      countryCodes: [
+        { value: '+20', label: '+20 (مصر)' },         // Egypt
+        { value: '+212', label: '+212 (المغرب)' },    // Morocco
+        { value: '+213', label: '+213 (الجزائر)' },   // Algeria
+        { value: '+216', label: '+216 (تونس)' },      // Tunisia
+        { value: '+218', label: '+218 (ليبيا)' },     // Libya
+        { value: '+964', label: '+964 (العراق)' },    // Iraq
+        { value: '+965', label: '+965 (الكويت)' },    // Kuwait
+        { value: '+966', label: '+966 (السعودية)' },  // Saudi Arabia
+        { value: '+967', label: '+967 (اليمن)' },     // Yemen
+        { value: '+968', label: '+968 (عمان)' },      // Oman
+        { value: '+970', label: '+970 (فلسطين)' },    // Palestine
+        { value: '+971', label: '+971 (الإمارات)' },  // UAE
+        { value: '+972', label: '+972 (فلسطين)' }, // Palestine/Israel
+        { value: '+973', label: '+973 (البحرين)' },   // Bahrain
+        { value: '+974', label: '+974 (قطر)' },       // Qatar
+        { value: '+963', label: '+963 (سوريا)' },     // Syria
+        { value: '+961', label: '+961 (لبنان)' },     // Lebanon
+        { value: '+962', label: '+962 (الأردن)' },    // Jordan
+        { value: '+249', label: '+249 (السودان)' },   // Sudan
+        { value: '+222', label: '+222 (موريتانيا)' }, // Mauritania
+        { value: '+253', label: '+253 (جيبوتي)' },    // Djibouti
+        { value: '+269', label: '+269 (جزر القمر)' }, // Comoros
+        { value: '+252', label: '+252 (الصومال)' }    // Somalia
+      ],
     };
   },
   created() {
@@ -114,6 +181,30 @@ export default {
     }
   },
   methods: {
+    async handleVerifyOtp() {
+      this.otpError = '';
+      if (!this.otp) {
+        this.otpError = 'auth.otp_required';
+        return;
+      }
+      try {
+        console.log(this.otpUserId)
+        await axios.post('https://backend.jordan-souq.com/users/verify', {
+          id: this.otpUserId,
+          otp: this.otp,
+        });
+        this.isOtpDialogOpen = false;
+        this.isDialogOpen = true;
+        this.activeForm = 'login';
+        this.otp = '';
+        this.otpError = '';
+        this.$nextTick(() => {
+          this.toastSuccess(this.$t('auth.otp_verified_success'));
+        });
+      } catch (error) {
+        this.otpError = 'auth.otp_invalid';
+      }
+    },
     toastError() {
       toast.error('Please login to access this feature', {
         position: toast.POSITION.TOP_RIGHT,
@@ -177,7 +268,7 @@ export default {
     },
     async handleLogin() {
       this.loginErrors = { emailOrPhone: '', password: '' };
-      if (!this.loginEmailOrPhone) {
+      if (!this.loginEmailOrPhone && !this.loginPhoneNumber) {
         this.loginErrors.emailOrPhone = 'email_or_phone_required';
         return;
       }
@@ -188,7 +279,7 @@ export default {
       const isEmail = /\S+@\S+\.\S+/.test(this.loginEmailOrPhone);
       const payload = { password: this.loginPassword };
       if (isEmail) payload.email = this.loginEmailOrPhone;
-      else payload.phoneNumber = this.loginEmailOrPhone;
+      else payload.phoneNumber = this.loginCountryCode + this.loginPhoneNumber;
       try {
         const response = await axios.post('https://backend.jordan-souq.com/users/login', payload);
         localStorage.setItem('userId', response.data.user.id);
@@ -228,18 +319,19 @@ export default {
       if (!this.registerPassword) this.registerErrors.password = 'password_required';
       if (Object.values(this.registerErrors).some((error) => error)) return;
       try {
-        const response = await axios.post('https://heraj-backend.onrender.com/users/register', {
+        const response = await axios.post('https://backend.jordan-souq.com/users/register', {
           username: this.registerUsername,
           email: this.registerEmail,
-          phoneNumber: this.registerPhoneNumber,
+          phoneNumber: this.registerCountryCode + this.registerPhoneNumber,
           password: this.registerPassword,
         });
-        localStorage.setItem('email', response.data.user.email);
-        localStorage.setItem('phoneNumber', response.data.user.phoneNumber);
-        localStorage.setItem('username', response.data.user.username);
-        this.checkLoginStatus();
-        this.closeDialog();
-        window.location.href = '/';
+        // Show OTP dialog instead of closing and redirecting
+        this.isDialogOpen = false;
+        this.isOtpDialogOpen = true;
+        this.otpUserId = response.data.user._id; // <-- store id
+        this.otpPhoneNumber = this.registerCountryCode + this.registerPhoneNumber;
+        this.otp = '';
+        this.otpError = '';
       } catch (error) {
         console.error('Signup error:', error);
         if (error.response && error.response.status === 400) {
@@ -253,6 +345,11 @@ export default {
           this.registerErrors.password = 'network_error';
         }
       }
+    },
+    closeOtpDialog() {
+      this.isOtpDialogOpen = false;
+      this.otp = '';
+      this.otpError = '';
     },
     handleSignOut() {
       localStorage.clear();

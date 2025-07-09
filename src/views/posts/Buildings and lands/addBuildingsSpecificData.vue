@@ -38,10 +38,11 @@ export default {
     console.log('Received type:', this.type.toLowerCase());
   },
   created() {
+    console.log("type: ", typeof(this.type));
     console.log("before: ,", this.specific);
-    if (this.type.toLowerCase().includes('apartment') || this.type.toLowerCase().includes('villa')) {
+    if (this.type==='0' || this.type==='1') {
       this.specific = 1;
-    }else if(this.type.toLowerCase().includes('land')){
+    }else if(this.type==='2'){
       this.specific = 2;
     }
     console.log("after: ,:", this.specific);

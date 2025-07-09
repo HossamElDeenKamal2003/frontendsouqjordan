@@ -1,55 +1,59 @@
 <template>
   <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add Job Offer</h2>
-      <button @click="toggleDarkMode">Toggle Dark Mode</button>
+      <h2 class="main-title">{{ $t('jobs.addJobOffer') }}</h2>
+      <button @click="toggleDarkMode">{{ $t('jobs.toggleDarkMode') }}</button>
+
       <div class="form">
         <!-- Image Upload Component -->
         <ImageUpload :isDark="localIsDark" v-model:images="data.images" />
 
         <div class="form-group">
-          <label>Title</label>
-          <input type="text" v-model="data.title" class="form-input" placeholder="Enter job title"/>
+          <label>{{ $t('jobs.title') }}</label>
+          <input type="text" v-model="data.title" class="form-input" :placeholder="$t('jobs.enterJobTitle')" />
         </div>
 
         <div class="form-group">
-          <label>Category</label>
+          <label>{{ $t('jobs.category') }}</label>
           <select v-model="data.carType" @change="updateModels" class="form-select">
-            <option value="">Select a category</option>
-            <option v-for="category in categoryList" :value="category">{{ category }}</option>
+            <option value="">{{ $t('jobs.selectCategory') }}</option>
+            <option v-for="category in categoryList" :key="category" :value="category">
+              {{ $t('jobs.categories.' + category) }}
+            </option>
           </select>
+          <div v-if="data.carType" class="selected-label">
+            {{ selectedCategoryLabel }}
+          </div>
         </div>
 
         <div class="form-group">
-          <label>Price (JOD)</label>
-          <input type="number" v-model="data.price" class="form-input" placeholder="Enter price"/>
+          <label>{{ $t('jobs.priceJOD') }}</label>
+          <input type="number" v-model="data.price" class="form-input" :placeholder="$t('jobs.enterPrice')" />
         </div>
 
         <div class="form-group">
-          <label>Description</label>
-          <textarea v-model="data.content" placeholder="Enter job description" class="form-textarea"></textarea>
+          <label>{{ $t('jobs.description') }}</label>
+          <textarea v-model="data.content" :placeholder="$t('jobs.enterJobDescription')" class="form-textarea"></textarea>
         </div>
 
         <div class="button-container">
-          <button class="finish-btn" @click="handleFinish">Submit Offer</button>
+          <button class="finish-btn" @click="handleFinish">{{ $t('jobs.submitOffer') }}</button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
+
 <script>
-import { saveProductForm, getProductForm } from '@/productFormStorage';
-import { ConstVariables } from '../../../../const';
+import { saveProductForm } from '@/productFormStorage';
 import axios from 'axios';
 import { toast } from 'vue3-toastify';
 import ImageUpload from '@/components/addpost/ImageUpload.vue';
 
 export default {
   name: 'addJobscomponent',
-  components: {
-    ImageUpload,
-  },
+  components: { ImageUpload },
   data() {
     return {
       localIsDark: false,
@@ -64,9 +68,16 @@ export default {
         images: [],
         carType: ''
       },
-      categoryList: ConstVariables.jobsList || [],
+      categoryList: [],
       filteredModels: [],
     };
+  },
+  computed: {
+    selectedCategoryLabel() {
+      return this.data.carType
+          ? this.$t('jobs.categories.' + this.data.carType)
+          : '';
+    }
   },
   methods: {
     toggleDarkMode() {
@@ -74,20 +85,12 @@ export default {
     },
     updateModels() {
       this.data.model = '';
-      if (!this.data.metaCategory) {
+      if (!this.data.carType) {
         this.filteredModels = [];
         return;
       }
-
-      const normalizedType = this.data.metaCategory.toLowerCase().replace(/\s+/g, '');
-      let modelKey = `${normalizedType}ModelsList`;
-      let models = ConstVariables[modelKey];
-
-      if (!models || !Array.isArray(models)) {
-        modelKey = `${normalizedType}Models`;
-        models = ConstVariables[modelKey];
-      }
-
+      // Get models from i18n
+      const models = this.$t('jobs.models.' + this.data.carType, this.data.carType, true);
       this.filteredModels = Array.isArray(models) ? models : [];
     },
     toastError() {
@@ -116,8 +119,6 @@ export default {
       try {
         const formData = new FormData();
         const description = this.data.content || '';
-
-        // Append images
         const imageFiles = this.data.images;
         if (imageFiles.length > 0) {
           for (let i = 0; i < imageFiles.length; i++) {
@@ -126,38 +127,32 @@ export default {
         }
         const rawData = localStorage.getItem('productForm');
         const dataForm = rawData ? JSON.parse(rawData) : {};
-        // Append other data fields
         formData.append('title', this.data.title);
         formData.append('price', this.data.price);
         formData.append('metaCategory', 'jobs');
-        formData.append('carType', this.data.carType);
+
+        // Always get the English label for carType
+        const carTypeLabel = this.data.carType
+            ? (this.$i18n.messages['en'].jobs.categories[this.data.carType] || '').toLowerCase()
+            : '';
+        formData.append('carType', carTypeLabel);
+
         formData.append('content', description);
         formData.append('description', description);
         formData.append('category', 'others');
-        // Append extra fields from saved form
         formData.set('Arlocation', dataForm.data?.Arlocation || '');
         formData.set('location', dataForm.data?.location || '');
         formData.set('metaLocation', dataForm.data?.metaLocation || '');
-
-
-        // Get user ID from localStorage
         const userId = localStorage.getItem('userId');
         if (userId) {
           formData.append('userId', userId);
         }
-
-        // Debugging logs
         for (let pair of formData.entries()) {
           console.log('FormData entry:', pair[0], pair[1]);
         }
-
-        // API call
         const response = await axios.post(`${this.data.baseUrl}/product/create`, formData);
-
         if (response.status === 200 || response.status === 201) {
           this.toastSuccess();
-
-          // Save back to localStorage
           saveProductForm({
             ...this.data,
             description: this.data.content,
@@ -165,7 +160,6 @@ export default {
             price: parseFloat(this.data.price) || 0,
             images: [],
           });
-
           console.log('Offer submitted:', this.data);
         } else {
           throw new Error(`Unexpected status code: ${response.status}`);
@@ -185,11 +179,9 @@ export default {
     },
   },
   mounted() {
-    // Initialize category
-    const storedCategory = localStorage.getItem('selectedCategory');
-    if (storedCategory) {
-      this.categoryList = ConstVariables.jobsList;
-    }
+    // Get categories from i18n keys
+    const categories = this.$i18n && this.$i18n.messages[this.$i18n.locale]?.jobs?.categories;
+    this.categoryList = categories ? Object.keys(categories) : [];
   },
 };
 </script>

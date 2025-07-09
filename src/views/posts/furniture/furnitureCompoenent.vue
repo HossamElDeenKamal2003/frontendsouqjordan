@@ -1,37 +1,41 @@
 <template>
   <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add furniture Offer</h2>
-      <button @click="toggleDarkMode">Toggle Dark Mode</button>
+      <h2 class="main-title">{{ $t('furniture.title') }}</h2>
       <div class="form">
-        <!-- Image Upload Component -->
         <ImageUpload :isDark="localIsDark" v-model:images="data.images" />
 
         <div class="form-group">
-          <label>Title</label>
-          <input type="text" v-model="data.title" class="form-input" placeholder="Enter furniture title"/>
+          <label>{{ $t('furniture.title') }}</label>
+          <input type="text" v-model="data.title" class="form-input" :placeholder="$t('furniture.enterDescription')"/>
         </div>
 
         <div class="form-group">
-          <label>Category</label>
-          <select v-model="data.carType" @change="updateModels" class="form-select">
-            <option value="">Select a category</option>
-            <option v-for="category in categoryList" :value="category">{{ category }}</option>
+          <label>{{ $t('furniture.category') }}</label>
+          <select v-model="data.carType" class="form-select">
+            <option value="">{{ $t('furniture.category') }}</option>
+            <option
+                v-for="category in categoryList"
+                :key="category"
+                :value="category"
+            >
+              {{ $t('furniture.furnitureCategories.' + category) }}
+            </option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Price (JOD)</label>
-          <input type="number" v-model="data.price" class="form-input" placeholder="Enter price"/>
+          <label>{{ $t('furniture.price') }}</label>
+          <input type="number" v-model="data.price" class="form-input" :placeholder="$t('furniture.enterPrice')"/>
         </div>
 
         <div class="form-group">
-          <label>Description</label>
-          <textarea v-model="data.content" placeholder="Enter furniture description" class="form-textarea"></textarea>
+          <label>{{ $t('furniture.description') }}</label>
+          <textarea v-model="data.content" :placeholder="$t('furniture.enterDescription')" class="form-textarea"></textarea>
         </div>
 
         <div class="button-container">
-          <button class="finish-btn" @click="handleFinish">Submit Offer</button>
+          <button class="finish-btn" @click="handleFinish">{{ $t('furniture.submitOffer') }}</button>
         </div>
       </div>
     </div>
@@ -196,7 +200,6 @@ export default {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f7fa;
   font-family: Arial, sans-serif;
   transition: all 0.3s ease;
 }

@@ -1,56 +1,62 @@
 <template>
   <div :class="['shared-parent', { 'dark-mode': isDark }]">
-    <!-- Main Menu -->
-    <div class="menu-container" v-if="!showDialog">
-      <div class="menu-header">
-        <h3 style="color: green;">{{ $t('shared.offerTitle') }}</h3>
+    <CheckAbilitaddPost @checked="onChecked" />
+    <template v-if="canAdd">
+      <!-- Main Menu -->
+      <div class="menu-container" v-if="!showDialog">
+        <div class="menu-header">
+          <h3 style="color: green;">{{ $t('shared.offerTitle') }}</h3>
+        </div>
+        <ul class="menu-list">
+          <li
+              class="menu-item"
+              v-for="(item, index) in menuItems"
+              :key="index"
+              @click="selectCategory(item)"
+          >
+            <div class="menu-link">
+              <span class="icon">{{ item.icon }}</span>
+              <span class="text">{{ item.text }}</span>
+              <span class="arrow">→</span>
+            </div>
+          </li>
+        </ul>
       </div>
-      <ul class="menu-list">
-        <li
-            class="menu-item"
-            v-for="(item, index) in menuItems"
-            :key="index"
-            @click="selectCategory(item)"
-        >
-          <div class="menu-link">
-            <span class="icon">{{ item.icon }}</span>
-            <span class="text">{{ item.text }}</span>
-            <span class="arrow">→</span>
+      <!-- Confirmation Dialog -->
+      <div class="dialog-overlay" v-if="showDialog">
+        <div class="dialog-container">
+          <h3>{{ $t('shared.agreementTitle') }}
+            <br>
+            {{ $t('shared.agreementVerse') }}
+          </h3>
+          <p>{{ $t('shared.selectedCategory') }}: <strong>{{ selectedCategory.text }}</strong></p>
+          <div class="checkbox-group">
+            <input type="checkbox" id="confirmCheckbox" v-model="isConfirmed">
+            <label for="confirmCheckbox">{{ $t('shared.confirmAgreement') }}</label>
           </div>
-        </li>
-      </ul>
-    </div>
-
-    <!-- Confirmation Dialog -->
-    <div class="dialog-overlay" v-if="showDialog">
-      <div class="dialog-container">
-        <h3>{{ $t('shared.agreementTitle') }}
-          <br>
-          {{ $t('shared.agreementVerse') }}
-        </h3>
-        <p>{{ $t('shared.selectedCategory') }}: <strong>{{ selectedCategory.text }}</strong></p>
-
-        <div class="checkbox-group">
-          <input type="checkbox" id="confirmCheckbox" v-model="isConfirmed">
-          <label for="confirmCheckbox">{{ $t('shared.confirmAgreement') }}</label>
-        </div>
-
-        <p class="error-message" v-if="showError">{{ $t('shared.errorMessage') }}</p>
-
-        <div class="dialog-buttons">
-          <button class="cancel-btn" @click="cancelSelection">{{ $t('shared.cancel') }}</button>
-          <button class="continue-btn" @click="handleContinue">{{ $t('shared.continue') }}</button>
+          <p class="error-message" v-if="showError">{{ $t('shared.errorMessage') }}</p>
+          <div class="dialog-buttons">
+            <button class="cancel-btn" @click="cancelSelection">{{ $t('shared.cancel') }}</button>
+            <button class="continue-btn" @click="handleContinue">{{ $t('shared.continue') }}</button>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
+    <template v-else>
+      <div class="center-message">
+        <div class="message-box">{{ message }}</div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script>
 import { saveProductForm, getProductForm } from '@/productFormStorage';
+import CheckAbilitaddPost from '@/components/addpost/checkAbilitaddPost.vue';
 
 export default {
   name: "addPost",
+  components: { CheckAbilitaddPost },
   props: {
     isDark: {
       type: Boolean,
@@ -71,17 +77,22 @@ export default {
       showDialog: false,
       selectedCategory: null,
       isConfirmed: false,
-      showError: false
+      showError: false,
+      canAdd: true,
+      message: ''
     };
   },
   created() {
-    // Translate menu items when component is created
     this.menuItems = this.menuItems.map(item => ({
       ...item,
       text: this.$t(`shared.menu.${item.text}`)
     }));
   },
   methods: {
+    onChecked({ canAdd, message }) {
+      this.canAdd = canAdd;
+      this.message = message;
+    },
     selectCategory(item) {
       this.selectedCategory = item;
       this.showDialog = true;
@@ -93,14 +104,12 @@ export default {
         this.showError = true;
         return;
       }
-
       const currentForm = getProductForm() || {};
       saveProductForm({
         ...currentForm,
         category: this.selectedCategory.value,
         categoryDisplay: this.selectedCategory.text
       });
-      console.log(this.selectedCategory.value);
       localStorage.setItem('selectedCategory', this.selectedCategory.value);
       this.showDialog = false;
       this.$router.push('/region');
@@ -356,5 +365,9 @@ export default {
 .continue-btn:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+.message-box{
+  font-size: xx-large;
 }
 </style>

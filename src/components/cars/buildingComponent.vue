@@ -1,100 +1,133 @@
 <template>
-  <div class="parent2">
-    <!-- Horizontal List of Building Types -->
-    <ul class="horizontal-list">
-      <li
-          v-for="buildingType in buildingTypes"
-          :key="buildingType"
-          :class="['list-item', { 'selected': selectedBuildingType === buildingType }]"
-          @click="handleBuildingTypeClick(buildingType)"
+  <div class="building-component">
+    <div class="button-container">
+      <button
+          :class="['filter-button', { 'selected': selectedType === 'sale' }]"
+          @click="selectType('sale')"
       >
-        {{ buildingType }}
+        {{ $t('buildings.sale') }}
+      </button>
+      <button
+          :class="['filter-button', { 'selected': selectedType === 'rent' }]"
+          @click="selectType('rent')"
+      >
+        {{ $t('buildings.rent') }}
+      </button>
+    </div>
+    <ul v-if="selectedType && buildingTypesList.length" class="horizontal-list">
+      <li
+          v-for="buildingType in buildingTypesList"
+          :key="buildingType.value"
+          :class="['list-item', { 'selected': selectedBuildingType === buildingType.value }]"
+          @click="selectBuildingType(buildingType)"
+      >
+        {{ buildingType.label }}
       </li>
     </ul>
+    <div v-if="selectedType && !buildingTypesList.length" class="error-message">
+      {{ $t('buildings.errors.noTypesAvailable') }}
+    </div>
   </div>
 </template>
 
 <script>
-import { ConstVariables } from "../../../const.js";
-
 export default {
-  name: "BuildingComponent",
+  name: 'BuildingComponent',
   data() {
     return {
-      buildingTypes: [
-        ...ConstVariables.realStateRentTypes, // Rent types
-        ...ConstVariables.realEstateSaleTypeList, // Sale types
-      ], // Combine rent and sale types
-      selectedBuildingType: null, // Track the selected building type
+      selectedType: null,
+      selectedBuildingType: null,
     };
   },
+  computed: {
+    buildingTypesList() {
+      if (!this.selectedType) return [];
+      // Try to get keys from the current locale first
+      const localeTypes = this.$i18n.messages[this.$i18n.locale]?.buildings?.types?.[this.selectedType];
+      const enTypes = this.$i18n.messages['en']?.buildings?.types?.[this.selectedType];
+      const typeObj = localeTypes || enTypes;
+      if (!typeObj) return [];
+      return Object.keys(typeObj).map(key => ({
+        value: key,
+        label: this.$t(`buildings.types.${this.selectedType}.${key}`)
+      }));
+    }
+  },
   methods: {
-    // Handle building type click
-    handleBuildingTypeClick(buildingType) {
-      this.selectedBuildingType = buildingType; // Set the selected building type
-      const lowercaseBuildingType = buildingType.toLowerCase(); // Convert to lowercase
-      this.$emit("building-type-selected", lowercaseBuildingType); // Emit the lowercase building type
+    selectType(type) {
+      this.selectedType = type;
+      this.selectedBuildingType = null;
+      this.$emit('sale-rent-selected', type);
+    },
+    selectBuildingType(buildingType) {
+      this.selectedBuildingType = buildingType.value;
+      console.log('Selected building type value:', buildingType.value); // key
+      console.log('Selected building type label:', buildingType.label); // translated label
+      this.$emit('building-type-selected', buildingType.value);
     },
   },
+  watch: {
+    '$i18n.locale': {
+      immediate: true,
+      handler() {
+        this.buildingTypesList;
+      }
+    }
+  }
 };
 </script>
 
 
 <style scoped>
-.parent2 {
-  padding: 20px;
-  overflow-x: auto; /* Enable horizontal scrolling if the list overflows */
+.building-component {
   width: 100%;
-  max-width: 2000px;
+  text-align: left;
+  padding: 10px;
+}
+
+h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.filter-button {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.filter-button:hover {
+  background-color: #f0f0f0;
+}
+
+.filter-button.selected {
+  background-color: green;
+  color: white;
+  border-color: green;
 }
 
 .horizontal-list {
-  list-style-type: none; /* Remove default list styling */
+  list-style-type: none;
   margin: 0;
-  display: flex; /* Make the list horizontal */
-  gap: 10px; /* Add spacing between list items */
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
 }
 
 .list-item {
-  white-space: nowrap; /* Prevent text from wrapping */
-  padding: 8px 12px; /* Add padding for better clickability */
-  border: 1px solid #ccc; /* Optional: Add a border */
-  border-radius: 4px; /* Optional: Add rounded corners */
-  cursor: pointer; /* Show pointer cursor on hover */
-  transition: background-color 0.3s ease; /* Smooth hover effect */
-}
-
-.list-item:hover {
-  background-color: #f0f0f0; /* Change background color on hover */
-}
-
-/* Style for selected items */
-.list-item.selected {
-  background-color: green; /* Green background for selected items */
-  color: white; /* White text for better contrast */
-}
-
-/* Add these styles to your existing HomeView styles */
-.imported-component {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 0 20px 0; /* Changed from margin: 0 auto to remove centering */
-  text-align: left;
-  overflow-x: auto;
-}
-
-.imported-component ul.horizontal-list {
-  display: flex;
-  gap: 10px;
-  padding: 15px;
-  margin: 0;
-  list-style: none;
-  justify-content: flex-start; /* Ensure left alignment */
-  overflow-x: auto;
-  width: 100%;
-}
-
-.imported-component .list-item {
   white-space: nowrap;
   padding: 8px 12px;
   border: 1px solid #ccc;
@@ -103,13 +136,20 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-.imported-component .list-item:hover {
+.list-item:hover {
   background-color: #f0f0f0;
 }
 
-.imported-component .list-item.selected {
+.list-item.selected {
   background-color: green;
   color: white;
 }
 
+.error-message {
+  color: red;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+}
 </style>
+```

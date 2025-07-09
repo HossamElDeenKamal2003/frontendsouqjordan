@@ -2,16 +2,18 @@
   <div :class="['shared-parent', { 'dark-mode': isDark }]">
     <div class="menu-container">
       <div class="menu-header">
-        <h3 style="color: green; font-size: larger;">Choose Region</h3>
+        <h3>
+          {{ $t('locationsMap.chooseRegion') }}
+        </h3>
       </div>
       <ul class="menu-list">
         <li
-            v-for="region in regions"
-            :key="region"
+            v-for="regionKey in regionKeys"
+            :key="regionKey"
             class="menu-item"
-            @click="selectRegion(region)"
+            @click="selectRegion(regionKey)"
         >
-          <span class="text">{{ region }}</span>
+          <span class="text">{{ $t('locations.' + regionKey.toLowerCase()) }}</span>
           <span class="arrow">→</span>
         </li>
       </ul>
@@ -20,23 +22,7 @@
 </template>
 
 <script>
-import { ConstVariables } from "../../../const.js";
 import { saveProductForm, getProductForm } from '@/productFormStorage';
-
-const arabicRegions = {
-  'Amman': 'عمان',
-  'Zarqa': 'الزرقاء',
-  'Irbid': 'إربد',
-  'Ajloun': 'عجلون',
-  'Jerash': 'جرش',
-  'Mafraq': 'المفرق',
-  'Balqa': 'البلقاء',
-  'Karak': 'الكرك',
-  'Tafilah': 'الطفيلة',
-  'Ma\'an': 'معان',
-  'Aqaba': 'العقبة',
-  'Madaba': 'مادبا'
-};
 
 export default {
   name: "RegionSelector",
@@ -46,32 +32,36 @@ export default {
       default: false,
     },
   },
-  data() {
-    return {
-      regions: Object.keys(ConstVariables.locationsMap)
+  computed: {
+    // List of region keys as in your locales/en.json and ar.json
+    regionKeys() {
+      // Use Object.keys to get all region keys from locations in i18n
+      // Or hardcode if you want a specific order
+      return [
+        "Amman", "Zarqa", "Irbid", "Ajloun", "Jerash", "Mafraq", "Balqa", "Karak", "Tafilah", "Ma'an", "Aqaba", "Madaba", "Ramtha", "Al-Husn", "Shoubak", "Wadi Musa", "Russeifa", "Ain Al-Basha", "Fuheis", "Mahis", "Dhiban", "Mu'tah", "Al-Salt", "Al-Mafraq", "Al-Rusaifa", "Al-Jubeiha", "Marj Al-Hamam", "Abdoun", "Sweifieh", "Khalda", "Tla' Al-Ali", "Dabouq", "Deir Ghbar", "Al-Muqabalain", "Sahab", "Naur"
+      ];
     }
   },
   methods: {
-    selectRegion(region) {
+    selectRegion(regionKey) {
       const currentForm = getProductForm() || {};
-
+      // Always send the English region key (lowercased)
       saveProductForm({
         ...currentForm,
-        location: region.toLowerCase(),
-        Arlocation: arabicRegions[region] || region
+        location: regionKey.toLowerCase(),
+        displayLocation: this.$t('locations.' + regionKey.toLowerCase()),
       });
-
-      localStorage.setItem('selectedRegion', region.toLowerCase());
+      localStorage.setItem('selectedRegion', regionKey.toLowerCase());
       this.$router.push('/city');
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
 .shared-parent {
   font-family: Arial, sans-serif;
-  direction: ltr;
+  direction: v-bind('currentLanguage === "ar" ? "rtl" : "ltr"');
   background-color: #f5f7fa;
   min-height: 100vh;
   display: flex;
@@ -92,7 +82,7 @@ export default {
   border-radius: 25px;
   padding: 40px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  height: calc(100vh - 40px); /* Account for padding */
+  height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
 }
@@ -108,14 +98,13 @@ export default {
   align-items: center;
   margin-bottom: 20px;
   flex-shrink: 0;
-  height: calc((100vh - 40px) / 14); /* Half of item height */
+  height: calc((100vh - 40px) / 14);
 }
 
 .menu-header h3 {
   font-size: 24px;
   font-weight: bold;
   color: green;
-  margin: 0;
 }
 
 .dark-mode .menu-header h3 {
@@ -141,7 +130,7 @@ export default {
   color: #333;
   border-radius: 8px;
   transition: all 0.2s ease;
-  height: calc((100vh - 40px) / 8); /* Exactly 1/7th of viewport */
+  height: calc((100vh - 40px) / 8);
   flex-shrink: 0;
 }
 

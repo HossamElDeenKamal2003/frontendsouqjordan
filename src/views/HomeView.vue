@@ -1,5 +1,8 @@
+
 <template>
   <div class="parent">
+    <div>
+    </div>
     <!-- Category Filter Component -->
     <CategoryFilterWithImages
         :categories="categories"
@@ -55,7 +58,7 @@
           class="filter-dropdown"
       >
         <option value="">{{ $t('filters.all_locations') }}</option>
-        <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
+        <option v-for="loc in locations" :key="loc" :value="loc">{{ $t(`locations.${loc}`) }}</option>
       </select>
       <select
           v-model="selectedMetaLocation"
@@ -64,9 +67,7 @@
           class="filter-dropdown"
       >
         <option value="">{{ $t('filters.all_cities') }}</option>
-        <option v-for="metaLoc in metaLocations" :key="metaLoc" :value="metaLoc">
-          {{ metaLoc }}
-        </option>
+        <option v-for="metaLoc in metaLocations" :key="metaLoc" :value="metaLoc">{{ $t(`meta_locations.${selectedLocation}.${metaLoc}`) }}</option>
       </select>
     </div>
     <fixedBottom />
@@ -82,6 +83,7 @@
               :placeholder="$t('search.placeholder')"
               v-model="searchQuery"
               :class="['search-input', isDark ? 'dark-search' : '']"
+              @input="debouncedFilterProducts"
           />
           <button class="add-offer-button" @click="addOffer">
             {{ $t('buttons.add_offer') }}
@@ -127,7 +129,6 @@
                 </div>
                 <div v-if="product.price" class="price">
                   {{ formatPrice(product.price) }}
-
                 </div>
                 <div class="time-location">
                   <div class="time-difference">
@@ -185,8 +186,8 @@ import PersonalAccessoriesList from "../components/cars/personalneedsComponent.v
 import JobsComponent from "../components/cars/jobsComponent.vue";
 import OthersComponent from "../components/cars/otherComponent.vue";
 import fixedBottom from "../components/fixedBottom.vue";
-import enTranslations from '@/locales/en.json'
-import arTranslations from '@/locales/ar.json'
+import debounce from 'lodash/debounce';
+
 export default {
   name: "HomeView",
   components: {
@@ -235,66 +236,39 @@ export default {
         carType: null,
         location: null,
         metaLocation: null,
+        numberOfrooms: null,
+        numberOfbathrooms: null,
+        buildingSpace: null,
+        buildingFloor: null,
+        buildingAge: null,
+        mileage: null,
       },
       selectedLocation: "",
       selectedMetaLocation: "",
       carTypes: [],
       drawerOpen: false,
       isMobile: false,
-      translations: this.$i18n.locale === 'ar' ? arTranslations : enTranslations
     };
   },
   computed: {
     filteredProducts() {
-      let result = [...this.products];
-      if (this.searchQuery) {
-        result = result.filter(
-            (product) =>
-                product.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                product.description.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      }
-      if (this.filteredItems.category && this.filteredItems.category !== "all") {
-        result = result.filter((product) => product.category === this.filteredItems.category);
-      }
-      if (this.filteredItems.metaCategory) {
-        result = result.filter(
-            (product) =>
-                product.metaCategory &&
-                product.metaCategory.toLowerCase() === this.filteredItems.metaCategory.toLowerCase()
-        );
-      }
-      if (this.filteredItems.carType) {
-        result = result.filter(
-            (product) =>
-                product.carType &&
-                product.carType.toLowerCase() === this.filteredItems.carType.toLowerCase()
-        );
-      }
-      if (this.filteredItems.location) {
-        result = result.filter(
-            (product) =>
-                product.location &&
-                product.location.toLowerCase() === this.filteredItems.location.toLowerCase()
-        );
-      }
-      if (this.filteredItems.metaLocation) {
-        result = result.filter(
-            (product) =>
-                product.metaLocation &&
-                product.metaLocation.toLowerCase() === this.filteredItems.metaLocation.toLowerCase()
-        );
-      }
-      return result;
+      return [...this.products];
     },
     locations() {
-      return Object.keys(ConstVariables.locationsMap);
+      const locs = Object.keys(this.$i18n.messages[this.$i18n.locale]?.locations || {});
+      console.log('locations:', locs);
+      return locs;
     },
     metaLocations() {
-      return this.selectedLocation ? ConstVariables.locationsMap[this.selectedLocation] || [] : [];
+      if (!this.selectedLocation) return [];
+      const metaLocs = Object.keys(this.$i18n.messages[this.$i18n.locale]?.meta_locations?.[this.selectedLocation] || {});
+      console.log('metaLocations for', this.selectedLocation, ':', metaLocs);
+      return metaLocs;
     },
   },
   created() {
+    console.log('i18n messages:', this.$i18n.messages[this.$i18n.locale]);
+    console.log('ConstVariables.locationsMap:', ConstVariables.locationsMap);
     this.loadCategories();
     this.loadCarTypes();
   },
@@ -340,54 +314,38 @@ export default {
     async filterProducts() {
       try {
         this.loading = true;
+        this.page = 1; // Reset to first page on filter change
         const userId = localStorage.getItem("userId") || "null";
-        let response;
-        if (!this.filteredItems.category || this.filteredItems.category === "all") {
-          response = await axios.get(
-              `https://backend.jordan-souq.com/product/posts/${userId}?page=1&limit=${this.limit}`
-          );
-        } else {
-          response = await axios.post(
-              `https://backend.jordan-souq.com/product/filter/${userId}`,
-              {
-                category: this.filteredItems.category,
-                metaCategory: this.filteredItems.metaCategory
-                    ? this.filteredItems.metaCategory.toLowerCase()
-                    : null,
-                carType: this.filteredItems.carType ? this.filteredItems.carType.toLowerCase() : null,
-                location: this.filteredItems.location ? this.filteredItems.location.toLowerCase() : null,
-                metaLocation: this.filteredItems.metaLocation
-                    ? this.filteredItems.metaLocation.toLowerCase()
-                    : null,
-              }
-          );
-        }
-        const updatedProducts = response.data.products.map((newProduct) => {
-          const existingProduct = this.products.find((p) => p._id === newProduct._id);
-          if (existingProduct) {
-            return {
-              ...newProduct,
-              isSeen: existingProduct.isSeen,
-              isFavourite: existingProduct.isFavourite,
-            };
-          }
-          return newProduct;
+        const url = `https://backend.jordan-souq.com/product/filter/${userId}`;
+        const response = await axios.post(url, {
+          ...this.filteredItems,
+          location: this.selectedLocation || null,
+          metaLocation: this.selectedMetaLocation || null,
+          page: this.page,
+          limit: this.limit,
         });
-        this.products = updatedProducts;
+        this.products = response.data.products.map((product) => ({
+          ...product,
+          isSeen: false,
+          isFavourite: product.isFavourite,
+        }));
         this.totalPages = response.data.totalPages;
-        this.page = 2;
+        this.page = response.data.currentPage + 1;
       } catch (error) {
         console.error("Error filtering products:", error);
-        this.$toast.error(this.$t('errors.filter_error')); // Use toast for error feedback
+        this.$toast.error(this.$t('errors.filter_error'));
       } finally {
         this.loading = false;
       }
     },
+    debouncedFilterProducts: debounce(function () {
+      this.filterProducts();
+    }, 300),
     setupInfiniteScroll() {
       this.observer = new IntersectionObserver(
           (entries) => {
-            if (entries[0].isIntersecting && !this.loading) {
-              this.getTrips();
+            if (entries[0].isIntersecting && !this.loading && this.page <= this.totalPages) {
+              this.filterProducts();
             }
           },
           { threshold: 0.5 }
@@ -402,45 +360,49 @@ export default {
       this.filteredItems.metaCategory = null;
       this.filteredItems.carType = null;
 
-      // Find the category object by name
       const category = this.categories.find(cat => cat.name === categoryName);
       if (!category) {
         console.warn('Unknown category:', categoryName);
         return;
       }
 
-      if (categoryName === this.translations.categories[0].name) { // "All" or "الكل"
+      if (categoryName === this.$t('categories[0].name')) {
         this.selectedCategory = null;
-        this.filteredItems.category = "all";
-      } else if (categoryName === this.translations.categories[1].name) { // Cars
+        this.filteredItems.category = null; // Clear category filter to fetch all products
+        this.page = 1;
+        this.products = [];
+        this.getTrips(); // Fetch all products
+        this.filterProducts(); // Apply the reset filter
+      } else if (categoryName === this.$t('categories[1].name')) {
         this.showCarsComponent = true;
-        this.selectedCategory = "Cars";
-        this.filteredItems.category = category.value;
-        this.selectedCarType = ConstVariables.carsTypeList;
-      } else if (categoryName === this.translations.categories[2].name) { // Building
+        this.selectedCategory = "سيارات";
+        this.filteredItems.category = category.value; // e.g., "سيارات" in ar
+        this.selectedCarType = null; // Reset car type
+        this.selectedCarModel = null; // Reset car model
+      } else if (categoryName === this.$t('categories[2].name')) {
         this.showBuildingComponent = true;
-        this.selectedCategory = "Building";
+        this.selectedCategory = "عقار";
         this.filteredItems.category = category.value;
-      } else if (categoryName === this.translations.categories[3].name) { // Devices
+      } else if (categoryName === this.$t('categories[3].name')) {
         this.showDevices = true;
         this.selectedCategory = "Devices";
         this.filteredItems.category = category.value;
-      } else if (categoryName === this.translations.categories[4].name) { // Furniture
+      } else if (categoryName === this.$t('categories[4].name')) {
         this.showFurnitureComponent = true;
         this.selectedCategory = "Furniture";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "furniture";
-      } else if (categoryName === this.translations.categories[5].name) { // Personal Needs
+      } else if (categoryName === this.$t('categories[5].name')) {
         this.showPersonalneeds = true;
         this.selectedCategory = "Personal Needs";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "personal accessories";
-      } else if (categoryName === this.translations.categories[6].name) { // Jobs
+      } else if (categoryName === this.$t('categories[6].name')) {
         this.jobsComponent = true;
         this.selectedCategory = "Jobs";
         this.filteredItems.category = "others";
         this.filteredItems.metaCategory = "jobs";
-      } else if (categoryName === this.translations.categories[7].name) { // Others
+      } else if (categoryName === this.$t('categories[7].name')) {
         this.othersComponent = true;
         this.selectedCategory = "Others";
         this.filteredItems.category = category.value;
@@ -459,27 +421,33 @@ export default {
       this.jobsComponent = false;
       this.othersComponent = false;
     },
-    handleCarTypeSelected(carType) {
-      this.selectedCarType = carType;
-      this.filteredItems.metaCategory = carType.toLowerCase();
-      this.filteredItems.carType = null;
+    handleCarTypeSelected(carTypeValue) {
+      // Ignore carTypeValue since it's null for brand selection
+      this.selectedCarType = carTypeValue; // Will be null
+      this.filteredItems.carType = null; // Ensure carType is not set
       this.filterProducts();
     },
-    handleCarModelSelected(model) {
-      this.selectedCarModel = model;
-      this.filteredItems.carType = model;
+    handleMetaCategorySelected(metaCategory) {
+      this.filteredItems.metaCategory = metaCategory; // Set to lowercase brand (e.g., "toyota")
+      this.filterProducts();
+    },
+    handleCarModelSelected(modelValue) {
+      this.selectedCarModel = modelValue;
+      this.filteredItems.carType = modelValue; // Set to lowercase model (e.g., "toyota 4runner")
+      this.filterProducts();
+    },
+    handleMileageSelected(mileage) {
+      this.filteredItems.mileage = mileage;
       this.filterProducts();
     },
     handleBuildingTypeSelected(buildingType) {
       this.selectedBuildingType = buildingType;
       this.filteredItems.metaCategory = buildingType;
-      this.filteredItems.carType = null;
       this.filterProducts();
     },
     handleDeviceTypeSelected(deviceType) {
       this.selectedDeviceType = deviceType;
       this.filteredItems.metaCategory = deviceType;
-      this.filteredItems.carType = null;
       this.filterProducts();
     },
     handleDeviceModelSelected(model) {
@@ -505,11 +473,9 @@ export default {
     handleOtherSelected(otherType) {
       this.selectedOtherType = otherType;
       this.filteredItems.metaCategory = otherType;
-      this.filteredItems.carType = null;
       this.filterProducts();
     },
     formatPrice(price) {
-      console.log("product price : ", price);
       if (!price && price !== 0) {
         return 'Price not available';
       }
@@ -532,19 +498,18 @@ export default {
       return this.$t('time.days_ago', { count: Math.floor(diffInSeconds / 86400) });
     },
     loadCategories() {
-      console.log(this.$t('categories'))
-      this.categories = this.translations.categories.map((cat) => ({
+      this.categories = this.$i18n.messages[this.$i18n.locale]?.categories?.map((cat) => ({
         name: cat.name,
         value: cat.value,
         image: cat.image,
         category: cat.category,
-      }));
+      })) || [];
     },
     loadCarTypes() {
-      this.carTypes = this.translations.carTypes.map((carType) => ({
+      this.carTypes = this.$i18n.messages[this.$i18n.locale]?.carTypes?.map((carType) => ({
         name: carType.name,
         image: carType.image,
-      }));
+      })) || [];
     },
     selectCarType(carType) {
       this.selectedCarType = carType.name;
@@ -564,6 +529,7 @@ export default {
   },
   watch: {
     selectedLocation(newVal) {
+      console.log('selectedLocation changed to:', newVal, 'metaLocations:', this.metaLocations);
       this.filteredItems.location = newVal ? newVal.toLowerCase() : "";
       this.selectedMetaLocation = "";
       this.filterProducts();

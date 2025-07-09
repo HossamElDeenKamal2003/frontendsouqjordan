@@ -1,0 +1,298 @@
+// src/utils/filterFields.js
+const filterFieldsByCategory = {
+    Cars: [
+        {
+            key: 'category',
+            label: 'Category',
+            type: 'select',
+            options: [{ value: 'Cars', label: 'Cars' }],
+        },
+        {
+            key: 'price',
+            label: 'Price Range (JOD)',
+            type: 'range',
+            min: 0,
+            max: 1000000,
+            step: 1000,
+        },
+        {
+            key: 'location',
+            label: 'City',
+            type: 'text',
+            placeholder: 'Enter city (e.g., Amman)',
+        },
+        {
+            key: 'metaLocation',
+            label: 'Area',
+            type: 'text',
+            placeholder: 'Enter area (e.g., Downtown)',
+        },
+        {
+            key: 'carType',
+            label: 'Car Type',
+            type: 'select',
+            options: [
+                { value: 'Sedan', label: 'Sedan' },
+                { value: 'SUV', label: 'SUV' },
+                { value: 'Truck', label: 'Truck' },
+                { value: 'Coupe', label: 'Coupe' },
+                { value: 'Hatchback', label: 'Hatchback' },
+                { value: 'Van', label: 'Van' },
+            ],
+        },
+        {
+            key: 'modelCar',
+            label: 'Model',
+            type: 'text',
+            placeholder: 'Enter model (e.g., Toyota Camry)',
+        },
+        {
+            key: 'gearType',
+            label: 'Gear Type',
+            type: 'select',
+            options: [
+                { value: 'Automatic', label: 'Automatic' },
+                { value: 'Manual', label: 'Manual' },
+            ],
+        },
+        {
+            key: 'fuelType',
+            label: 'Fuel Type',
+            type: 'select',
+            options: [
+                { value: 'Petrol', label: 'Petrol' },
+                { value: 'Diesel', label: 'Diesel' },
+                { value: 'Electric', label: 'Electric' },
+                { value: 'Hybrid', label: 'Hybrid' },
+            ],
+        },
+        {
+            key: 'is40W',
+            label: '4WD',
+            type: 'checkbox',
+        },
+        {
+            key: 'condition',
+            label: 'Condition',
+            type: 'select',
+            options: [
+                { value: 'New', label: 'New' },
+                { value: 'Used', label: 'Used' },
+            ],
+        },
+        {
+            key: 'metaCategory',
+            label: 'Brand',
+            type: 'text',
+            placeholder: 'Enter brand (e.g., Toyota)',
+        },
+        {
+            key: 'viewers',
+            label: 'Minimum Viewers',
+            type: 'number',
+            placeholder: 'Enter minimum viewers',
+            min: 0,
+        },
+        {
+            key: 'owner',
+            label: 'Owner Type',
+            type: 'select',
+            options: [
+                { value: 'Private', label: 'Private' },
+                { value: 'Dealer', label: 'Dealer' },
+            ],
+        },
+        {
+            key: 'containImages',
+            label: 'Has Images',
+            type: 'checkbox',
+        },
+    ],
+    RealEstate: [
+        {
+            key: 'category',
+            label: 'Category',
+            type: 'select',
+            options: [{ value: 'RealEstate', label: 'Real Estate' }],
+        },
+        {
+            key: 'price',
+            label: 'Price Range (JOD)',
+            type: 'range',
+            min: 0,
+            max: 5000000,
+            step: 5000,
+        },
+        {
+            key: 'location',
+            label: 'City',
+            type: 'text',
+            placeholder: 'Enter city (e.g., Amman)',
+        },
+        {
+            key: 'metaLocation',
+            label: 'Area',
+            type: 'text',
+            placeholder: 'Enter area (e.g., Downtown)',
+        },
+        {
+            key: 'numberOfrooms',
+            label: 'Number of Rooms',
+            type: 'number',
+            placeholder: 'Enter number of rooms',
+            min: 0,
+        },
+        {
+            key: 'numberOfbathrooms',
+            label: 'Number of Bathrooms',
+            type: 'number',
+            placeholder: 'Enter number of bathrooms',
+            min: 0,
+        },
+        {
+            key: 'buildingSpace',
+            label: 'Building Space (sqm)',
+            type: 'number',
+            placeholder: 'Enter building space',
+            min: 0,
+        },
+        {
+            key: 'buildingFloor',
+            label: 'Floor',
+            type: 'number',
+            placeholder: 'Enter floor number',
+            min: 0,
+        },
+        {
+            key: 'buildingAge',
+            label: 'Building Age (years)',
+            type: 'number',
+            placeholder: 'Enter building age',
+            min: 0,
+        },
+        {
+            key: 'condition',
+            label: 'Condition',
+            type: 'select',
+            options: [
+                { value: 'New', label: 'New' },
+                { value: 'Used', label: 'Used' },
+                { value: 'Under Construction', label: 'Under Construction' },
+            ],
+        },
+        {
+            key: 'metaCategory',
+            label: 'Property Type',
+            type: 'select',
+            options: [
+                { value: 'Apartment', label: 'Apartment' },
+                { value: 'Villa', label: 'Villa' },
+                { value: 'Commercial', label: 'Commercial' },
+                { value: 'Land', label: 'Land' },
+            ],
+        },
+        {
+            key: 'viewers',
+            label: 'Minimum Viewers',
+            type: 'number',
+            placeholder: 'Enter minimum viewers',
+            min: 0,
+        },
+        {
+            key: 'owner',
+            label: 'Owner Type',
+            type: 'select',
+            options: [
+                { value: 'Private', label: 'Private' },
+                { value: 'Agent', label: 'Agent' },
+            ],
+        },
+        {
+            key: 'containImages',
+            label: 'Has Images',
+            type: 'checkbox',
+        },
+    ],
+    Electronics: [
+        {
+            key: 'category',
+            label: 'Category',
+            type: 'select',
+            options: [{ value: 'Electronics', label: 'Electronics' }],
+        },
+        {
+            key: 'price',
+            label: 'Price Range (JOD)',
+            type: 'range',
+            min: 0,
+            max: 5000,
+            step: 50,
+        },
+    ],
+    Furniture: [
+        {
+            key: 'category',
+            label: 'Category',
+            type: 'select',
+            options: [{ value: 'Furniture', label: 'Furniture' }],
+        },
+        {
+            key: 'price',
+            label: 'Price Range (JOD)',
+            type: 'range',
+            min: 0,
+            max: 10000,
+            step: 100,
+        },
+    ],
+    Jobs: [
+        {
+            key: 'category',
+            label: 'Category',
+            type: 'select',
+            options: [{ value: 'Jobs', label: 'Jobs' }],
+        },
+        {
+            key: 'price',
+            label: 'Salary Range (JOD)',
+            type: 'range',
+            min: 0,
+            max: 5000,
+            step: 50,
+        },
+    ],
+    Services: [
+        {
+            key: 'category',
+            label: 'Category',
+            type: 'select',
+            options: [{ value: 'Services', label: 'Services' }],
+        },
+        {
+            key: 'price',
+            label: 'Price Range (JOD)',
+            type: 'range',
+            min: 0,
+            max: 1000,
+            step: 10,
+        },
+    ],
+    PersonalNeeds: [
+        {
+            key: 'category',
+            label: 'Category',
+            type: 'select',
+            options: [{ value: 'PersonalNeeds', label: 'Personal Needs' }],
+        },
+        {
+            key: 'price',
+            label: 'Price Range (JOD)',
+            type: 'range',
+            min: 0,
+            max: 1000,
+            step: 10,
+        },
+    ],
+};
+
+export default filterFieldsByCategory;

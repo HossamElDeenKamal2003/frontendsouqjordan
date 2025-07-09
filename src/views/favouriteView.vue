@@ -2,7 +2,12 @@
   <div :class="['profile-container', { 'dark-mode': isDark }]">
     <!-- Favourite Posts Section -->
     <div class="favourite-posts-section">
-      <div class="products-container">
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div v-else-if="isLoading" class="loading">Loading favorite posts...</div>
+      <div v-else-if="!favouritePosts.length" class="empty-state">
+        No favorite posts found.
+      </div>
+      <div v-else class="products-container">
         <router-link
             v-for="(post, index) in favouritePosts"
             :key="post._id"
@@ -10,24 +15,21 @@
             :class="[
             'product-card',
             index % 2 === 0 ? 'white-card' : 'grey-card',
-            isDark ? 'dark-card' : ''
+            { 'dark-card': isDark }
           ]"
+            :aria-label="`View details for ${post.title}`"
         >
           <img
-              :src="
-              post.images && post.images.length
-                ? post.images[0]
-                : require('@/assets/jordan image.jpeg')
-            "
-              alt="Product Image"
+              :src="post.images && post.images.length ? post.images[0] : defaultImage"
+              :alt="`Image of ${post.title || 'product'}`"
               class="product-image"
           />
-          <div :class="['product-info', isDark ? 'dark-text' : '']">
+          <div :class="['product-info', { 'dark-text': isDark }]">
             <h3 :class="{ 'seen-title': post.isSeen }">{{ post.title }}</h3>
             <p>{{ post.description }}</p>
             <div class="indicators">
               <span v-if="post.isSeen" class="seen-indicator">👁️ Seen</span>
-              <span v-if="post.isFavourite" class="favourite-indicator">️❤ Favourite</span>
+              <span v-if="post.isFavourite" class="favourite-indicator">❤️ Favourite</span>
             </div>
             <div v-if="post.price" class="price">
               {{ formatPrice(post.price) }}
@@ -49,48 +51,74 @@
 
 <script>
 import axios from "axios";
+import defaultImage from "@/assets/jordan image.jpeg"; // Ensure this file exists
 
 export default {
   name: "FavouriteView",
   props: {
-    isDark: Boolean,
+    isDark: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
-      favouritePosts: [], // Array to store favourite posts
+      favouritePosts: [],
+      isLoading: false,
+      errorMessage: null,
+      defaultImage, // Imported default image
     };
   },
   async created() {
-    await this.fetchUserFavourite(); // Fetch favourite posts when the component is created
+    await this.fetchUserFavourite();
   },
   methods: {
     // Fetch user's favourite posts
     async fetchUserFavourite() {
+      this.isLoading = true;
+      this.errorMessage = null;
       const userId = localStorage.getItem("userId");
+
+      if (!userId) {
+        this.errorMessage = "Please log in to view your favorite posts.";
+        this.isLoading = false;
+        return;
+      }
+
       try {
         const response = await axios.get(
             `https://backend.jordan-souq.com/product/favourite/${userId}`
         );
-        // Map the response to extract the product details from the `productId` field
-        this.favouritePosts = response.data.favourite.map((item) => ({
-          ...item.productId, // Spread the product details
-          _id: item.productId._id, // Ensure the post ID is correctly mapped
-        }));
+
+        // Validate and map response data
+        this.favouritePosts = response.data.favourite
+            .filter((item) => item.productId && item.productId._id)
+            .map((item) => ({
+              ...item.productId,
+              _id: item.productId._id,
+            }));
       } catch (error) {
+        this.errorMessage = "Failed to load favorite posts. Please try again later.";
         console.error("Error fetching user favourite posts:", error);
+      } finally {
+        this.isLoading = false;
       }
     },
 
     // Format price with a dollar sign
     formatPrice(price) {
-      return `$${price}`;
+      return `$${Number(price).toFixed(2)}`; // Ensure price is formatted with 2 decimals
     },
 
     // Format time difference (e.g., "2 hours ago")
     formatTimeDifference(createdAt) {
-      const now = new Date();
+      if (!createdAt) return "Unknown time";
       const createdDate = new Date(createdAt);
+      if (isNaN(createdDate.getTime())) return "Invalid date";
+
+      const now = new Date();
       const diffInSeconds = Math.floor((now - createdDate) / 1000);
+
       if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
       if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
       if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
@@ -101,7 +129,6 @@ export default {
 </script>
 
 <style scoped>
-/* Your existing styles remain unchanged */
 .profile-container {
   background-color: #f0f2f5;
   color: #333;
@@ -109,9 +136,28 @@ export default {
   min-height: 100vh;
 }
 
-.dark-mode.profile-container {
+.dark-mode {
   background-color: #18191a;
   color: #e4e6eb;
+}
+
+.loading,
+.error-message,
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #666;
+}
+
+.dark-mode .loading,
+.dark-mode .error-message,
+.dark-mode .empty-state {
+  color: #e4e6eb;
+}
+
+.error-message {
+  color: #d32f2f;
 }
 
 .products-container {
@@ -132,6 +178,7 @@ export default {
   background-color: white;
   overflow: hidden;
   position: relative;
+  text-decoration: none;
 }
 
 .product-card:hover {
@@ -164,7 +211,7 @@ export default {
 }
 
 .product-info h3.seen-title {
-  color: red;
+  color: #d32f2f;
 }
 
 .product-info p {
@@ -190,11 +237,6 @@ export default {
   color: #666;
 }
 
-.dark-text .seen-indicator,
-.dark-text .favourite-indicator {
-  color: white;
-}
-
 .price {
   position: absolute;
   bottom: 5px;
@@ -216,17 +258,7 @@ export default {
   align-items: center;
 }
 
-.time-difference {
-  font-size: 12px;
-  color: #666;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 2px 5px;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
+.time-difference,
 .location {
   font-size: 12px;
   color: #666;
@@ -246,13 +278,15 @@ export default {
   background-color: #f5f5f5;
 }
 
-.dark-card {
-  background-color: #222 !important;
-  color: #fff !important;
+.dark-mode .product-card {
+  background-color: #222;
+  color: #fff;
   box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
 }
 
-.dark-text p {
-  color: white !important;
+.dark-text p,
+.dark-text .seen-indicator,
+.dark-text .favourite-indicator {
+  color: #e4e6eb;
 }
 </style>

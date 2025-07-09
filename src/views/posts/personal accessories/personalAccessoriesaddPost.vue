@@ -1,37 +1,42 @@
 <template>
   <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add Accessory Offer</h2>
-      <button @click="toggleDarkMode">Toggle Dark Mode</button>
+      <h2 class="main-title">{{ $t('personalAccessories.addAccessoryOffer') }}</h2>
+      <button @click="toggleDarkMode">{{ $t('personalAccessories.toggleDarkMode') }}</button>
       <div class="form">
         <!-- Image Upload Component -->
         <ImageUpload :isDark="localIsDark" v-model:images="data.images" />
 
         <div class="form-group">
-          <label>Title</label>
-          <input type="text" v-model="data.title" class="form-input" placeholder="Enter Accessory title"/>
+          <label>{{ $t('personalAccessories.title') }}</label>
+          <input type="text" v-model="data.title" class="form-input" :placeholder="$t('personalAccessories.enterAccessoryTitle')" />
         </div>
 
         <div class="form-group">
-          <label>Category</label>
+          <label>{{ $t('personalAccessories.category') }}</label>
           <select v-model="data.carType" @change="updateModels" class="form-select">
-            <option value="">Select a category</option>
-            <option v-for="category in categoryList" :value="category">{{ category }}</option>
+            <option value="">{{ $t('personalAccessories.selectCategory') }}</option>
+            <option v-for="category in categoryList" :key="category" :value="category">
+              {{ $t('personalAccessories.categories.' + category) }}
+            </option>
           </select>
+          <div v-if="data.carType" class="selected-label">
+            {{ $t('personalAccessories.categories.' + data.carType) }}
+          </div>
         </div>
 
         <div class="form-group">
-          <label>Price (JOD)</label>
-          <input type="number" v-model="data.price" class="form-input" placeholder="Enter price"/>
+          <label>{{ $t('personalAccessories.priceJOD') }}</label>
+          <input type="number" v-model="data.price" class="form-input" :placeholder="$t('personalAccessories.enterPrice')" />
         </div>
 
         <div class="form-group">
-          <label>Description</label>
-          <textarea v-model="data.content" placeholder="Enter Accessory description" class="form-textarea"></textarea>
+          <label>{{ $t('personalAccessories.description') }}</label>
+          <textarea v-model="data.content" :placeholder="$t('personalAccessories.enterAccessoryDescription')" class="form-textarea"></textarea>
         </div>
 
         <div class="button-container">
-          <button class="finish-btn" @click="handleFinish">Submit Offer</button>
+          <button class="finish-btn" @click="handleFinish">{{ $t('personalAccessories.submitOffer') }}</button>
         </div>
       </div>
     </div>
@@ -64,9 +69,16 @@ export default {
         images: [],
         carType: ''
       },
-      categoryList: ConstVariables.personalAccessoriesList || [],
+      categoryList: [],
       filteredModels: [],
     };
+  },
+  computed: {
+    selectedCategoryLabel() {
+      return this.data.carType
+          ? this.$t('personalAccessories.categories.' + this.data.carType)
+          : '';
+    }
   },
   methods: {
     toggleDarkMode() {
@@ -74,12 +86,11 @@ export default {
     },
     updateModels() {
       this.data.model = '';
-      if (!this.data.metaCategory) {
+      if (!this.data.carType) {
         this.filteredModels = [];
         return;
       }
-
-      const normalizedType = this.data.metaCategory.toLowerCase().replace(/\s+/g, '');
+      const normalizedType = this.data.carType.toLowerCase().replace(/\s+/g, '');
       let modelKey = `${normalizedType}ModelsList`;
       let models = ConstVariables[modelKey];
 
@@ -91,7 +102,7 @@ export default {
       this.filteredModels = Array.isArray(models) ? models : [];
     },
     toastError() {
-      toast.error('Please login to access this feature', {
+      toast.error(this.$t('personalAccessories.loginError'), {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
         hideProgressBar: false,
@@ -102,7 +113,7 @@ export default {
       });
     },
     toastSuccess() {
-      toast.success('Your Offer Created Successfully', {
+      toast.success(this.$t('personalAccessories.successMessage'), {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
         hideProgressBar: false,
@@ -130,7 +141,11 @@ export default {
         formData.append('title', this.data.title);
         formData.append('price', this.data.price);
         formData.append('metaCategory', 'personal accessories');
-        formData.append('carType', this.data.carType);
+        // Always send English value for carType
+        const carTypeLabel = this.data.carType
+            ? (this.$i18n.messages['en'].personalAccessories.categories[this.data.carType] || '').toLowerCase()
+            : '';
+        formData.append('carType', carTypeLabel);
         formData.append('content', description);
         formData.append('description', description);
         formData.append('category', 'others');
@@ -170,7 +185,7 @@ export default {
         }
       } catch (error) {
         console.error('Submission failed:', error);
-        toast.error('Failed to submit offer', {
+        toast.error(this.$t('personalAccessories.submitError'), {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000,
           hideProgressBar: false,
@@ -183,10 +198,14 @@ export default {
     },
   },
   mounted() {
-    // Initialize category
+    // Initialize category list from i18n
+    const categories = this.$i18n.messages[this.$i18n.locale].personalAccessories.categories;
+    this.categoryList = categories ? Object.keys(categories) : [];
+    // Check stored category
     const storedCategory = localStorage.getItem('selectedCategory');
-    if (storedCategory) {
-      this.categoryList = ConstVariables.personalAccessoriesList;
+    if (storedCategory && this.categoryList.includes(storedCategory)) {
+      this.data.carType = storedCategory;
+      this.updateModels();
     }
   },
 };
@@ -197,7 +216,6 @@ export default {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f7fa;
   font-family: Arial, sans-serif;
   transition: all 0.3s ease;
 }

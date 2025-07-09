@@ -7,35 +7,31 @@
       <div v-if="saleState === 'sale'" class="sale">
         <ul class="menu-list">
           <li
-              v-for="item in sale"
+              v-for="item in saleItems"
               :key="`sale-${item}`"
               class="menu-item"
               :class="{ selected: selectedOption === item }"
+              @click="selectOption(item)"
           >
-            <router-link
-                :to="{ path: '/AddBuildingsSpecificData', query: { type: item } }"
-            >
-              <span class="text">{{ item }}</span>
-              <span class="arrow" :class="{ 'rtl-arrow': isRTL }">{{ isRTL ? '←' : '→' }}</span>
-            </router-link>
+            <span class="text">{{ $t(`buildings2.types.sale.${item}`) }}</span>
+            <span class="arrow" :class="{ 'rtl-arrow': isRTL }">{{ isRTL ? '←' : '→' }}</span>
           </li>
+          <li v-if="!saleItems.length" class="menu-item error">{{ $t('buildings.errors.noTypesAvailable') }}</li>
         </ul>
       </div>
       <div v-else class="rent">
         <ul class="menu-list">
           <li
-              v-for="item in rent"
+              v-for="item in rentItems"
               :key="`rent-${item}`"
               class="menu-item"
               :class="{ selected: selectedOption === item }"
+              @click="selectOption(item)"
           >
-            <router-link
-                :to="{ path: '/AddBuildingsSpecificData', query: { type: item } }"
-            >
-              <span class="text">{{ item }}</span>
-              <span class="arrow" :class="{ 'rtl-arrow': isRTL }">{{ isRTL ? '←' : '→' }}</span>
-            </router-link>
+            <span class="text">{{ $t(`buildings2.types.rent.${item}`) }}</span>
+            <span class="arrow" :class="{ 'rtl-arrow': isRTL }">{{ isRTL ? '←' : '→' }}</span>
           </li>
+          <li v-if="!rentItems.length" class="menu-item error">{{ $t('buildings.errors.noTypesAvailable') }}</li>
         </ul>
       </div>
     </div>
@@ -43,24 +39,14 @@
 </template>
 
 <script>
-import { ConstVariables } from '../../../../const';
-
 export default {
   name: "TypesOfBuildings",
   props: {
-    isDark: {
-      type: Boolean,
-      default: false,
-    },
-    isRTL: {
-      type: Boolean,
-      default: false,
-    },
+    isDark: { type: Boolean, default: false },
+    isRTL: { type: Boolean, default: false },
   },
   data() {
     return {
-      rent: ConstVariables.realStateRentTypes || [],
-      sale: ConstVariables.realEstateSaleTypeList || [],
       saleState: this.getInitialSaleState(),
       selectedOption: null,
     };
@@ -68,7 +54,15 @@ export default {
   computed: {
     isRTL() {
       return this.$i18n.locale === 'ar';
-    }
+    },
+    saleItems() {
+      const saleObj = this.$i18n.messages[this.$i18n.locale]?.buildings2?.types?.sale;
+      return saleObj ? Object.keys(saleObj) : [];
+    },
+    rentItems() {
+      const rentObj = this.$i18n.messages[this.$i18n.locale]?.buildings2?.types?.rent;
+      return rentObj ? Object.keys(rentObj) : [];
+    },
   },
   methods: {
     getInitialSaleState() {
@@ -86,23 +80,34 @@ export default {
       }
       return 'sale';
     },
+    selectOption(item) {
+      this.selectedOption = item;
+      localStorage.setItem('selectedBuildingType', item);
+      // Always use the English key as type, regardless of locale
+      this.$router.push({ path: '/AddBuildingsSpecificData', query: { type: item } });
+    }
   },
   created() {
-    console.log('saleState####:', this.saleState);
-    console.log('rent:', this.rent);
-    console.log('sale:', this.sale);
     if (!['sale', 'rent'].includes(this.saleState)) {
       this.saleState = 'sale';
+    }
+    const storedType = localStorage.getItem('selectedBuildingType');
+    if (storedType && (this.saleItems.includes(storedType) || this.rentItems.includes(storedType))) {
+      this.selectedOption = storedType;
     }
   },
   mounted() {
     document.documentElement.setAttribute('dir', this.isRTL ? 'rtl' : 'ltr');
   },
+  watch: {
+    '$i18n.locale': {
+      immediate: true,
+      handler() {},
+    }
+  }
 };
 </script>
-
 <style scoped>
-/* Existing styles remain unchanged */
 .shared-parent {
   font-family: Arial, sans-serif;
   direction: ltr;
@@ -191,6 +196,14 @@ export default {
   background-color: #444;
 }
 
+.menu-item.selected {
+  background-color: #e0f0ff;
+}
+
+.dark-mode .menu-item.selected {
+  background-color: #555;
+}
+
 .text {
   flex-grow: 1;
   font-size: 1.2em;
@@ -213,7 +226,11 @@ export default {
   color: #4dabf7;
 }
 
-/* Responsive adjustments */
+.error {
+  color: red;
+  font-style: italic;
+}
+
 @media (max-width: 1200px) {
   .menu-container {
     width: 90vw;
@@ -278,3 +295,4 @@ a {
   padding: 0 20px;
 }
 </style>
+```

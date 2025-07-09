@@ -2,16 +2,16 @@
   <div :class="['shared-parent', { 'dark-mode': isDark }]">
     <div class="menu-container">
       <div class="menu-header">
-        <h3 style="color: green; font-size: larger;">Cities in {{ selectedRegion }}</h3>
+        <h3>{{ $t('locationsMap.chooseCity') }}</h3>
       </div>
       <ul class="menu-list">
         <li
+            v-for="cityKey in cityKeys"
+            :key="cityKey"
             class="menu-item"
-            v-for="city in cities"
-            :key="city"
-            @click="selectCity(city)"
+            @click="selectCity(cityKey)"
         >
-          <span class="text">{{ city }}</span>
+          <span class="text">{{ $t('meta_locations.' + selectedRegion + '.' + cityKey) }}</span>
           <span class="arrow">→</span>
         </li>
       </ul>
@@ -34,7 +34,7 @@ export default {
   data() {
     return {
       selectedRegion: '',
-      cities: []
+      cityKeys: []
     };
   },
   created() {
@@ -42,30 +42,28 @@ export default {
   },
   methods: {
     loadSelectedRegion() {
+      // region key is stored in localStorage as lowercase with underscores
       const region = localStorage.getItem('selectedRegion');
       if (region) {
-        this.selectedRegion = region.split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-        this.cities = ConstVariables.locationsMap[this.selectedRegion] || [];
+        this.selectedRegion = region; // e.g., "amman"
+        const citiesObj = this.$i18n.messages[this.$i18n.locale].meta_locations?.[region] ||
+            this.$i18n.messages.en.meta_locations?.[region] || {};
+        this.cityKeys = Object.keys(citiesObj);
       } else {
         this.$router.push('/region');
       }
     },
-    selectCity(city) {
+    selectCity(cityKey) {
       const currentForm = getProductForm() || {};
-      const data = city.toLowerCase();
       saveProductForm({
         ...currentForm,
-        city: city,
-        metaLocation: data,
+        city: cityKey,
+        displayCity: this.$t('meta_locations.' + this.selectedRegion + '.' + cityKey),
       });
-      console.log(data)
-
-      localStorage.setItem('selectedCity', city.toLowerCase());
-      this.$router.push('/add-data');
-    }
-  }
+      localStorage.setItem('selectedCity', cityKey);
+      this.$router.push('/add-data'); // This is correct
+    },
+  },
 };
 </script>
 <style scoped>

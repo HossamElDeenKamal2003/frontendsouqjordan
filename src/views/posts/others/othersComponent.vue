@@ -1,37 +1,42 @@
 <template>
   <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add others Offer</h2>
-      <button @click="toggleDarkMode">Toggle Dark Mode</button>
+      <h2 class="main-title">{{ $t('others.addOthersOffer') }}</h2>
+      <button @click="toggleDarkMode">{{ $t('others.toggleDarkMode') }}</button>
       <div class="form">
         <!-- Image Upload Component -->
         <ImageUpload :isDark="localIsDark" v-model:images="data.images" />
 
         <div class="form-group">
-          <label>Title</label>
-          <input type="text" v-model="data.title" class="form-input" placeholder="Enter others title"/>
+          <label>{{ $t('others.title') }}</label>
+          <input type="text" v-model="data.title" class="form-input" :placeholder="$t('others.enterOthersTitle')" />
         </div>
 
         <div class="form-group">
-          <label>Category</label>
+          <label>{{ $t('others.category') }}</label>
           <select v-model="data.metaCategory" @change="updateModels" class="form-select">
-            <option value="">Select a category</option>
-            <option v-for="category in categoryList" :value="category">{{ category }}</option>
+            <option value="">{{ $t('others.selectCategory') }}</option>
+            <option v-for="category in categoryList" :key="category" :value="category">
+              {{ $t('others.categories.' + category) }}
+            </option>
           </select>
+          <div v-if="data.metaCategory" class="selected-label">
+            {{ $t('others.categories.' + data.metaCategory) }}
+          </div>
         </div>
 
         <div class="form-group">
-          <label>Price (JOD)</label>
-          <input type="number" v-model="data.price" class="form-input" placeholder="Enter price"/>
+          <label>{{ $t('others.priceJOD') }}</label>
+          <input type="number" v-model="data.price" class="form-input" :placeholder="$t('others.enterPrice')" />
         </div>
 
         <div class="form-group">
-          <label>Description</label>
-          <textarea v-model="data.content" placeholder="Enter others description" class="form-textarea"></textarea>
+          <label>{{ $t('others.description') }}</label>
+          <textarea v-model="data.content" :placeholder="$t('others.enterOthersDescription')" class="form-textarea"></textarea>
         </div>
 
         <div class="button-container">
-          <button class="finish-btn" @click="handleFinish">Submit Offer</button>
+          <button class="finish-btn" @click="handleFinish">{{ $t('others.submitOffer') }}</button>
         </div>
       </div>
     </div>
@@ -64,9 +69,16 @@ export default {
         images: [],
         carType: ''
       },
-      categoryList: ConstVariables.othersTypeList || [],
+      categoryList: [],
       filteredModels: [],
     };
+  },
+  computed: {
+    selectedCategoryLabel() {
+      return this.data.metaCategory
+          ? this.$t('others.categories.' + this.data.metaCategory)
+          : '';
+    }
   },
   methods: {
     toggleDarkMode() {
@@ -78,7 +90,6 @@ export default {
         this.filteredModels = [];
         return;
       }
-
       const normalizedType = this.data.metaCategory.toLowerCase().replace(/\s+/g, '');
       let modelKey = `${normalizedType}ModelsList`;
       let models = ConstVariables[modelKey];
@@ -91,7 +102,7 @@ export default {
       this.filteredModels = Array.isArray(models) ? models : [];
     },
     toastError() {
-      toast.error('Please login to access this feature', {
+      toast.error(this.$t('others.loginError'), {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
         hideProgressBar: false,
@@ -102,7 +113,7 @@ export default {
       });
     },
     toastSuccess() {
-      toast.success('Your Offer Created Successfully', {
+      toast.success(this.$t('others.successMessage'), {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
         hideProgressBar: false,
@@ -121,6 +132,7 @@ export default {
         const imageFiles = this.data.images;
         if (imageFiles.length > 0) {
           for (let i = 0; i < imageFiles.length; i++) {
+            PagerDuty
             formData.append(`image${i + 1}`, imageFiles[i]);
           }
         }
@@ -129,7 +141,11 @@ export default {
         // Append other data fields
         formData.append('title', this.data.title);
         formData.append('price', this.data.price);
-        formData.append('metaCategory', this.data.metaCategory);
+        // Send English value for metaCategory
+        const metaCategoryLabel = this.data.metaCategory
+            ? (this.$i18n.messages['en'].others.categories[this.data.metaCategory] || '').toLowerCase()
+            : '';
+        formData.append('metaCategory', metaCategoryLabel);
         formData.append('carType', this.data.carType);
         formData.append('content', description);
         formData.append('description', description);
@@ -170,7 +186,7 @@ export default {
         }
       } catch (error) {
         console.error('Submission failed:', error);
-        toast.error('Failed to submit offer', {
+        toast.error(this.$t('others.submitError'), {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000,
           hideProgressBar: false,
@@ -183,10 +199,14 @@ export default {
     },
   },
   mounted() {
-    // Initialize category
+    // Initialize category list from i18n
+    const categories = this.$i18n.messages[this.$i18n.locale].others.categories;
+    this.categoryList = categories ? Object.keys(categories) : [];
+    // Check stored category
     const storedCategory = localStorage.getItem('selectedCategory');
-    if (storedCategory) {
-      this.categoryList = ConstVariables.othersTypeList;
+    if (storedCategory && this.categoryList.includes(storedCategory)) {
+      this.data.metaCategory = storedCategory;
+      this.updateModels();
     }
   },
 };
@@ -327,7 +347,7 @@ export default {
 }
 
 .dark-mode .form-select {
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' fin-stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
 }
 
 .dark-mode .finish-btn {

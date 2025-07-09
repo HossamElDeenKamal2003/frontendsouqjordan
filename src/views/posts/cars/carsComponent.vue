@@ -1,15 +1,14 @@
 <template>
   <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add Car Offer</h2>
-      <button @click="toggleDarkMode">Toggle Dark Mode</button>
+      <h2 class="main-title">{{ $t('cars.addCarOffer') }}</h2>
       <div class="form">
         <!-- Image Upload Component -->
         <ImageUpload :isDark="localIsDark" v-model:images="data.images" />
 
         <div class="title-post">
-          <h3 class="title">Title</h3>
-          <input type="text" v-model="data.title" class="form-input" placeholder="Enter car title"/>
+          <h3 class="title">{{ $t('cars.title') }}</h3>
+          <input type="text" v-model="data.title" class="form-input" :placeholder="$t('cars.enterCarTitle')" />
         </div>
 
         <div class="dropDowns">
@@ -17,20 +16,20 @@
             <!-- Basic Information -->
             <div class="spec-row">
               <div class="spec-item">
-                <label>Sale State</label>
+                <label>{{ $t('cars.saleState') }}</label>
                 <select v-model="data.saleState" class="form-select">
-                  <option value="">Select sale state</option>
-                  <option value="sale">For Sale</option>
-                  <option value="transfer">For Transfer</option>
+                  <option value="">{{ $t('cars.selectSaleState') }}</option>
+                  <option value="sale">{{ $t('cars.saleStates.sale') }}</option>
+                  <option value="transfer">{{ $t('cars.saleStates.transfer') }}</option>
                 </select>
               </div>
 
               <div class="spec-item">
-                <label>Condition</label>
+                <label>{{ $t('cars.condition') }}</label>
                 <select v-model="data.condition" class="form-select">
-                  <option value="">Select condition</option>
-                  <option value="new">New</option>
-                  <option value="used">Used</option>
+                  <option value="">{{ $t('cars.selectCondition') }}</option>
+                  <option value="new">{{ $t('cars.conditions.new') }}</option>
+                  <option value="used">{{ $t('cars.conditions.used') }}</option>
                 </select>
               </div>
             </div>
@@ -38,53 +37,59 @@
             <!-- Price -->
             <div class="spec-row">
               <div class="spec-item">
-                <label>Price ($)</label>
-                <input type="number" v-model="data.price" class="form-input" placeholder="Enter price">
+                <label>{{ $t('cars.priceUSD') }}</label>
+                <input type="number" v-model="data.price" class="form-input" :placeholder="$t('cars.enterPrice')" />
               </div>
             </div>
 
-            <!-- Car Type and Model -->
+            <!-- Car Brand and Model -->
             <div class="spec-row">
               <div class="spec-item">
-                <label>Car Brand</label>
+                <label>{{ $t('cars.carBrand') }}</label>
                 <select v-model="data.metaCategory" @change="updateCarModels" class="form-select">
-                  <option value="">Select car brand</option>
-                  <option v-for="(type, index) in carTypes" :value="type" :key="index">
-                    {{ type }}
+                  <option value="">{{ $t('cars.selectCarBrand') }}</option>
+                  <option v-for="brand in carTypes" :value="brand" :key="brand">
+                    {{ $t('cars.brands.' + brand) }}
                   </option>
                 </select>
+                <div v-if="data.metaCategory" class="selected-label">
+                  {{ $t('cars.brands.' + data.metaCategory) }}
+                </div>
               </div>
 
               <div class="spec-item">
-                <label>Model</label>
+                <label>{{ $t('cars.model') }}</label>
                 <select v-model="data.carType" class="form-select">
-                  <option value="">Select model</option>
-                  <option v-for="(model, index) in filteredCarModels" :value="model" :key="index">
-                    {{ model }}
+                  <option value="">{{ $t('cars.selectModel') }}</option>
+                  <option v-for="model in filteredCarModels" :value="model" :key="model">
+                    {{ $t('cars.models.' + data.metaCategory + '.' + model) }}
                   </option>
                 </select>
+                <div v-if="data.carType" class="selected-label">
+                  {{ $t('cars.models.' + data.metaCategory + '.' + data.carType) }}
+                </div>
               </div>
             </div>
 
             <!-- Technical Details -->
             <div class="spec-row">
               <div class="spec-item">
-                <label>Transmission</label>
+                <label>{{ $t('cars.transmission') }}</label>
                 <select v-model="data.gearType" class="form-select">
-                  <option value="">Select Gear Type</option>
-                  <option value="automatic">Automatic</option>
-                  <option value="manual">Manual</option>
+                  <option value="">{{ $t('cars.selectGearType') }}</option>
+                  <option value="automatic">{{ $t('cars.gearTypes.automatic') }}</option>
+                  <option value="manual">{{ $t('cars.gearTypes.manual') }}</option>
                 </select>
               </div>
 
               <div class="spec-item">
-                <label>Fuel Type</label>
+                <label>{{ $t('cars.fuelType') }}</label>
                 <select v-model="data.fuelType" class="form-select">
-                  <option value="">Select fuel type</option>
-                  <option value="gasoline">Gasoline</option>
-                  <option value="diesel">Diesel</option>
-                  <option value="hybrid">Hybrid</option>
-                  <option value="electric">Electric</option>
+                  <option value="">{{ $t('cars.selectFuelType') }}</option>
+                  <option value="gasoline">{{ $t('cars.fuelTypes.gasoline') }}</option>
+                  <option value="diesel">{{ $t('cars.fuelTypes.diesel') }}</option>
+                  <option value="hybrid">{{ $t('cars.fuelTypes.hybrid') }}</option>
+                  <option value="electric">{{ $t('cars.fuelTypes.electric') }}</option>
                 </select>
               </div>
             </div>
@@ -92,18 +97,18 @@
             <!-- 4WD and Year -->
             <div class="spec-row">
               <div class="spec-item">
-                <label>4 Wheel Drive</label>
+                <label>{{ $t('cars.fourWheelDrive') }}</label>
                 <select v-model="data.is4WD" class="form-select">
-                  <option value="">Select option</option>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
+                  <option value="">{{ $t('cars.selectOption') }}</option>
+                  <option value="true">{{ $t('cars.options.yes') }}</option>
+                  <option value="false">{{ $t('cars.options.no') }}</option>
                 </select>
               </div>
 
               <div class="spec-item">
-                <label>Year</label>
+                <label>{{ $t('cars.year') }}</label>
                 <select v-model="data.modelCar" class="form-select">
-                  <option value="">Select year</option>
+                  <option value="">{{ $t('cars.selectYear') }}</option>
                   <option v-for="year in years" :value="year" :key="year">{{ year }}</option>
                 </select>
               </div>
@@ -112,7 +117,7 @@
             <!-- Mileage and Rating Progress -->
             <div class="spec-row">
               <div class="spec-item">
-                <label>Mileage (km)</label>
+                <label>{{ $t('cars.mileageKm') }}</label>
                 <div class="progress-container">
                   <input
                       type="range"
@@ -123,14 +128,14 @@
                       class="progress-slider"
                   >
                   <div class="progress-info">
-                    <span>{{ data.mileage }} km</span>
+                    <span>{{ data.mileage }} {{ $t('cars.km') }}</span>
                     <span>{{ mileagePercentage }}%</span>
                   </div>
                 </div>
               </div>
 
               <div class="spec-item">
-                <label>Car Rating (1-10)</label>
+                <label>{{ $t('cars.carRating') }}</label>
                 <div class="progress-container">
                   <input
                       type="range"
@@ -142,7 +147,7 @@
                   >
                   <div class="progress-info">
                     <span>{{ data.carRate }}/10</span>
-                    <span>{{ ratingText }}</span>
+                    <span>{{ $t('cars.ratingText.' + ratingTextKey) }}</span>
                   </div>
                 </div>
               </div>
@@ -150,12 +155,12 @@
 
             <!-- Additional Information -->
             <div class="additional-notes">
-              <label>Content</label>
-              <textarea v-model="data.content" placeholder="Enter car description" class="form-textarea"></textarea>
+              <label>{{ $t('cars.content') }}</label>
+              <textarea v-model="data.content" :placeholder="$t('cars.enterCarDescription')" class="form-textarea"></textarea>
             </div>
 
             <div class="button-container">
-              <button class="finish-btn" @click="handleFinish">Submit Offer</button>
+              <button class="finish-btn" @click="handleFinish">{{ $t('cars.submitOffer') }}</button>
             </div>
           </div>
         </div>
@@ -185,7 +190,7 @@ export default {
     }
 
     return {
-      localIsDark: false, // Local state for testing dark mode toggle
+      localIsDark: false,
       data: {
         baseUrl: 'https://backend.jordan-souq.com',
         title: '',
@@ -206,7 +211,7 @@ export default {
         description: '',
         images: [],
       },
-      carTypes: ConstVariables.carsTypeList || [],
+      carTypes: [],
       filteredCarModels: [],
       years,
       category: 'cars',
@@ -218,19 +223,28 @@ export default {
     },
     ratingText() {
       const rating = parseFloat(this.data.carRate);
-      if (rating < 3) return 'Poor';
-      if (rating < 5) return 'Fair';
-      if (rating < 7) return 'Good';
-      if (rating < 9) return 'Very Good';
-      return 'Excellent';
+      if (rating < 3) return 'poor';
+      if (rating < 5) return 'fair';
+      if (rating < 7) return 'good';
+      if (rating < 9) return 'veryGood';
+      return 'excellent';
     },
+    ratingTextKey() {
+      return this.ratingText;
+    },
+    selectedBrandLabel() {
+      return this.data.metaCategory ? this.$t('cars.brands.' + this.data.metaCategory) : '';
+    },
+    selectedModelLabel() {
+      return this.data.carType ? this.$t('cars.models.' + this.data.metaCategory + '.' + this.data.carType) : '';
+    }
   },
   methods: {
     toggleDarkMode() {
-      this.localIsDark = !this.localIsDark; // Toggle local state
+      this.localIsDark = !this.localIsDark;
     },
-    toastError() {
-      toast.error('Please login to access this feature', {
+    toastError(message) {
+      toast.error(message || this.$t('cars.loginError'), {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
         hideProgressBar: false,
@@ -241,7 +255,7 @@ export default {
       });
     },
     toastSuccess() {
-      toast.success('Your Offer Created Successfully', {
+      toast.success(this.$t('cars.successMessage'), {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
         hideProgressBar: false,
@@ -257,28 +271,18 @@ export default {
         this.filteredCarModels = [];
         return;
       }
-
       const normalizedType = this.data.metaCategory.toLowerCase().replace(/\s+/g, '');
-      let modelKey = `${normalizedType}CarModels`;
-      let models = ConstVariables[modelKey];
-
-      if (!models || !Array.isArray(models)) {
-        modelKey = `${normalizedType}Models`;
-        models = ConstVariables[modelKey];
-      }
-
-      this.filteredCarModels = Array.isArray(models) ? models : [];
+      const modelKey = `${normalizedType}CarModels`;
+      // Get models from i18n
+      const models = this.$i18n.messages[this.$i18n.locale].cars.models[normalizedType] || {};
+      this.filteredCarModels = Object.keys(models);
     },
     async handleFinish() {
       try {
-        // Prepare form data
         const formData = new FormData();
-
-        // Use data.content directly for description
         const description = this.data.content || '';
-        console.log('description:', description);
 
-        // Append all images under 'image' field to match backend
+        // Append images
         const imageFiles = this.data.images;
         if (imageFiles.length > 0) {
           for (let i = 0; i < imageFiles.length; i++) {
@@ -286,20 +290,30 @@ export default {
           }
         }
 
-        // Append other data fields, excluding image, description, and content
-        const fieldsToExclude = ['image', 'description', 'content', 'images'];
+        // Get saved form values from localStorage
+        const rawData = localStorage.getItem('productForm');
+        const dataForm = rawData ? JSON.parse(rawData) : {};
+        const userId = localStorage.getItem('userId');
+
+        // Append other data fields, using English values for metaCategory and carType
+        const fieldsToExclude = ['image', 'description', 'content', 'images', 'metaCategory', 'carType'];
         Object.entries(this.data).forEach(([key, value]) => {
           if (!fieldsToExclude.includes(key) && !(value instanceof File)) {
             formData.append(key, value ?? '');
           }
         });
 
-        // Get saved form values from localStorage
-        const rawData = localStorage.getItem('productForm');
-        const dataForm = rawData ? JSON.parse(rawData) : {};
-        const userId = localStorage.getItem('userId');
+        // Use English values for metaCategory and carType
+        const brandLabel = this.data.metaCategory
+            ? (this.$i18n.messages['en'].cars.brands[this.data.metaCategory] || '').toLowerCase()
+            : '';
+        const modelLabel = this.data.carType && this.data.metaCategory
+            ? (this.$i18n.messages['en'].cars.models[this.data.metaCategory.toLowerCase().replace(/\s+/g, '')][this.data.carType] || '').toLowerCase()
+            : '';
+        formData.append('metaCategory', brandLabel);
+        formData.append('carType', modelLabel);
 
-        // Convert and append numeric & special fields
+        // Append description and other fields
         formData.set('price', parseFloat(this.data.price) || 0);
         formData.set('mileage', parseInt(this.data.mileage) || 0);
         formData.set('carRate', parseFloat(this.data.carRate) || 0);
@@ -308,10 +322,10 @@ export default {
         formData.set('carModel', this.data.modelCar || '');
         formData.set('description', description);
         formData.set('content', description);
+        formData.set('category', 'سيارات');
 
         // Append extra fields from saved form
         formData.set('Arlocation', dataForm.data?.Arlocation || '');
-        formData.set('category', dataForm.data?.category || '');
         formData.set('location', dataForm.data?.location || '');
         formData.set('metaLocation', dataForm.data?.metaLocation || '');
 
@@ -325,11 +339,7 @@ export default {
 
         if (response.status === 200 || response.status === 201) {
           this.toastSuccess();
-
-          // Save back to localStorage
-          const currentForm = getProductForm() || {};
           saveProductForm({
-            ...currentForm,
             ...this.data,
             description: this.data.content,
             content: this.data.content,
@@ -337,42 +347,29 @@ export default {
             mileage: parseInt(this.data.mileage) || 0,
             carRate: parseFloat(this.data.carRate) || 0,
             is4WD: this.data.is4WD === 'true',
-            images: [], // Clear images in localStorage
+            images: [],
           });
-
           console.log('Offer submitted:', this.data);
         } else if (response.status === 400) {
-          toast.error(response.data.message, {
-            position: toast.POSITION.TOP_RIGHT,
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: this.localIsDark ? 'dark' : 'light',
-          });
+          this.toastError(response.data.message);
         } else {
           throw new Error(`Unexpected status code: ${response.status}`);
         }
       } catch (error) {
         console.error('Submission failed:', error);
-        toast.error('Failed to submit offer', {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: this.localIsDark ? 'dark' : 'light',
-        });
+        this.toastError(this.$t('cars.submitError'));
       }
     },
   },
   mounted() {
+    // Initialize car types from i18n
+    const brands = this.$i18n.messages[this.$i18n.locale].cars.brands;
+    this.carTypes = brands ? Object.keys(brands) : [];
     // Initialize category from localStorage if needed
     const storedCategory = localStorage.getItem('selectedCategory');
-    if (storedCategory) {
-      this.category = storedCategory.toLowerCase();
+    if (storedCategory && this.carTypes.includes(storedCategory)) {
+      this.data.metaCategory = storedCategory;
+      this.updateCarModels();
     }
   },
 };
@@ -406,7 +403,6 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-
   transition: background-color 0.3s ease;
 }
 
@@ -482,6 +478,12 @@ label {
   min-width: 200px;
 }
 
+.selected-label {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
 /* Progress Bar Styles */
 .progress-container {
   display: flex;
@@ -551,7 +553,8 @@ label {
 .dark-mode .section-title,
 .dark-mode .title,
 .dark-mode label,
-.dark-mode .progress-info {
+.dark-mode .progress-info,
+.dark-mode .selected-label {
   color: #e0e0e0 !important;
 }
 

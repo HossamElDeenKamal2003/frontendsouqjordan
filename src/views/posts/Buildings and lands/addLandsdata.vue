@@ -6,6 +6,35 @@
         <!-- Image Upload Component -->
         <ImageUpload :isDark="localIsDark" v-model:images="images" />
 
+        <!-- Title Input -->
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('landOffer.titleLabel') }}</label>
+            <input
+                type="text"
+                v-model="title"
+                class="form-input"
+                :placeholder="$t('landOffer.enterTitle')"
+                :aria-label="$t('landOffer.titleLabel')"
+            />
+          </div>
+        </div>
+
+        <!-- Price Input -->
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('landOffer.price') }}</label>
+            <input
+                type="number"
+                v-model="price"
+                class="form-input"
+                :placeholder="$t('landOffer.enterPrice')"
+                min="0"
+                :aria-label="$t('landOffer.price')"
+            />
+          </div>
+        </div>
+
         <!-- Residential or Commercial -->
         <div class="spec-row">
           <div class="spec-item">
@@ -103,10 +132,25 @@
           </div>
         </div>
 
+        <!-- Description Input -->
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('landOffer.description') }}</label>
+            <textarea
+                v-model="description"
+                class="form-input form-textarea"
+                :placeholder="$t('landOffer.enterDescription')"
+                :aria-label="$t('landOffer.description')"
+            ></textarea>
+          </div>
+        </div>
+
         <!-- Submit Offer Button -->
         <div class="spec-row">
           <div class="spec-item">
-            <button class="submit-btn" @click="handleSubmit">{{ $t('landOffer.submit') }}</button>
+            <button class="submit-btn" @click="handleSubmit" :disabled="isSubmitting">
+              {{ isSubmitting ? $t('landOffer.loading') : $t('landOffer.submit') }}
+            </button>
           </div>
         </div>
       </div>
@@ -116,6 +160,7 @@
 
 <script>
 import ImageUpload from '@/components/addpost/ImageUpload.vue';
+import axios from 'axios';
 
 export default {
   name: 'LandsComponent',
@@ -131,10 +176,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    type: {
+      type: String,
+      default: undefined,
+    },
   },
   data() {
     return {
-      localIsDark: false, // Local state for testing dark mode toggle
+      localIsDark: this.isDark,
+      title: '',
+      price: 0,
+      description: '',
       landType: '',
       landSpace: '',
       spaceUnit: 'm2',
@@ -143,14 +195,34 @@ export default {
       nearPlaces: ['Market', 'School', 'Park', 'Mosque', 'CarsParking', 'Bank', 'Hospital', 'Gum', 'Restaurant'],
       selectedPlaces: [],
       direction: '',
-      offerCircleBuildings: '',
-      images: [], // Track uploaded images
+      offerCircleBuildings: 0,
+      images: [],
+      metaCategory: 'land', // Default metaCategory
+      isSubmitting: false,
+      baseUrl: 'https://backend.jordan-souq.com',
     };
   },
-  methods: {
-    toggleDarkMode() {
-      this.localIsDark = !this.localIsDark;
+  watch: {
+    isDark(newVal) {
+      this.localIsDark = newVal;
     },
+  },
+  created() {
+    // Set metaCategory from type prop or localStorage
+    if (this.type) {
+      this.metaCategory = this.type.toLowerCase();
+    } else {
+      const storedType = localStorage.getItem('selectedBuildingType');
+      if (storedType) {
+        this.metaCategory = storedType.toLowerCase();
+        console.log('Loaded metaCategory:', this.metaCategory);
+      } else {
+        console.warn('No type prop or stored type, defaulting to "land"');
+      }
+    }
+    console.log('metaCategory:', this.metaCategory);
+  },
+  methods: {
     togglePlace(place) {
       const index = this.selectedPlaces.indexOf(place);
       if (index === -1) {
@@ -159,13 +231,25 @@ export default {
         this.selectedPlaces.splice(index, 1);
       }
     },
-    handleSubmit() {
-      // Basic validation
+    async handleSubmit() {
+      // Comprehensive validation
+      if (!this.title.trim()) {
+        alert(this.$t('landOffer.validation.title'));
+        return;
+      }
+      if (this.price <= 0) {
+        alert(this.$t('landOffer.validation.price'));
+        return;
+      }
+      if (!this.description.trim()) {
+        alert(this.$t('landOffer.validation.description'));
+        return;
+      }
       if (!this.landType) {
         alert(this.$t('landOffer.validation.landType'));
         return;
       }
-      if (!this.landSpace) {
+      if (!this.landSpace || this.landSpace <= 0) {
         alert(this.$t('landOffer.validation.landSpace'));
         return;
       }
@@ -173,42 +257,75 @@ export default {
         alert(this.$t('landOffer.validation.sellerType'));
         return;
       }
+      if (!this.metaCategory) {
+        alert(this.$t('landOffer.validation.metaCategory'));
+        return;
+      }
       if (this.images.length === 0) {
         alert(this.$t('landOffer.validation.images'));
         return;
       }
+      if (this.selectedPlaces.length === 0) {
+        alert(this.$t('landOffer.validation.nearPlaces'));
+        return;
+      }
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        alert(this.$t('landOffer.validation.userId'));
+        return;
+      }
 
-      // Prepare form data
+      this.isSubmitting = true;
       const formData = new FormData();
-      formData.append('landType', this.landType);
-      formData.append('landSpace', this.landSpace);
-      formData.append('spaceUnit', this.spaceUnit);
-      formData.append('sellerType', this.sellerType);
-      formData.append('isTenant', this.isTenant);
-      formData.append('nearPlaces', this.selectedPlaces.join(','));
-      formData.append('direction', this.direction);
-      formData.append('offerCircleBuildings', this.offerCircleBuildings || 0);
+      formData.append('title', this.title);
+      formData.append('price', this.price.toString());
+      formData.append('description', this.description);
+      formData.append('content', this.description); // Required by backend
+      formData.append('landTo', this.landType);
+      formData.append('spaceLand', this.landSpace.toString());
+      formData.append('unit', this.spaceUnit);
+      formData.append('owner', this.sellerType);
+      formData.append('marhon', this.isTenant ? 'true' : 'false');
+      formData.append('nearTo', JSON.stringify(this.selectedPlaces));
+      formData.append('direction', this.direction || '');
+      formData.append('adNumber', this.offerCircleBuildings.toString());
       this.images.forEach((image, index) => {
         formData.append(`image${index + 1}`, image);
       });
+      formData.append('metaCategory', this.metaCategory.toLowerCase());
+      formData.append('category', 'عقار');
+      formData.append('userId', userId);
 
-      // Placeholder for API call (replace with actual endpoint)
-      console.log('Form Data:', Object.fromEntries(formData));
-      // Example API call (uncomment and adjust as needed)
-      // axios.post('https://your-api-endpoint.com/land', formData)
-      //   .then(response => {
-      //     console.log('Success:', response.data);
-      //     alert(this.$t('landOffer.success'));
-      //   })
-      //   .catch(error => {
-      //     console.error('Error:', error);
-      //     alert(this.$t('landOffer.error'));
-      //   });
+      // Debug: Log FormData contents
+      console.log('FormData contents:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value instanceof File ? value.name : value}`);
+      }
 
-      // Reset form after submission (optional)
-      this.resetForm();
+      try {
+        const response = await axios.post(`${this.baseUrl}/product/create`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        console.log('Response:', response.data);
+        alert(this.$t('landOffer.success'));
+        this.resetForm();
+        this.$router.push('/');
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || error.message;
+        console.error('Error submitting form:', {
+          message: errorMessage,
+          status: error.response?.status,
+          data: error.response?.data,
+        });
+        alert(`${this.$t('landOffer.error')}: ${errorMessage}`);
+      } finally {
+        this.isSubmitting = false;
+      }
     },
     resetForm() {
+      this.title = '';
+      this.price = 0;
+      this.description = '';
       this.landType = '';
       this.landSpace = '';
       this.spaceUnit = 'm2';
@@ -216,15 +333,15 @@ export default {
       this.isTenant = false;
       this.selectedPlaces = [];
       this.direction = '';
-      this.offerCircleBuildings = '';
+      this.offerCircleBuildings = 0;
       this.images = [];
+      // Do not reset metaCategory
     },
   },
 };
 </script>
 
 <style scoped>
-/* [Previous styles remain unchanged] */
 .full-height-container {
   min-height: 100vh;
   display: flex;
@@ -439,6 +556,11 @@ export default {
   margin-bottom: 15px;
 }
 
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
 .form-select {
   padding: 10px;
   border: 1px solid #ddd;
@@ -459,6 +581,7 @@ export default {
 }
 
 .dark-mode .form-input,
+.dark-mode .form-textarea,
 .dark-mode .form-select {
   background-color: #3a3a3a !important;
   border-color: #555 !important;
@@ -483,6 +606,11 @@ export default {
 
 .submit-btn:hover {
   background-color: #45a049;
+}
+
+.submit-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
 }
 
 .dark-mode .submit-btn {
@@ -533,6 +661,7 @@ export default {
   }
 
   .form-input,
+  .form-textarea,
   .form-select {
     padding: 8px;
   }
@@ -558,6 +687,7 @@ export default {
   }
 
   .form-input,
+  .form-textarea,
   .form-select {
     padding: 6px;
     font-size: 13px;
@@ -567,11 +697,12 @@ export default {
     padding: 8px;
   }
 }
-.radio-group{
+
+.radio-group {
   justify-content: center;
 }
 
-.toggle-container{
+.toggle-container {
   justify-content: center;
 }
 </style>

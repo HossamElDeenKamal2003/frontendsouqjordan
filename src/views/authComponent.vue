@@ -1,49 +1,84 @@
 <template>
   <div class="dialog-overlay" v-if="isVisible">
     <div class="dialog-content">
-      <h1>{{ showLoginForm ? 'Login' : 'Register' }}</h1>
-
+      <h1>{{ showLoginForm ? $t('auth.login') : $t('auth.register') }}</h1>
+sadasd
       <!-- Login Form -->
       <form v-if="showLoginForm" @submit.prevent="submitLoginForm">
-        <label for="emailOrPhone">Email or Phone Number</label>
-        <input type="text" id="emailOrPhone" v-model="emailOrPhone" placeholder="Enter your email or phone number" required />
+        <label for="emailOrPhone">{{ $t('auth.emailOrPhone') }}</label>
+        <input
+            type="text"
+            id="emailOrPhone"
+            v-model="emailOrPhone"
+            :placeholder="$t('auth.emailOrPhonePlaceholder')"
+            required
+        />
         <p class="error-message" v-if="loginErrors.emailOrPhone">{{ loginErrors.emailOrPhone }}</p>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" v-model="password" placeholder="Enter your password" required />
+        <label for="password">{{ $t('auth.password') }}</label>
+        <input
+            type="password"
+            id="password"
+            v-model="password"
+            :placeholder="$t('auth.passwordPlaceholder')"
+            required
+        />
         <p class="error-message" v-if="loginErrors.password">{{ loginErrors.password }}</p>
 
-        <button type="submit">Login</button>
+        <button type="submit">{{ $t('auth.loginButton') }}</button>
       </form>
-
       <!-- Signup Form -->
       <form v-else @submit.prevent="submitSignupForm">
-        <label for="username">Username</label>
-        <input type="text" id="username" v-model="username" placeholder="Enter your username" required />
+        <label for="username">{{ $t('auth.username') }}</label>
+        <input
+            type="text"
+            id="username"
+            v-model="username"
+            :placeholder="$t('auth.usernamePlaceholder')"
+            required
+        />
         <p class="error-message" v-if="signupErrors.username">{{ signupErrors.username }}</p>
 
-        <label for="email">Email</label>
-        <input type="text" id="email" v-model="email" placeholder="Enter your email" required />
+        <label for="email">{{ $t('auth.email') }}</label>
+        <input
+            type="text"
+            id="email"
+            v-model="email"
+            :placeholder="$t('auth.emailPlaceholder')"
+            required
+        />
         <p class="error-message" v-if="signupErrors.email">{{ signupErrors.email }}</p>
 
-        <label for="phoneNumber">Phone Number</label>
-        <input type="text" id="phoneNumber" v-model="phoneNumber" placeholder="Enter your phone number" required />
+        <label for="phoneNumber">{{ $t('auth.phoneNumber') }}</label>
+        <input
+            type="text"
+            id="phoneNumber"
+            v-model="phoneNumber"
+            :placeholder="$t('auth.phoneNumberPlaceholder')"
+            required
+        />
         <p class="error-message" v-if="signupErrors.phoneNumber">{{ signupErrors.phoneNumber }}</p>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" v-model="password" placeholder="Enter your password" required />
+        <label for="password">{{ $t('auth.password') }}</label>
+        <input
+            type="password"
+            id="password"
+            v-model="password"
+            :placeholder="$t('auth.passwordPlaceholder')"
+            required
+        />
         <p class="error-message" v-if="signupErrors.password">{{ signupErrors.password }}</p>
 
-        <button type="submit">Sign Up</button>
+        <button type="submit">{{ $t('auth.signupButton') }}</button>
       </form>
 
       <!-- Close Button -->
-      <button class="close-button" @click="$emit('close')">Close</button>
+      <button class="close-button" @click="$emit('close')">{{ $t('auth.close') }}</button>
 
       <!-- Toggle Form Link -->
       <span class="switch-link" @click="toggleForm">
-                {{ showLoginForm ? 'Don’t have an account? Sign up here' : 'Already have an account? Login here' }}
-            </span>
+        {{ showLoginForm ? $t('auth.switchToSignup') : $t('auth.switchToLogin') }}
+      </span>
     </div>
   </div>
 </template>
@@ -81,19 +116,19 @@ export default {
   },
   methods: {
     async submitLoginForm() {
-      this.loginErrors = { emailOrPhone: "", password: "" }; // Reset errors
+      this.loginErrors = { emailOrPhone: "", password: "" };
 
       if (!this.emailOrPhone) {
-        this.loginErrors.emailOrPhone = "Email or phone number is required.";
+        this.loginErrors.emailOrPhone = this.$t('auth.loginRequiredEmailOrPhone');
         return;
       }
       if (!this.password) {
-        this.loginErrors.password = "Password is required.";
+        this.loginErrors.password = this.$t('auth.loginRequiredPassword');
         return;
       }
 
       try {
-        const response = await axios.post('https://heraj-backend.onrender.com/users/login', {
+        const response = await axios.post('https://backend.jordan-souq.com/users/login', {
           emailOrPhone: this.emailOrPhone,
           password: this.password,
         });
@@ -106,34 +141,34 @@ export default {
         window.location.href = "/";
       } catch (error) {
         if (error.response?.status === 400) {
-          this.loginErrors.password = "Incorrect email, phone number, or password.";
+          this.loginErrors.password = this.$t('auth.loginIncorrect');
         } else {
-          alert("An error occurred during login.");
+          alert(this.$t('auth.loginError'));
         }
       }
     },
     async submitSignupForm() {
-      this.signupErrors = { username: "", email: "", phoneNumber: "", password: "" }; // Reset errors
+      this.signupErrors = { username: "", email: "", phoneNumber: "", password: "" };
 
       if (!this.username) {
-        this.signupErrors.username = "Username is required.";
+        this.signupErrors.username = this.$t('auth.signupRequiredUsername');
         return;
       }
       if (!this.email) {
-        this.signupErrors.email = "Email is required.";
+        this.signupErrors.email = this.$t('auth.signupRequiredEmail');
         return;
       }
       if (!this.phoneNumber) {
-        this.signupErrors.phoneNumber = "Phone number is required.";
+        this.signupErrors.phoneNumber = this.$t('auth.signupRequiredPhoneNumber');
         return;
       }
       if (!this.password) {
-        this.signupErrors.password = "Password is required.";
+        this.signupErrors.password = this.$t('auth.signupRequiredPassword');
         return;
       }
 
       try {
-        const response = await axios.post('https://heraj-backend.onrender.com/users/register', {
+        const response = await axios.post('https://backend.jordan-souq.com/users/register', {
           email: this.email,
           phoneNumber: this.phoneNumber,
           password: this.password,
@@ -146,12 +181,12 @@ export default {
       } catch (error) {
         if (error.response?.status === 400) {
           if (error.response.data.message === "Email or Phone number already exists") {
-            this.signupErrors.email = "Email or phone number already exists.";
+            this.signupErrors.email = this.$t('auth.signupExists');
           } else {
             alert(error.response.data.message);
           }
         } else {
-          alert("An error occurred during signup.");
+          alert(this.$t('auth.signupError'));
         }
       }
     },
@@ -189,7 +224,7 @@ export default {
   background-color: white;
   padding: 30px;
   border-radius: 8px;
-  width: 400px; /* Increased width */
+  width: 400px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -211,7 +246,7 @@ label {
 
 input {
   padding: 10px;
-  margin-bottom: 5px; /* Reduced margin to accommodate error messages */
+  margin-bottom: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;

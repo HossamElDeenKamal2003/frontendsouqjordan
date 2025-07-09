@@ -1,45 +1,47 @@
 <template>
   <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add Device Offer</h2>
-      <button @click="toggleDarkMode">Toggle Dark Mode</button>
+      <h2 class="main-title">{{ $t('devices.addDeviceOffer') }}</h2>
       <div class="form">
-        <!-- Image Upload Component -->
         <ImageUpload :isDark="localIsDark" v-model:images="data.images" />
 
         <div class="form-group">
-          <label>Title</label>
-          <input type="text" v-model="data.title" class="form-input" placeholder="Enter device title"/>
+          <label>{{ $t('devices.title') }}</label>
+          <input type="text" v-model="data.title" class="form-input" :placeholder="$t('devices.enterDeviceTitle')" />
         </div>
 
         <div class="form-group">
-          <label>Category</label>
+          <label>{{ $t('devices.brand') }}</label>
           <select v-model="data.metaCategory" @change="updateModels" class="form-select">
-            <option value="">Select a category</option>
-            <option v-for="category in categoryList" :value="category">{{ category }}</option>
+            <option value="">{{ $t('devices.enterBrand') }}</option>
+            <option v-for="brand in translatedBrands" :key="brand.value" :value="brand.value">
+              {{ brand.label }}
+            </option>
           </select>
         </div>
 
         <div class="form-group" v-if="filteredModels.length > 0">
-          <label>Model</label>
+          <label>{{ $t('devices.model') }}</label>
           <select v-model="data.model" class="form-select">
-            <option value="">Select a model</option>
-            <option v-for="model in filteredModels" :value="model">{{ model }}</option>
+            <option value="">{{ $t('devices.model') }}</option>
+            <option v-for="model in filteredModels" :key="model.value" :value="model.value">
+              {{ model.label }}
+            </option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Price (JOD)</label>
-          <input type="number" v-model="data.price" class="form-input" placeholder="Enter price"/>
+          <label>{{ $t('devices.price') }}</label>
+          <input type="number" v-model="data.price" class="form-input" :placeholder="$t('devices.enterPrice')" />
         </div>
 
         <div class="form-group">
-          <label>Description</label>
-          <textarea v-model="data.content" placeholder="Enter device description" class="form-textarea"></textarea>
+          <label>{{ $t('devices.description') }}</label>
+          <textarea v-model="data.content" :placeholder="$t('devices.enterDeviceDescription')" class="form-textarea"></textarea>
         </div>
 
         <div class="button-container">
-          <button class="finish-btn" @click="handleFinish">Submit Offer</button>
+          <button class="finish-btn" @click="handleFinish">{{ $t('devices.submitOffer') }}</button>
         </div>
       </div>
     </div>
@@ -47,17 +49,44 @@
 </template>
 
 <script>
-import { saveProductForm, getProductForm } from '@/productFormStorage';
+import { saveProductForm } from '@/productFormStorage';
 import { ConstVariables } from '../../../../const';
 import axios from 'axios';
 import { toast } from 'vue3-toastify';
 import ImageUpload from '@/components/addpost/ImageUpload.vue';
-
+const brandToModelsKey = {
+  Apple: "appleModelsList",
+  Samsung: "samsungModelsList",
+  Sony: "sonyModelsList",
+  "Special Number": "specialNumbersList",
+  "Home & Kitchen Appliances": "homeKitchenList",
+  BlackBerry: "blackBerryModelsList",
+  Canon: "canonModelsList",
+  LG: "lgModelsList",
+  Nokia: "nokiaModelsList",
+  Microsoft: "microsoftModelsList",
+  Nikon: "nikonModelsList",
+  HTC: "htcModelsList",
+  Toshiba: "toshibaModelsList",
+  DELL: "dellModelsList",
+  Huawei: "huaweiModelsList",
+  Asus: "asusModelsList",
+  Acer: "acerModelsList",
+  Panasonic: "panasonicModelsList",
+  Fujifilm: "fujifilmModelsList",
+  Hitachi: "hitachiModelsList",
+  Olympus: "olympusModelsList",
+  Computers: "computersModelsList",
+  Gaming: "gamingModelsList",
+  "TV & Audio": "tvAndAudioModelsList",
+  Generator: "generatorsModelsList",
+  "Account and Subscription": "accountsAndSubscriptionsModelsList",
+  "Digital Camera": "digitalCameraModelsList",
+  "Uncategorized Devices": "unCategorizedModelsList"
+};
 export default {
   name: 'AddDeviceComponent',
-  components: {
-    ImageUpload,
-  },
+  components: { ImageUpload },
   data() {
     return {
       localIsDark: false,
@@ -75,27 +104,27 @@ export default {
       filteredModels: [],
     };
   },
+  computed: {
+    // Brands with translation
+    translatedBrands() {
+      return this.categoryList.map(brandEn => ({
+        value: brandEn,
+        label: this.$t(`devices.devicesTypeList.${this.categoryList.indexOf(brandEn)}`) || brandEn
+      }));
+    }
+  },
   methods: {
-    toggleDarkMode() {
-      this.localIsDark = !this.localIsDark;
-    },
     updateModels() {
       this.data.model = '';
-      if (!this.data.metaCategory) {
-        this.filteredModels = [];
-        return;
-      }
-
-      const normalizedType = this.data.metaCategory.toLowerCase().replace(/\s+/g, '');
-      let modelKey = `${normalizedType}ModelsList`;
-      let models = ConstVariables[modelKey];
-
-      if (!models || !Array.isArray(models)) {
-        modelKey = `${normalizedType}Models`;
-        models = ConstVariables[modelKey];
-      }
-
-      this.filteredModels = Array.isArray(models) ? models : [];
+      const devicesModels = this.$i18n.messages[this.$i18n.locale].devices.devicesModels;
+      const modelKey = brandToModelsKey[this.data.metaCategory];
+      const models = devicesModels ? devicesModels[modelKey] : [];
+      this.filteredModels = Array.isArray(models)
+          ? models.map(modelEn => ({
+            value: modelEn,
+            label: modelEn
+          }))
+          : [];
     },
     toastError() {
       toast.error('Please login to access this feature', {
@@ -123,7 +152,6 @@ export default {
       try {
         const formData = new FormData();
         const description = this.data.content || '';
-
         // Append images
         const imageFiles = this.data.images;
         if (imageFiles.length > 0) {
@@ -133,11 +161,11 @@ export default {
         }
         const rawData = localStorage.getItem('productForm');
         const dataForm = rawData ? JSON.parse(rawData) : {};
-        // Append other data fields
+        // Append other data fields (English values)
         formData.append('title', this.data.title);
         formData.append('price', this.data.price);
-        formData.append('metaCategory', this.data.metaCategory);
-        formData.append('carType', this.data.model);
+        formData.append('metaCategory', this.data.metaCategory); // English value
+        formData.append('carType', this.data.model); // English value
         formData.append('content', description);
         formData.append('description', description);
         formData.append('category', 'devices');
@@ -149,19 +177,10 @@ export default {
         if (userId) {
           formData.append('userId', userId);
         }
-
-        // Debugging logs
-        for (let pair of formData.entries()) {
-          console.log('FormData entry:', pair[0], pair[1]);
-        }
-
         // API call
         const response = await axios.post(`${this.data.baseUrl}/product/create`, formData);
-
         if (response.status === 200 || response.status === 201) {
           this.toastSuccess();
-
-          // Save back to localStorage
           saveProductForm({
             ...this.data,
             description: this.data.content,
@@ -169,8 +188,6 @@ export default {
             price: parseFloat(this.data.price) || 0,
             images: [],
           });
-
-          console.log('Offer submitted:', this.data);
         } else {
           throw new Error(`Unexpected status code: ${response.status}`);
         }
@@ -189,12 +206,13 @@ export default {
     },
   },
   mounted() {
-    // Initialize category
     const storedCategory = localStorage.getItem('selectedCategory');
     if (storedCategory) {
       this.categoryList = ConstVariables.devicesTypeList;
+      // Use a more descriptive log or remove it
+      console.log("selectedCategory found in localStorage:", storedCategory);
     }
-  },
+  }
 };
 </script>
 

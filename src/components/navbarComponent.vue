@@ -49,7 +49,7 @@ import CreatePostDialog from './bottomSheet.vue';
 import authComponent from '../views/authComponent.vue';
 export default {
     name: "navBar",
-    data() {
+    data() {  
         return {
             allProducts: [],
             filteredProductsProp: [],

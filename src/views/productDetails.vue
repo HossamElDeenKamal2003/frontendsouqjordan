@@ -1,3 +1,4 @@
+```vue
 <template>
   <div :class="['product-details', { 'dark-theme': isDark }]">
     <fixedBottom />
@@ -11,7 +12,18 @@
           <p class="description">{{ product.description }}</p>
           <div class="location">📍 {{ product.ArLocation }}</div>
           <div class="time-difference">⏰ {{ formatTimeDifference(product.createdAt) }}</div>
-
+          <div class="icons-row">
+            <!-- Privacy Toggle (only for owner) -->
+            <template v-if="isOwner">
+              <i
+                  class="icon fas"
+                  :class="product.global ? 'fa-lock-open active' : 'fa-lock active'"
+                  :title="product.global ? 'true' : 'false'"
+                  @click="togglePrivacy"
+                  style="color:#009688"
+              ></i>
+            </template>
+          </div>
           <!-- Icons Row -->
           <div class="icons-row">
             <!-- Favorite (Heart) -->
@@ -38,6 +50,10 @@
               <p class="username">{{ user.username }}</p>
               <p class="user-phone">{{ user.phoneNumber }}</p>
             </div>
+            <button class="chat-button" @click="startChat">
+              <i class="fab fa-facebook-messenger"></i>
+              <span>{{ $t('chat.withSeller') }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -92,7 +108,8 @@
 
 <script>
 import axios from "axios";
-import fixedBottom from"../components/fixedBottom.vue"
+import fixedBottom from "../components/fixedBottom.vue";
+
 export default {
   name: "ProductDetails",
   props: {
@@ -113,6 +130,7 @@ export default {
       user: {
         username: "",
         phoneNumber: "",
+        _id: "", // Added to store user ID
       },
       similar: [],
       comments: [],
@@ -120,8 +138,26 @@ export default {
       isFollow: false,
     };
   },
+  computed: {
+    isOwner() {
+      console.log(this.product)
+      const userId = localStorage.getItem("userId");
+      console.log("userId from localStorage:", userId);
+      console.log("this.product:", this.product);
+      console.log("this.product.user:", this.product.userId);
+
+      // Defensive: check if product.user exists and has _id
+      const ownerId = this.product && this.product.userId && this.product.userId;
+      console.log("ownerId (product.user._id):", ownerId);
+
+      const isOwner = userId && ownerId && userId === ownerId;
+      console.log("isOwner result:", isOwner);
+
+      return isOwner;
+    }
+  },
   components: {
-    fixedBottom
+    fixedBottom,
   },
   created() {
     this.fetchProductDetails();
@@ -151,12 +187,30 @@ export default {
           isFavourite: response.data.post.isFavourite || false,
           isSeen: response.data.post.isSeen || false,
         };
-        this.user = response.data.user;
+        this.user = {
+          ...response.data.user,
+          _id: response.data.user._id, // Ensure user ID is stored
+        };
         this.similar = response.data.similar;
         this.isFollow = response.data.post.isFollow || false;
-        console.log(".................",response.data.post.isFollow);
+        console.log(".................", response.data.post.isFollow);
       } catch (error) {
         console.error("Error fetching product details:", error);
+      }
+    },
+    async togglePrivacy() {
+      const userId = localStorage.getItem("userId");
+      const postId = this.$route.params.id;
+      try {
+        const response = await axios.patch(
+            "https://backend.jordan-souq.com/product/privacy",
+            { userId, postId }
+        );
+        // Update the local product.global value based on the response
+        this.product.global = response.data.post.global;
+      } catch (error) {
+        console.error("Error toggling privacy:", error);
+        alert("فشل في تغيير خصوصية المنشور");
       }
     },
     async toggleFavourite() {
@@ -180,8 +234,8 @@ export default {
     async toggleFollow() {
       const userId = localStorage.getItem("userId");
       const postId = this.$route.params.id;
-      console.log("Before toggle - isFollow:", this.isFollow); // Debug current state
-      console.log("Before toggle - product.isFollow:", this.product.isFollow); // Debug product state
+      console.log("Before toggle - isFollow:", this.isFollow);
+      console.log("Before toggle - product.isFollow:", this.product.isFollow);
 
       try {
         if (this.product.isFollow === false) {
@@ -190,18 +244,18 @@ export default {
             userId,
             postId,
           });
-          this.isFollow = true; // Update local state
-          this.product.isFollow = true; // Update product state
+          this.isFollow = true;
+          this.product.isFollow = true;
         } else if (this.product.isFollow === true) {
           console.log("Executing DELETE (remove follow)");
           await axios.delete("https://backend.jordan-souq.com/product/follow", {
-            data: { userId, postId }, // Send data in the request body for DELETE
+            data: { userId, postId },
           });
-          this.isFollow = false; // Update local state
-          this.product.isFollow = false; // Update product state
+          this.isFollow = false;
+          this.product.isFollow = false;
           console.log("3333333333333");
         }
-        console.log("After toggle - isFollow:", this.isFollow); // Debug new state
+        console.log("After toggle - isFollow:", this.isFollow);
       } catch (error) {
         console.error("Error toggling follow:", error);
       }
@@ -218,7 +272,7 @@ export default {
       }
     },
     async addComment() {
-      if (!this.newComment.trim()) return;
+      if (!this.newMessage.trim()) return;
       const userId = localStorage.getItem("userId");
       const postId = this.$route.params.id;
       try {
@@ -226,9 +280,9 @@ export default {
           userId,
           postId,
           commenterId: userId,
-          content: this.newComment,
+          content: this.newMessage,
         });
-        this.newComment = "";
+        this.newMessage = "";
         await this.getComments();
       } catch (error) {
         console.error("Error adding comment:", error);
@@ -249,7 +303,68 @@ export default {
     },
     navigateToProduct(productId) {
       this.$router.push({ name: "details", params: { id: productId } });
-      // No need to call fetchProductDetails here; watch will handle it
+    },
+    async startChat() {
+      const currentUserId = localStorage.getItem("userId");
+      const sellerId = this.user._id;
+
+      if (!currentUserId || !sellerId) {
+        console.error("User ID or Seller ID is missing");
+        return;
+      }
+
+      try {
+        // Check if conversation already exists
+        const checkResponse = await axios.get(
+            `https://backend.jordan-souq.com/api/conversations/${currentUserId}/${sellerId}`
+        );
+        const conversationExists = checkResponse.data.exists;
+        let conversationId;
+
+        if (!conversationExists) {
+          // Create new conversation if it doesn't exist
+          const conversationResponse = await axios.post("https://backend.jordan-souq.com/api/conversations/", {
+            participants: [
+              { user: currentUserId },
+              { user: sellerId },
+            ],
+            name: this.product.title,
+            isGroupChat: false,
+          });
+          conversationId = conversationResponse.data.conversation.conversationId;
+
+          // Send the product title as the initial message
+          await axios.post(
+              `https://backend.jordan-souq.com/api/conversations/sendMessage/${conversationId}`,
+              {
+                senderId: currentUserId,
+                text: this.product.title,
+                title: true,
+                receiverId: sellerId,
+              }
+          );
+        } else {
+          // Use existing conversation ID (assuming checkResponse provides it)
+          conversationId = checkResponse.data.conversationId;
+
+          // Send message with product title and title: true
+          await axios.post(
+              `https://backend.jordan-souq.com/api/conversations/sendMessage/${conversationId}`,
+              {
+                senderId: currentUserId,
+                text: this.product.title,
+                title: true,
+                receiverId: sellerId,
+              }
+          );
+        }
+
+        // Redirect to /chat without conversationId in the path
+        this.$router.push({ path: "/chat" });
+      } catch (error) {
+        console.error("Error handling chat:", error);
+        alert("فشل في إنشاء المحادثة أو إرسال الرسالة");
+      }
     },
   },
 };
@@ -375,6 +490,7 @@ export default {
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
 }
 
 .user-details {
@@ -521,6 +637,38 @@ export default {
   background-color: #00796b;
 }
 
+/* Chat Button Styles */
+.chat-button {
+  background-color: #4caf50;
+  color: white; /* Ensured text is white */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.chat-button:hover {
+  background-color: #45a049;
+}
+
+.chat-button .fab {
+  font-size: 16px;
+  color: white; /* Ensured icon is white */
+}
+
+.dark-theme .chat-button {
+  background-color: #388e3c;
+}
+
+.dark-theme .chat-button:hover {
+  background-color: #2e7d32;
+}
+
 /* Dark Theme Styles */
 .dark-theme .card,
 .dark-theme .similar-products {
@@ -621,6 +769,11 @@ export default {
     text-align: center;
   }
 
+  .user-info .chat-button {
+    width: 100%;
+    margin-top: 10px;
+  }
+
   .similar-list {
     max-height: none;
   }
@@ -634,7 +787,23 @@ export default {
   }
 }
 
-.product-details{
+.product-details {
   margin-bottom: 60px;
 }
 </style>
+
+<i18n>
+{
+  "ar": {
+    "chat": {
+      "withSeller": "الدردشة مع مالك العرض"
+    }
+  },
+  "en": {
+    "chat": {
+      "withSeller": "Chat with the Seller"
+    }
+  }
+}
+</i18n>
+```

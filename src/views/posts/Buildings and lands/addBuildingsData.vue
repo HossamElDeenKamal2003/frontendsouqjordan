@@ -1,247 +1,314 @@
 <template>
-  <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark }]">
+  <div :class="[localIsDark ? 'full-height-container-dark' : 'full-height-container', { 'dark-mode': localIsDark, 'rtl-direction': isRTL }]">
     <div class="container shared-parent">
-      <h2 class="main-title">Add Building Offer</h2>
-      <button @click="toggleDarkMode">Toggle Dark Mode</button>
+      <h2 class="main-title">{{ $t('propertyDetails.title') }}</h2>
       <div class="form">
         <!-- Image Upload Component -->
-        <ImageUpload :isDark="localIsDark" v-model:images="data.images" />
+        <ImageUpload :isDark="localIsDark" v-model:images="images" />
 
-        <div class="title-post">
-          <h3 class="title">Title</h3>
-          <input type="text" v-model="data.title" class="form-input" placeholder="Enter car title"/>
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.titleLabel') }}</label>
+            <input
+                type="text"
+                v-model="title"
+                class="form-input"
+                :placeholder="$t('propertyDetails.enterTitle')"
+                :aria-label="$t('propertyDetails.titleLabel')"
+            />
+          </div>
         </div>
 
-        <div class="dropDowns">
-          <div class="car-form-section">
-            <!-- Basic Information -->
-            <div class="spec-row">
-              <div class="spec-item">
-                <label>Sale State</label>
-                <select v-model="data.saleState" class="form-select">
-                  <option value="">Select sale state</option>
-                  <option value="sale">For Sale</option>
-                  <option value="transfer">For Transfer</option>
-                </select>
-              </div>
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('building.type') }}</label>
+            <select v-model="saleState" class="form-select" :aria-label="$t('building.type')">
+              <option value="">{{ $t('propertyDetails.selectSaleState') }}</option>
+              <option v-for="option in buildingOptions" :value="option.value" :key="option.value">
+                {{ $t(`building.options.${option.name}`) }}
+              </option>
+            </select>
+          </div>
+        </div>
 
-              <div class="spec-item">
-                <label>Condition</label>
-                <select v-model="data.condition" class="form-select">
-                  <option value="">Select condition</option>
-                  <option value="new">New</option>
-                  <option value="used">Used</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Price -->
-            <div class="spec-row">
-              <div class="spec-item">
-                <label>Price ($)</label>
-                <input type="number" v-model="data.price" class="form-input" placeholder="Enter price">
-              </div>
-            </div>
-
-            <!-- Car Type and Model -->
-            <div class="spec-row">
-              <div class="spec-item">
-                <label>Car Brand</label>
-                <select v-model="data.metaCategory" @change="updateCarModels" class="form-select">
-                  <option value="">Select car brand</option>
-                  <option v-for="(type, index) in carTypes" :value="type" :key="index">
-                    {{ type }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="spec-item">
-                <label>Model</label>
-                <select v-model="data.carType" class="form-select">
-                  <option value="">Select model</option>
-                  <option v-for="(model, index) in filteredCarModels" :value="model" :key="index">
-                    {{ model }}
-                  </option>
-                </select>
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.rooms.title') }}</label>
+            <div class="btns-container">
+              <div
+                  v-for="index in rooms.numberOfRooms"
+                  :key="index"
+                  class="btns"
+                  :tabindex="0"
+                  :class="{ selected: selectedRooms === index }"
+                  @click="selectRoom(index)"
+                  @keydown.enter="selectRoom(index)"
+                  role="button"
+                  :aria-label="$t('propertyDetails.rooms.title') + ': ' + index"
+              >
+                {{ index }}
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Technical Details -->
-            <div class="spec-row">
-              <div class="spec-item">
-                <label>Transmission</label>
-                <select v-model="data.gearType" class="form-select">
-                  <option value="">Select Gear Type</option>
-                  <option value="automatic">Automatic</option>
-                  <option value="manual">Manual</option>
-                </select>
-              </div>
-
-              <div class="spec-item">
-                <label>Fuel Type</label>
-                <select v-model="data.fuelType" class="form-select">
-                  <option value="">Select fuel type</option>
-                  <option value="gasoline">Gasoline</option>
-                  <option value="diesel">Diesel</option>
-                  <option value="hybrid">Hybrid</option>
-                  <option value="electric">Electric</option>
-                </select>
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.bathrooms.title') }}</label>
+            <div class="btns-container">
+              <div
+                  v-for="index in bathrooms.numberOfBathrooms"
+                  :key="index"
+                  class="btns"
+                  :tabindex="0"
+                  :class="{ selected: selectedBathrooms === index }"
+                  @click="selectBathroom(index)"
+                  @keydown.enter="selectBathroom(index)"
+                  role="button"
+                  :aria-label="$t('propertyDetails.bathrooms.title') + ': ' + index"
+              >
+                {{ index }}
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- 4WD and Year -->
-            <div class="spec-row">
-              <div class="spec-item">
-                <label>4 Wheel Drive</label>
-                <select v-model="data.is4WD" class="form-select">
-                  <option value="">Select option</option>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-              </div>
-
-              <div class="spec-item">
-                <label>Year</label>
-                <select v-model="data.modelCar" class="form-select">
-                  <option value="">Select year</option>
-                  <option v-for="year in years" :value="year" :key="year">{{ year }}</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Mileage and Rating Progress -->
-            <div class="spec-row">
-              <div class="spec-item">
-                <label>Mileage (km)</label>
-                <div class="progress-container">
-                  <input
-                      type="range"
-                      v-model="data.mileage"
-                      min="0"
-                      max="300000"
-                      step="1000"
-                      class="progress-slider"
-                  >
-                  <div class="progress-info">
-                    <span>{{ data.mileage }} km</span>
-                    <span>{{ mileagePercentage }}%</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="spec-item">
-                <label>Car Rating (1-10)</label>
-                <div class="progress-container">
-                  <input
-                      type="range"
-                      v-model="data.carRate"
-                      min="1"
-                      max="10"
-                      step="0.1"
-                      class="progress-slider"
-                  >
-                  <div class="progress-info">
-                    <span>{{ data.carRate }}/10</span>
-                    <span>{{ ratingText }}</span>
-                  </div>
-                </div>
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.condition.title') }}</label>
+            <div class="btns-container">
+              <div
+                  v-for="index in Conditionofbrushes.state"
+                  :key="index"
+                  class="btns"
+                  :tabindex="0"
+                  :class="{ selected: selectedCondition === index }"
+                  @click="selectCondition(index)"
+                  @keydown.enter="selectCondition(index)"
+                  role="button"
+                  :aria-label="$t('propertyDetails.condition.title') + ': ' + $t(`propertyDetails.condition.options.${index}`)"
+              >
+                {{ $t(`propertyDetails.condition.options.${index}`) }}
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Additional Information -->
-            <div class="additional-notes">
-              <label>Content</label>
-              <textarea v-model="data.content" placeholder="Enter car description" class="form-textarea"></textarea>
-            </div>
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.buildingMeters') }}</label>
+            <input
+                type="number"
+                v-model="buildingMeters"
+                class="form-input"
+                :placeholder="$t('propertyDetails.enterBuildingMeters')"
+                min="0"
+                :aria-label="$t('propertyDetails.buildingMeters')"
+            />
+          </div>
+        </div>
 
-            <div class="button-container">
-              <button class="finish-btn" @click="handleFinish">Submit Offer</button>
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.landMeters') }}</label>
+            <input
+                type="number"
+                v-model="landMeters"
+                class="form-input"
+                :placeholder="$t('propertyDetails.enterLandMeters')"
+                min="0"
+                :aria-label="$t('propertyDetails.landMeters')"
+            />
+          </div>
+        </div>
+
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.price') }}</label>
+            <input
+                type="number"
+                v-model="price"
+                class="form-input"
+                :placeholder="$t('propertyDetails.enterPrice')"
+                min="0"
+                :aria-label="$t('propertyDetails.price')"
+            />
+          </div>
+        </div>
+
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.floors.title') }}</label>
+            <div class="btns-container">
+              <div
+                  v-for="index in numberOffloors.state"
+                  :key="index"
+                  class="btns"
+                  :tabindex="0"
+                  :class="{ selected: selectedNumberOfFloor === index }"
+                  @click="selectNumberOfFloor(index)"
+                  @keydown.enter="selectNumberOfFloor(index)"
+                  role="button"
+                  :aria-label="$t('propertyDetails.floors.title') + ': ' + $t(`propertyDetails.floors.options.${index}`)"
+              >
+                {{ $t(`propertyDetails.floors.options.${index}`) }}
+              </div>
             </div>
+          </div>
+        </div>
+
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.buildingAge') }}</label>
+            <div class="btns-container">
+              <div
+                  v-for="age in buildingAgeOptions"
+                  :key="age"
+                  class="btns"
+                  :tabindex="0"
+                  :class="{ selected: selectedBuildingAge === age }"
+                  @click="selectBuildingAge(age)"
+                  @keydown.enter="selectBuildingAge(age)"
+                  role="button"
+                  :aria-label="$t('propertyDetails.buildingAge') + ': ' + $t(`propertyDetails.ageOptions.${age}`)"
+              >
+                {{ $t(`propertyDetails.ageOptions.${age}`) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="spec-row">
+          <div class="spec-item">
+            <label>{{ $t('propertyDetails.description') }}</label>
+            <textarea
+                v-model="description"
+                class="form-input"
+                :placeholder="$t('propertyDetails.enterDescription')"
+                rows="4"
+                :aria-label="$t('propertyDetails.description')"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="spec-row">
+          <div class="spec-item">
+            <button class="submit-btn" @click="handleSubmit" :disabled="isSubmitting">
+              {{ isSubmitting ? $t('propertyDetails.loading') : $t('propertyDetails.submit') }}
+            </button>
           </div>
         </div>
       </div>
     </div>
+<!--    <fixed-bottom :isDark="localIsDark" />-->
   </div>
 </template>
 
 <script>
 import { saveProductForm, getProductForm } from '@/productFormStorage';
-import { ConstVariables } from '../../../../const';
+import ImageUpload from '@/components/addpost/ImageUpload.vue';
+// import FixedBottom from '@/components/FixedBottom.vue';
 import axios from 'axios';
 import { toast } from 'vue3-toastify';
-import ImageUpload from '@/components/addpost/ImageUpload.vue';
 
 export default {
-  name: 'CarsComponent',
+  name: 'AddSpecificData',
   components: {
     ImageUpload,
+    // FixedBottom,
+  },
+  props: {
+    isDark: {
+      type: Boolean,
+      default: false,
+    },
+    isRTL: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
-    // Generate years from current year back to 1980
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let year = currentYear; year >= 1980; year--) {
-      years.push(year);
-    }
-
     return {
-      localIsDark: false, // Local state for testing dark mode toggle
-      data: {
-        baseUrl: 'https://backend.jordan-souq.com',
-        title: '',
-        saleState: '',
-        condition: '',
-        price: '',
-        metaCategory: '',
-        carType: '',
-        modelCar: '',
-        gearType: '',
-        fuelType: '',
-        is4WD: '',
-        year: '',
-        mileage: 0,
-        carRate: 5,
-        content: '',
-        userId: '',
-        description: '',
-        images: [],
+      localIsDark: this.isDark,
+      isSubmitting: false,
+      title: '',
+      saleState: '',
+      rooms: {
+        numberOfRooms: [1, 2, 3, 4, 5, 6, 7, 8, 'More'],
       },
-      carTypes: ConstVariables.carsTypeList || [],
-      filteredCarModels: [],
-      years,
-      category: 'cars',
+      bathrooms: {
+        numberOfBathrooms: [1, 2, 3, 4, 5, 6, 7, 8, 'More'],
+      },
+      Conditionofbrushes: {
+        state: ['Fully furnished', 'Partially furnished', 'Unfurnished'],
+      },
+      numberOffloors: {
+        state: [
+          'Initial settlement',
+          'Second settlement',
+          'Third settlement',
+          'Ground floor',
+          '1',
+          '2',
+          '3',
+          '4',
+          '5',
+          '6',
+          '7',
+          '8',
+          '9',
+          '+10',
+          'Top floor with roof',
+          'third-basement',
+        ],
+      },
+      buildingAgeOptions: ['under building', '0-1 year', '1-5 year'],
+      buildingOptions: [
+        { name: 'عقار للبيع', value: 'sale' },
+        { name: 'عقار للإيجار', value: 'rent' },
+      ],
+      selectedRooms: null,
+      selectedBathrooms: null,
+      selectedCondition: null,
+      buildingMeters: '',
+      landMeters: '',
+      price: '',
+      selectedNumberOfFloor: null,
+      selectedBuildingAge: null,
+      description: '',
+      images: [],
+      baseUrl: 'https://backend.jordan-souq.com',
     };
   },
-  computed: {
-    mileagePercentage() {
-      return Math.round((this.data.mileage / 300000) * 100);
-    },
-    ratingText() {
-      const rating = parseFloat(this.data.carRate);
-      if (rating < 3) return 'Poor';
-      if (rating < 5) return 'Fair';
-      if (rating < 7) return 'Good';
-      if (rating < 9) return 'Very Good';
-      return 'Excellent';
+  watch: {
+    isDark(newVal) {
+      this.localIsDark = newVal;
     },
   },
+  created() {
+    this.rooms.title = this.$t('propertyDetails.rooms.title');
+    this.bathrooms.title = this.$t('propertyDetails.bathrooms.title');
+    this.Conditionofbrushes.title = this.$t('propertyDetails.condition.title');
+    this.numberOffloors.title = this.$t('propertyDetails.floors.title');
+  },
   methods: {
-    toggleDarkMode() {
-      this.localIsDark = !this.localIsDark; // Toggle local state
+    selectRoom(index) {
+      this.selectedRooms = this.selectedRooms === index ? null : index;
     },
-    toastError() {
-      toast.error('Please login to access this feature', {
-        position: toast.POSITION.TOP_RIGHT,
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: this.localIsDark ? 'dark' : 'light',
-      });
+    selectBathroom(index) {
+      this.selectedBathrooms = this.selectedBathrooms === index ? null : index;
+    },
+    selectCondition(index) {
+      this.selectedCondition = this.selectedCondition === index ? null : index;
+    },
+    selectNumberOfFloor(index) {
+      this.selectedNumberOfFloor = this.selectedNumberOfFloor === index ? null : index;
+    },
+    selectBuildingAge(age) {
+      this.selectedBuildingAge = this.selectedBuildingAge === age ? null : age;
     },
     toastSuccess() {
-      toast.success('Your Offer Created Successfully', {
+      toast.success(this.$t('propertyDetails.success'), {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
         hideProgressBar: false,
@@ -251,45 +318,90 @@ export default {
         theme: this.localIsDark ? 'dark' : 'light',
       });
     },
-    updateCarModels() {
-      this.data.carType = '';
-      if (!this.data.metaCategory) {
-        this.filteredCarModels = [];
+    async handleSubmit() {
+      // Validation
+      if (!this.title.trim()) {
+        toast.error(this.$t('propertyDetails.validation.title'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      if (!this.saleState) {
+        toast.error(this.$t('propertyDetails.validation.saleState'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      if (!this.selectedRooms) {
+        toast.error(this.$t('propertyDetails.validation.rooms'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      if (!this.selectedBathrooms) {
+        toast.error(this.$t('propertyDetails.validation.bathrooms'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      if (!this.selectedCondition) {
+        toast.error(this.$t('propertyDetails.validation.condition'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      if (!this.buildingMeters && !this.landMeters) {
+        toast.error(this.$t('propertyDetails.validation.meters'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      if (!this.price) {
+        toast.error(this.$t('propertyDetails.validation.price'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      if (!this.selectedNumberOfFloor) {
+        toast.error(this.$t('propertyDetails.validation.floors'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      // if (!this.selectedBuildingAge) {
+      //   toast.error(this.$t('propertyDetails.validation.buildingAge'), { theme: this.localIsDark ? 'dark' : 'light' });
+      //   return;
+      // }
+      if (!this.description.trim()) {
+        toast.error(this.$t('propertyDetails.validation.description'), { theme: this.localIsDark ? 'dark' : 'light' });
+        return;
+      }
+      if (this.images.length === 0) {
+        toast.error(this.$t('propertyDetails.validation.images'), { theme: this.localIsDark ? 'dark' : 'light' });
         return;
       }
 
-      const normalizedType = this.data.metaCategory.toLowerCase().replace(/\s+/g, '');
-      let modelKey = `${normalizedType}CarModels`;
-      let models = ConstVariables[modelKey];
-
-      if (!models || !Array.isArray(models)) {
-        modelKey = `${normalizedType}Models`;
-        models = ConstVariables[modelKey];
-      }
-
-      this.filteredCarModels = Array.isArray(models) ? models : [];
-    },
-    async handleFinish() {
+      this.isSubmitting = true;
       try {
         // Prepare form data
         const formData = new FormData();
 
-        // Use data.content directly for description
-        const description = this.data.content || '';
-        console.log('description:', description);
+        // Use description directly
+        const description = this.description || '';
 
-        // Append all images under 'image' field to match backend
-        const imageFiles = this.data.images;
-        if (imageFiles.length > 0) {
-          for (let i = 0; i < imageFiles.length; i++) {
-            formData.append(`image${i + 1}`, imageFiles[i]);
+        // Append images as image1, image2, etc.
+        if (this.images.length > 0) {
+          for (let i = 0; i < this.images.length; i++) {
+            formData.append(`image${i + 1}`, this.images[i]);
           }
         }
 
-        // Append other data fields, excluding image, description, and content
-        const fieldsToExclude = ['image', 'description', 'content', 'images'];
-        Object.entries(this.data).forEach(([key, value]) => {
-          if (!fieldsToExclude.includes(key) && !(value instanceof File)) {
+        // Append other data fields
+        const fieldsToExclude = ['images', 'description', 'content'];
+        const formFields = {
+          title: this.title,
+          saleState: this.saleState,
+          numberOfrooms: this.selectedRooms,
+          numberOfbathrooms: this.selectedBathrooms,
+          mafrosha: this.selectedCondition.toLowerCase().includes('furnished') ? 'furnished' : 'unfurnished',
+          buildingSpace: parseInt(this.buildingMeters) || 0,
+          buildingArea: parseInt(this.buildingMeters) || 0,
+          landArea: parseInt(this.landMeters) || 0,
+          price: parseInt(this.price) || 0,
+          floorOption: this.selectedNumberOfFloor,
+          buildingAge: this.selectedBuildingAge,
+          description: description,
+          content: description,
+          category: 'عقار',
+          metaCategory: `apartment for ${this.saleState}`,
+        };
+
+        Object.entries(formFields).forEach(([key, value]) => {
+          if (!fieldsToExclude.includes(key)) {
             formData.append(key, value ?? '');
           }
         });
@@ -299,19 +411,9 @@ export default {
         const dataForm = rawData ? JSON.parse(rawData) : {};
         const userId = localStorage.getItem('userId');
 
-        // Convert and append numeric & special fields
-        formData.set('price', parseFloat(this.data.price) || 0);
-        formData.set('mileage', parseInt(this.data.mileage) || 0);
-        formData.set('carRate', parseFloat(this.data.carRate) || 0);
-        formData.set('is4WD', this.data.is4WD === 'true' ? 'true' : 'false');
+        // Append additional fields
         formData.set('userId', userId || '');
-        formData.set('carModel', this.data.modelCar || '');
-        formData.set('description', description);
-        formData.set('content', description);
-
-        // Append extra fields from saved form
         formData.set('Arlocation', dataForm.data?.Arlocation || '');
-        formData.set('category', dataForm.data?.category || '');
         formData.set('location', dataForm.data?.location || '');
         formData.set('metaLocation', dataForm.data?.metaLocation || '');
 
@@ -321,7 +423,9 @@ export default {
         }
 
         // API call
-        const response = await axios.post(`${this.data.baseUrl}/product/create`, formData);
+        const response = await axios.post(`${this.baseUrl}/product/create`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
 
         if (response.status === 200 || response.status === 201) {
           this.toastSuccess();
@@ -330,17 +434,15 @@ export default {
           const currentForm = getProductForm() || {};
           saveProductForm({
             ...currentForm,
-            ...this.data,
-            description: this.data.content,
-            content: this.data.content,
-            price: parseFloat(this.data.price) || 0,
-            mileage: parseInt(this.data.mileage) || 0,
-            carRate: parseFloat(this.data.carRate) || 0,
-            is4WD: this.data.is4WD === 'true',
-            images: [], // Clear images in localStorage
+            data: {
+              ...formFields,
+              images: [], // Clear images in localStorage
+            },
           });
 
-          console.log('Offer submitted:', this.data);
+          console.log('Offer submitted:', formFields);
+          this.resetForm();
+          this.$router.push('/');
         } else if (response.status === 400) {
           toast.error(response.data.message, {
             position: toast.POSITION.TOP_RIGHT,
@@ -356,7 +458,7 @@ export default {
         }
       } catch (error) {
         console.error('Submission failed:', error);
-        toast.error('Failed to submit offer', {
+        toast.error(this.$t('propertyDetails.error'), {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000,
           hideProgressBar: false,
@@ -365,41 +467,54 @@ export default {
           draggable: true,
           theme: this.localIsDark ? 'dark' : 'light',
         });
+      } finally {
+        this.isSubmitting = false;
       }
     },
-  },
-  mounted() {
-    // Initialize category from localStorage if needed
-    const storedCategory = localStorage.getItem('selectedCategory');
-    if (storedCategory) {
-      this.category = storedCategory.toLowerCase();
-    }
+    resetForm() {
+      this.title = '';
+      this.saleState = '';
+      this.selectedRooms = null;
+      this.selectedBathrooms = null;
+      this.selectedCondition = null;
+      this.buildingMeters = '';
+      this.landMeters = '';
+      this.price = '';
+      this.selectedNumberOfFloor = null;
+      this.selectedBuildingAge = null;
+      this.description = '';
+      this.images = [];
+    },
   },
 };
 </script>
 
 <style scoped>
 .full-height-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
-  background-color: #f5f7fa;
   font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
   transition: all 0.3s ease;
+  margin-top: 60px;
 }
 
 .full-height-container-dark {
-  min-height: 100vh;
+  min-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
-  background-color: #1a1a1a !important;
+  background-color: #0b141a !important;
   font-family: Arial, sans-serif;
   transition: all 0.3s ease;
+  margin-top: 60px;
 }
 
 .container {
   flex: 1;
   padding: 20px;
+  width: 80vw;
+  margin: 0 auto;
 }
 
 .shared-parent {
@@ -407,68 +522,58 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background-color: #fff;
+  width: 80vw;
+  padding: 20px;
   transition: background-color 0.3s ease;
 }
 
+.dark-mode .shared-parent {
+  background-color: #111b21 !important;
+}
+
 .main-title {
-  color: #4CAF50;
+  color: #25d366;
   margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
+.dark-mode .main-title {
+  color: #00a884 !important;
+}
+
+.submit-btn {
+  padding: 12px 24px;
+  background-color: #25d366;
+  color: white;
+  border: none;
   border-radius: 4px;
-  background-color: white;
-  color: #333;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-
-.form-select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 14px;
-  padding-right: 30px;
-}
-
-.form-textarea {
-  height: 200px;
-  resize: vertical;
-}
-
-.section-title,
-.title,
-label {
-  color: #333;
+  cursor: pointer;
+  transition: background-color 0.3s;
   font-weight: bold;
-  margin-bottom: 8px;
-  display: block;
+  width: 100%;
 }
 
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
+.submit-btn:hover {
+  background-color: #1eb058;
 }
 
-.feature-item {
-  display: flex;
-  align-items: center;
+.submit-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
 }
 
-.feature-item input {
-  margin-right: 8px;
+.dark-mode .submit-btn {
+  background-color: #00a884 !important;
+}
+
+.dark-mode .submit-btn:hover {
+  background-color: #008c6e !important;
+}
+
+.form {
+  flex: 1;
 }
 
 .spec-row {
@@ -483,121 +588,107 @@ label {
   min-width: 200px;
 }
 
-/* Progress Bar Styles */
-.progress-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.progress-slider {
-  width: 100%;
-  height: 8px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: #e0e0e0;
-  border-radius: 4px;
-  outline: none;
-}
-
-.progress-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #4CAF50;
-  cursor: pointer;
-}
-
-.progress-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #4CAF50;
-  cursor: pointer;
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: #666;
-}
-
-.finish-btn {
-  padding: 12px 24px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.spec-item label {
+  color: #111827;
   font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
 }
 
-.finish-btn:hover {
-  background-color: #45a049;
-}
-
-/* Dark mode styles */
-.dark-mode .shared-parent {
-  background-color: #2d2d2d !important;
-}
-
-.dark-mode .main-title {
-  color: #66bb6a !important;
-}
-
-.dark-mode .section-title,
-.dark-mode .title,
-.dark-mode label,
-.dark-mode .progress-info {
+.dark-mode .spec-item label {
   color: #e0e0e0 !important;
 }
 
+.btns-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btns {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+}
+
+.dark-mode .btns {
+  background-color: #2a3942 !important;
+  color: #e0e0e0 !important;
+}
+
+.btns:hover {
+  background-color: #d0d0d0;
+}
+
+.dark-mode .btns:hover {
+  background-color: #3a4a56 !important;
+}
+
+.btns.selected {
+  background-color: #25d366 !important;
+  color: white !important;
+}
+
+.dark-mode .btns.selected {
+  background-color: #00a884 !important;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: white;
+  color: #111827;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
 .dark-mode .form-input,
-.dark-mode .form-select,
-.dark-mode .form-textarea {
-  background-color: #3a3a3a !important;
-  border-color: #555 !important;
-  color: #ffffff !important;
+.dark-mode .form-select {
+  background-color: #1f2a44 !important;
+  border-color: #2a3942 !important;
+  color: #e0e0e0 !important;
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111827' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  padding-right: 30px;
+  appearance: none;
 }
 
 .dark-mode .form-select {
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
-.dark-mode .progress-slider {
-  background: #555 !important;
+.rtl-direction .spec-row {
+  flex-direction: row-reverse;
 }
 
-.dark-mode .progress-slider::-webkit-slider-thumb {
-  background: #66bb6a !important;
+[dir="rtl"] .btns-container {
+  flex-direction: row-reverse;
 }
 
-.dark-mode .progress-slider::-moz-range-thumb {
-  background: #66bb6a !important;
-}
-
-.dark-mode .finish-btn {
-  background-color: #66bb6a !important;
-}
-
-.dark-mode .finish-btn:hover {
-  background-color: #558b2f !important;
-}
-
-/* RTL support for Arabic */
 [dir="rtl"] .form-select {
   background-position: left 10px center;
   padding-right: 10px;
   padding-left: 30px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
-  .container {
+  .container,
+  .shared-parent {
+    width: 90vw;
     padding: 15px;
   }
 
@@ -609,32 +700,27 @@ label {
   .spec-item {
     min-width: 100%;
   }
-
-  .features-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-
-  .form-input,
-  .form-select,
-  .form-textarea {
-    padding: 8px;
-  }
 }
 
 @media (max-width: 480px) {
-  .container {
+  .container,
+  .shared-parent {
+    width: 95vw;
     padding: 10px;
   }
 
-  .form-input,
-  .form-select,
-  .form-textarea {
+  .btns {
+    padding: 8px 15px;
     font-size: 13px;
-    padding: 8px;
   }
 
-  .finish-btn {
-    width: 100%;
+  .form-input,
+  .form-select {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .submit-btn {
     padding: 10px;
   }
 }

@@ -1,14 +1,15 @@
+```vue
 <template>
   <div class="parent2">
     <!-- Horizontal List of Job Types -->
     <ul class="horizontal-list">
       <li
-          v-for="job in jobTypes"
-          :key="job"
-          :class="['list-item', { 'selected': selectedJobType === job }]"
+          v-for="job in translatedJobTypes"
+          :key="job.key"
+          :class="['list-item', { 'selected': selectedJobType === job.key }]"
           @click="handleJobTypeClick(job)"
       >
-        {{ job }}
+        {{ job.label }}
       </li>
     </ul>
   </div>
@@ -21,26 +22,33 @@ export default {
   name: "JobsList",
   data() {
     return {
-      jobTypes: ConstVariables.jobsList, // List of job types from const.js
-      selectedJobType: null, // Track the selected job type
+      selectedJobType: null, // Track the selected job type (English key)
     };
+  },
+  computed: {
+    // Map English job type keys to translated labels based on current locale
+    translatedJobTypes() {
+      const jobCategories = this.$i18n.messages[this.$i18n.locale]?.jobs?.categories || {};
+      return Object.entries(jobCategories).map(([key, label]) => ({
+        key: key.toLowerCase(), // Use English key as the value
+        label: this.$t(`jobs.categories.${key}`) || label // Translated label or fallback
+      }));
+    },
   },
   methods: {
     // Handle job type click
     handleJobTypeClick(job) {
-      if (this.selectedJobType === job) {
+      if (this.selectedJobType === job.key) {
         this.selectedJobType = null; // Deselect if already selected (toggle off)
+        this.$emit("job-selected", null); // Emit null when deselected
       } else {
-        this.selectedJobType = job; // Set the selected job type
-        const lowercaseJob = job.toLowerCase(); // Convert to lowercase
-        this.$emit("job-selected", lowercaseJob); // Emit the selected job type
+        this.selectedJobType = job.key; // Set the selected job type (English key)
+        this.$emit("job-selected", job.key); // Emit the English lowercase key
       }
     },
   },
 };
 </script>
-
-
 
 <style scoped>
 .parent2 {
@@ -113,5 +121,5 @@ export default {
   background-color: green;
   color: white;
 }
-
 </style>
+```
